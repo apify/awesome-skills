@@ -26,10 +26,10 @@ Community collection of Apify agent skills for web scraping, data extraction, an
 
 ```bash
 # Add the marketplace
-/plugin marketplace add apify/awesome-apify-skills
+/plugin marketplace add apify/awesome-skills
 
 # Install a skill
-/plugin install apify-lead-generation@awesome-apify-skills
+/plugin install apify-lead-generation@awesome-skills
 ```
 
 ### Cursor / Windsurf
