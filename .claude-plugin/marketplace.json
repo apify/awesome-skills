@@ -1,0 +1,207 @@
+{
+  "name": "awesome-apify-skills",
+  "owner": {
+    "name": "Apify Community",
+    "email": "support@apify.com"
+  },
+  "metadata": {
+    "description": "Community collection of Apify agent skills for web scraping, data extraction, and automation",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "apify-lead-generation",
+      "source": "./skills/apify-lead-generation",
+      "skills": "./",
+      "description": "Generate B2B/B2C leads by scraping Google Maps, websites, Instagram, TikTok, Facebook, LinkedIn, YouTube, and Google Search using Apify Actors",
+      "keywords": [
+        "leads",
+        "sales",
+        "prospecting",
+        "b2b",
+        "b2c",
+        "scraping",
+        "apify",
+        "google-maps",
+        "instagram",
+        "tiktok",
+        "facebook",
+        "linkedin",
+        "youtube"
+      ],
+      "category": "data-extraction",
+      "version": "1.1.12"
+    },
+    {
+      "name": "apify-brand-reputation-monitoring",
+      "source": "./skills/apify-brand-reputation-monitoring",
+      "skills": "./",
+      "description": "Track reviews, ratings, sentiment, and brand mentions across Google Maps, Booking.com, TripAdvisor, Facebook, Instagram, YouTube, and TikTok",
+      "keywords": [
+        "reputation",
+        "reviews",
+        "sentiment",
+        "monitoring",
+        "brand",
+        "ratings",
+        "google-maps",
+        "booking",
+        "tripadvisor",
+        "facebook",
+        "instagram",
+        "youtube",
+        "tiktok"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.2"
+    },
+    {
+      "name": "apify-competitor-intelligence",
+      "source": "./skills/apify-competitor-intelligence",
+      "skills": "./",
+      "description": "Analyze competitor strategies, content, pricing, ads, and market positioning across Google Maps, Booking.com, Facebook, Instagram, YouTube, and TikTok",
+      "keywords": [
+        "competitor",
+        "intelligence",
+        "analysis",
+        "benchmarking",
+        "strategy",
+        "ads",
+        "google-maps",
+        "booking",
+        "facebook",
+        "instagram",
+        "youtube",
+        "tiktok"
+      ],
+      "category": "data-extraction",
+      "version": "1.1.2"
+    },
+    {
+      "name": "apify-market-research",
+      "source": "./skills/apify-market-research",
+      "skills": "./",
+      "description": "Analyze market conditions, geographic opportunities, pricing, consumer behavior, and product validation across Google Maps, Facebook, Instagram, Booking.com, and TripAdvisor",
+      "keywords": [
+        "market",
+        "research",
+        "analysis",
+        "pricing",
+        "geographic",
+        "validation",
+        "trends",
+        "google-maps",
+        "facebook",
+        "instagram",
+        "booking",
+        "tripadvisor"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.2"
+    },
+    {
+      "name": "apify-influencer-discovery",
+      "source": "./skills/apify-influencer-discovery",
+      "skills": "./",
+      "description": "Find and evaluate influencers for brand partnerships, verify authenticity, and track collaboration performance across Instagram, Facebook, YouTube, and TikTok",
+      "keywords": [
+        "influencer",
+        "discovery",
+        "partnership",
+        "creator",
+        "collaboration",
+        "authenticity",
+        "instagram",
+        "facebook",
+        "youtube",
+        "tiktok"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.1"
+    },
+    {
+      "name": "apify-trend-analysis",
+      "source": "./skills/apify-trend-analysis",
+      "skills": "./",
+      "description": "Discover and track emerging trends across Google Trends, Instagram, Facebook, YouTube, and TikTok to inform content strategy",
+      "keywords": [
+        "trends",
+        "analysis",
+        "hashtags",
+        "viral",
+        "discovery",
+        "content",
+        "google-trends",
+        "instagram",
+        "facebook",
+        "youtube",
+        "tiktok"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.1"
+    },
+    {
+      "name": "apify-content-analytics",
+      "source": "./skills/apify-content-analytics",
+      "skills": "./",
+      "description": "Track engagement metrics, measure campaign ROI, and analyze content performance across Instagram, Facebook, YouTube, and TikTok",
+      "keywords": [
+        "analytics",
+        "engagement",
+        "performance",
+        "metrics",
+        "ROI",
+        "content",
+        "instagram",
+        "facebook",
+        "youtube",
+        "tiktok"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.1"
+    },
+    {
+      "name": "apify-audience-analysis",
+      "source": "./skills/apify-audience-analysis",
+      "skills": "./",
+      "description": "Understand audience demographics, preferences, behavior patterns, and engagement quality across Facebook, Instagram, YouTube, and TikTok",
+      "keywords": [
+        "audience",
+        "demographics",
+        "behavior",
+        "engagement",
+        "analysis",
+        "followers",
+        "facebook",
+        "instagram",
+        "youtube",
+        "tiktok"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.1"
+    },
+    {
+      "name": "apify-ecommerce",
+      "source": "./skills/apify-ecommerce",
+      "skills": "./",
+      "description": "Scrape e-commerce data for pricing intelligence, customer sentiment, product research, quality analysis, and supply chain monitoring across Amazon, Walmart, eBay, IKEA, and 50+ marketplaces",
+      "keywords": [
+        "ecommerce",
+        "pricing",
+        "reviews",
+        "sentiment",
+        "products",
+        "sellers",
+        "amazon",
+        "walmart",
+        "ebay",
+        "MAP",
+        "competitor",
+        "research",
+        "supply-chain"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
+    }
+  ]
+}
