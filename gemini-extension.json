@@ -1,0 +1,6 @@
+{
+  "name": "awesome-apify-skills",
+  "description": "Provides access to Apify community skills for web scraping, data extraction, and automation.",
+  "version": "1.0.0",
+  "contextFileName": "agents/AGENTS.md"
+}
