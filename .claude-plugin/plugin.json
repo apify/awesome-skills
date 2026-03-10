@@ -1,13 +1,13 @@
 {
-  "name": "awesome-apify-skills",
+  "name": "awesome-skills",
   "version": "1.0.0",
   "description": "Community collection of Apify agent skills for web scraping, data extraction, and automation",
   "author": {
     "name": "Apify",
     "email": "support@apify.com"
   },
-  "homepage": "https://github.com/apify/awesome-apify-skills",
-  "repository": "https://github.com/apify/awesome-apify-skills",
+  "homepage": "https://github.com/apify/awesome-skills",
+  "repository": "https://github.com/apify/awesome-skills",
   "license": "Apache-2.0",
   "keywords": [
     "apify",
