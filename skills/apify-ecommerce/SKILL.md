@@ -1,263 +1,187 @@
 ---
 name: apify-ecommerce
-description: Scrape e-commerce data for pricing intelligence, customer reviews, and seller discovery across Amazon, Walmart, eBay, IKEA, and 50+ marketplaces. Use when user asks to monitor prices, track competitors, analyze reviews, research products, or find sellers.
+description: Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence.
 ---
 
-# E-commerce Data Extraction
+# E-Commerce Cluster
 
-Extract product data, prices, reviews, and seller information from any e-commerce platform using Apify's E-commerce Scraping Tool.
+Answer natural language e-commerce questions by routing to the right Apify Actor and delivering a synthesized answer.
 
 ## Prerequisites
+(No need to check it upfront)
 
-- `.env` file with `APIFY_TOKEN` (at `~/.claude/.env`)
+- `.env` file with `APIFY_TOKEN`
 - Node.js 20.6+ (for native `--env-file` support)
+- `mcpc` CLI tool: `npm install -g @apify/mcpc`
 
-## Workflow Selection
+## Workflow
 
-| User Need | Workflow | Best For |
-|-----------|----------|----------|
-| Track prices, compare products | Workflow 1: Products & Pricing | Price monitoring, MAP compliance, competitor analysis. Add AI summary for insights. |
-| Analyze reviews (sentiment or quality) | Workflow 2: Reviews | Brand perception, customer sentiment, quality issues, defect patterns |
-| Find sellers across stores | Workflow 3: Sellers | Unauthorized resellers, vendor discovery via Google Shopping |
-
-## Progress Tracking
+Copy this checklist and track progress:
 
 ```
 Task Progress:
-- [ ] Step 1: Select workflow and determine data source
-- [ ] Step 2: Configure Actor input
-- [ ] Step 3: Ask user preferences (format, filename)
-- [ ] Step 4: Run the extraction script
-- [ ] Step 5: Summarize results
+- [ ] Step 1: Detect intent and select Actor
+- [ ] Step 2: Fetch Actor schema via mcpc
+- [ ] Step 3: Ask user preferences (format, result count)
+- [ ] Step 4: Run the Actor
+- [ ] Step 5: Analyze results and deliver synthesized answer
 ```
 
----
+### Step 1: Detect Intent and Select Actor
 
-## Workflow 1: Products & Pricing
+Classify the user's message into an intent, then pick the right Actor.
 
-**Use case:** Extract product data, prices, and stock status. Track competitor prices, detect MAP violations, benchmark products, or research markets.
+**Intent signals:**
 
-**Best for:** Pricing analysts, product managers, market researchers.
+| Signals in user message | Intent |
+|------------------------|--------|
+| price, cost, cheapest, compare prices, pricing | `pricing` |
+| review, rating, sentiment, stars, feedback | `reviews` |
+| bestseller, top selling, most popular, trending | `bestsellers` |
+| seller, vendor, reseller, who sells | `sellers` |
+| all products from, scrape store, full catalog | `store-scrape` |
+| what platform, built on, tech stack, Shopify or WooCommerce | `tech-stack` |
+| SEO, listing quality, product page audit | `seo-audit` |
+| competitor funnel, competitor pricing, conversion elements | `competitor` |
+| search intent, keyword intent, SERP intent | `search-intent` |
+| match products, same product on different platforms | `product-matching` |
+| restaurant, food delivery, DoorDash, UberEats, TheFork | `food-delivery` |
+| enrich store, store metadata, store list | `store-enrichment` |
+| event, concert, ticket, Eventbrite | `events` |
+| property, real estate, house listing, Realtor | `real-estate` |
+| Facebook ads, Meta ads, ad library, competitor ads | `ads-intelligence` |
+| classified, Craigslist, used item for sale | `classifieds` |
+| car, used car, vehicle, automotive, Webmotors | `automotive` |
+| pins, inspiration, Pinterest boards, visual search, Pinterest trends | `content-discovery` |
+| TikTok Shop, TikTok store, TikTok creator | `tiktok-shop` |
+| website for sale, domain for sale, Flippa | `website-marketplace` |
 
-### Input Options
+If multiple intents are detected, ask: *"Do you want [intent A] or [intent B]?"*
 
-| Input Type | Field | Description |
-|------------|-------|-------------|
-| Product URLs | `detailsUrls` | Direct URLs to product pages (use object format) |
-| Category URLs | `listingUrls` | URLs to category/search result pages |
-| Keyword Search | `keyword` + `marketplaces` | Search term across selected marketplaces |
+**Actor routing table — always try Primary first, switch to Fallback only if it fails or returns 0 results:**
 
-### Example - Product URLs
-```json
-{
-  "detailsUrls": [
-    {"url": "https://www.amazon.com/dp/B09V3KXJPB"},
-    {"url": "https://www.walmart.com/ip/123456789"}
-  ],
-  "additionalProperties": true
-}
-```
+| Intent | Platform | Primary Actor | Fallback Actor |
+|--------|----------|---------------|----------------|
+| `pricing` | Amazon / Walmart / generic | `apify/e-commerce-scraping-tool` | — |
+| `pricing` | eBay | `apify/e-commerce-scraping-tool` | `ivanvs/ebay-scraper-pay-per-result` |
+| `pricing` | Etsy | `apify/e-commerce-scraping-tool` | `epctex/etsy-scraper` |
+| `pricing` | Google Shopping | `apify/e-commerce-scraping-tool` | `epctex/google-shopping-scraper` |
+| `pricing` | Facebook Marketplace | `apify/e-commerce-scraping-tool` | `apify/facebook-marketplace-scraper` |
+| `pricing` | SHEIN | `apify/e-commerce-scraping-tool` | `seamless_coffer/shein-product-scraper` |
+| `pricing` | Lazada | `apify/e-commerce-scraping-tool` | `fatihtahta/lazada-scraper` |
+| `pricing` | Canadian Tire | `apify/e-commerce-scraping-tool` | `azzouzana/canadiantire-ca-scraper` |
+| `pricing` | Tesco | `apify/e-commerce-scraping-tool` | `radeance/tesco-scraper` |
+| `pricing` | Shopify | `apify/e-commerce-scraping-tool` | `trovevault/shopify-products-scraper` |
+| `pricing` | WooCommerce | `apify/e-commerce-scraping-tool` | `trovevault/woocommerce-products-scraper` |
+| `reviews` | Amazon / Walmart / generic | `apify/e-commerce-scraping-tool` | `junglee/amazon-reviews-scraper` |
+| `reviews` | Trustpilot | `apify/e-commerce-scraping-tool` | `casper11515/trustpilot-reviews-scraper` |
+| `reviews` | TheFork | `apify/e-commerce-scraping-tool` | `jdtpnjtp/thefork-restaurant-scraper-advanced` |
+| `bestsellers` | Amazon | `apify/e-commerce-scraping-tool` | `junglee/amazon-bestsellers` |
+| `sellers` | Amazon | `apify/e-commerce-scraping-tool` | `junglee/amazon-seller-scraper` |
+| `sellers` | eBay | `apify/e-commerce-scraping-tool` | `ivanvs/ebay-scraper-pay-per-result` |
+| `store-scrape` | Shopify | `apify/e-commerce-scraping-tool` | `trovevault/shopify-products-scraper` |
+| `store-scrape` | WooCommerce | `apify/e-commerce-scraping-tool` | `trovevault/woocommerce-products-scraper` |
+| `store-scrape` | Amazon | `apify/e-commerce-scraping-tool` | `junglee/Amazon-crawler` |
+| `store-scrape` | Flippa | `apify/e-commerce-scraping-tool` | `scraped/flippa-scraper` |
+| `tech-stack` | any | `apify/e-commerce-scraping-tool` | `trovevault/e-commerce-tech-stack-detector` |
+| `seo-audit` | any | `apify/e-commerce-scraping-tool` | `trovevault/product-listing-seo-auditor` |
+| `competitor` | any | `apify/e-commerce-scraping-tool` | `trovevault/competitor-intelligence-scraper---funnel-pricing-conversion` |
+| `search-intent` | any | `apify/e-commerce-scraping-tool` | `trovevault/ai-serp-intent-extractor---search-intent-classifier` |
+| `product-matching` | any | `apify/e-commerce-scraping-tool` | `tri_angle/product-matching-vectorizer` |
+| `store-enrichment` | any | `apify/e-commerce-scraping-tool` | `trovevault/e-commerce-store-data-enricher` |
+| `food-delivery` | DoorDash | `apify/e-commerce-scraping-tool` | `tri_angle/doordash-store-details-scraper` |
+| `food-delivery` | UberEats | `apify/e-commerce-scraping-tool` | `e-commerce/ubereats-reviews-scraper` |
+| `food-delivery` | TheFork | `apify/e-commerce-scraping-tool` | `jdtpnjtp/thefork-restaurant-scraper-advanced` |
+| `ads-intelligence` | Facebook / Meta | `apify/e-commerce-scraping-tool` | `apify/facebook-ads-scraper` |
+| `classifieds` | Craigslist | `apify/e-commerce-scraping-tool` | `ivanvs/craigslist-scraper-pay-per-result` |
+| `automotive` | Webmotors | `apify/e-commerce-scraping-tool` | `stealth_mode/webmotors-auto-search-scraper` |
+| `events` | Eventbrite | `apify/e-commerce-scraping-tool` | `aitorsm/eventbrite` |
+| `real-estate` | Realtor.com | `apify/e-commerce-scraping-tool` | `powerai/realtor-properties-search-scraper` |
+| `content-discovery` | Pinterest | `apify/e-commerce-scraping-tool` | `fatihtahta/pinterest-scraper-search` |
+| `tiktok-shop` | TikTok Shop | `apify/e-commerce-scraping-tool` | `lemur/tiktok-shop-creators` |
+| `website-marketplace` | Flippa | `apify/e-commerce-scraping-tool` | `scraped/flippa-scraper` |
 
-### Example - Keyword Search
-```json
-{
-  "keyword": "Samsung Galaxy S24",
-  "marketplaces": ["www.amazon.com", "www.walmart.com"],
-  "additionalProperties": true,
-  "maxProductResults": 50
-}
-```
+### Step 2: Fetch Actor Schema
 
-### Optional: AI Summary
+Fetch the Actor's input schema dynamically using mcpc:
 
-Add these fields to get AI-generated insights:
-
-| Field | Description |
-|-------|-------------|
-| `fieldsToAnalyze` | Data points to analyze: `["name", "offers", "brand", "description"]` |
-| `customPrompt` | Custom analysis instructions |
-
-**Example with AI summary:**
-```json
-{
-  "keyword": "robot vacuum",
-  "marketplaces": ["www.amazon.com"],
-  "maxProductResults": 50,
-  "additionalProperties": true,
-  "fieldsToAnalyze": ["name", "offers", "brand"],
-  "customPrompt": "Summarize price range and identify top brands"
-}
-```
-
-### Output Fields
-- `name` - Product name
-- `url` - Product URL
-- `offers.price` - Current price
-- `offers.priceCurrency` - Currency code (may vary by seller region)
-- `brand.slogan` - Brand name (nested in object)
-- `image` - Product image URL
-- Additional seller/stock info when `additionalProperties: true`
-
-> **Note:** Currency may vary in results even for US searches, as prices reflect different seller regions.
-
----
-
-## Workflow 2: Customer Reviews
-
-**Use case:** Extract reviews for sentiment analysis, brand perception monitoring, or quality issue detection.
-
-**Best for:** Brand managers, customer experience teams, QA teams, product managers.
-
-### Input Options
-
-| Input Type | Field | Description |
-|------------|-------|-------------|
-| Product URLs | `reviewListingUrls` | Product pages to extract reviews from |
-| Keyword Search | `keywordReviews` + `marketplacesReviews` | Search for product reviews by keyword |
-
-### Example - Extract Reviews from Product
-```json
-{
-  "reviewListingUrls": [
-    {"url": "https://www.amazon.com/dp/B09V3KXJPB"}
-  ],
-  "sortReview": "Most recent",
-  "additionalReviewProperties": true,
-  "maxReviewResults": 500
-}
-```
-
-### Example - Keyword Search
-```json
-{
-  "keywordReviews": "wireless earbuds",
-  "marketplacesReviews": ["www.amazon.com"],
-  "sortReview": "Most recent",
-  "additionalReviewProperties": true,
-  "maxReviewResults": 200
-}
-```
-
-### Sort Options
-- `Most recent` - Latest reviews first (recommended)
-- `Most relevant` - Platform default relevance
-- `Most helpful` - Highest voted reviews
-- `Highest rated` - 5-star reviews first
-- `Lowest rated` - 1-star reviews first
-
-> **Note:** The `sortReview: "Lowest rated"` option may not work consistently across all marketplaces. For quality analysis, collect a large sample and filter by rating in post-processing.
-
-### Quality Analysis Tips
-- Set high `maxReviewResults` for statistical significance
-- Look for recurring keywords: "broke", "defect", "quality", "returned"
-- Filter results by rating if sorting doesn't work as expected
-- Cross-reference with competitor products for benchmarking
-
----
-
-## Workflow 3: Seller Intelligence
-
-**Use case:** Find sellers across stores, discover unauthorized resellers, evaluate vendor options.
-
-**Best for:** Brand protection teams, procurement, supply chain managers.
-
-> **Note:** This workflow uses Google Shopping to find sellers across stores. Direct seller profile URLs are not reliably supported.
-
-### Input Configuration
-```json
-{
-  "googleShoppingSearchKeyword": "Nike Air Max 90",
-  "scrapeSellersFromGoogleShopping": true,
-  "countryCode": "us",
-  "maxGoogleShoppingSellersPerProduct": 20,
-  "maxGoogleShoppingResults": 100
-}
-```
-
-### Options
-| Field | Description |
-|-------|-------------|
-| `googleShoppingSearchKeyword` | Product name to search |
-| `scrapeSellersFromGoogleShopping` | Set to `true` to extract sellers |
-| `scrapeProductsFromGoogleShopping` | Set to `true` to also extract product details |
-| `countryCode` | Target country (e.g., `us`, `uk`, `de`) |
-| `maxGoogleShoppingSellersPerProduct` | Max sellers per product |
-| `maxGoogleShoppingResults` | Total result limit |
-
----
-
-## Supported Marketplaces
-
-### Amazon (20+ regions)
-`www.amazon.com`, `www.amazon.co.uk`, `www.amazon.de`, `www.amazon.fr`, `www.amazon.it`, `www.amazon.es`, `www.amazon.ca`, `www.amazon.com.au`, `www.amazon.co.jp`, `www.amazon.in`, `www.amazon.com.br`, `www.amazon.com.mx`, `www.amazon.nl`, `www.amazon.pl`, `www.amazon.se`, `www.amazon.ae`, `www.amazon.sa`, `www.amazon.sg`, `www.amazon.com.tr`, `www.amazon.eg`
-
-### Major US Retailers
-`www.walmart.com`, `www.costco.com`, `www.costco.ca`, `www.homedepot.com`
-
-### European Retailers
-`allegro.pl`, `allegro.cz`, `allegro.sk`, `www.alza.cz`, `www.alza.sk`, `www.alza.de`, `www.alza.at`, `www.alza.hu`, `www.kaufland.de`, `www.kaufland.pl`, `www.kaufland.cz`, `www.kaufland.sk`, `www.kaufland.at`, `www.kaufland.fr`, `www.kaufland.it`, `www.cdiscount.com`
-
-### IKEA (40+ country/language combinations)
-Supports all major IKEA regional sites with multiple language options.
-
-### Google Shopping
-Use for seller discovery across multiple stores.
-
----
-
-## Running the Extraction
-
-### Step 1: Set Skill Path
 ```bash
-SKILL_PATH=~/.claude/skills/apify-ecommerce
+export $(grep APIFY_TOKEN .env | xargs) && mcpc --json mcp.apify.com --header "Authorization: Bearer $APIFY_TOKEN" tools-call fetch-actor-details actor:="ACTOR_ID" | jq -r ".content"
 ```
 
-### Step 2: Run Script
+Replace `ACTOR_ID` with the selected Actor (e.g., `apify/e-commerce-scraping-tool`).
 
-**Quick answer (display in chat):**
+This returns:
+- Actor description and README
+- Required and optional input parameters
+- Output fields (if available)
+
+### Step 3: Ask User Preferences
+
+Before running, ask:
+1. **Output format**:
+   - **Quick answer** (default) — synthesized answer in chat, no file saved
+   - **CSV** — full export saved to disk
+   - **JSON** — full export saved to disk
+2. **Result count** — suggest defaults by intent:
+
+| Intent | Default |
+|--------|---------|
+| `pricing` | 50 products |
+| `reviews` | 200 reviews |
+| `bestsellers` | 100 items |
+| `sellers` | 50 sellers |
+| `store-scrape` | all (unlimited) |
+| `food-delivery` | 50 restaurants |
+| all others | 20–50 |
+
+### Step 4: Run the Actor
+
+**Quick answer (display in chat, no file):**
 ```bash
-node --env-file=~/.claude/.env $SKILL_PATH/reference/scripts/run_actor.js \
-  --actor "apify/e-commerce-scraping-tool" \
+node --env-file=.env ${CLAUDE_PLUGIN_ROOT}/reference/scripts/run_actor.js \
+  --actor "ACTOR_ID" \
   --input 'JSON_INPUT'
 ```
 
-**CSV export:**
+**CSV:**
 ```bash
-node --env-file=~/.claude/.env $SKILL_PATH/reference/scripts/run_actor.js \
-  --actor "apify/e-commerce-scraping-tool" \
+node --env-file=.env ${CLAUDE_PLUGIN_ROOT}/reference/scripts/run_actor.js \
+  --actor "ACTOR_ID" \
   --input 'JSON_INPUT' \
   --output YYYY-MM-DD_filename.csv \
   --format csv
 ```
 
-**JSON export:**
+**JSON:**
 ```bash
-node --env-file=~/.claude/.env $SKILL_PATH/reference/scripts/run_actor.js \
-  --actor "apify/e-commerce-scraping-tool" \
+node --env-file=.env ${CLAUDE_PLUGIN_ROOT}/reference/scripts/run_actor.js \
+  --actor "ACTOR_ID" \
   --input 'JSON_INPUT' \
   --output YYYY-MM-DD_filename.json \
   --format json
 ```
 
-### Step 3: Summarize Results
+### Step 5: Analyze Results and Deliver Answer
 
-Report:
-- Number of items extracted
-- File location (if exported)
-- Key insights based on workflow:
-  - **Products:** Price range, outliers, MAP violations
-  - **Reviews:** Average rating, sentiment trends, quality issues
-  - **Sellers:** Seller count, unauthorized sellers found
+After the run completes, deliver a direct synthesized answer — not a data dump:
 
----
+- **Pricing:** price range, average, top 5 cheapest with URLs
+- **Reviews:** average rating, top 3 positive and negative themes, recent snippets
+- **Bestsellers:** top 10 by rank with name, price, rating, URL
+- **Sellers:** total sellers, price range per seller, unauthorized seller flags
+- **Store-scrape:** total products, category breakdown, price range, stock summary
+- **Tech-stack:** platform detected, confidence level, notable plugins
+- **Food delivery:** restaurant count, average rating, price tier breakdown
+- **Ads intelligence:** total ads, active/inactive split, top creative formats
 
 ## Error Handling
 
-| Error | Solution |
-|-------|----------|
-| `APIFY_TOKEN not found` | Ensure `~/.claude/.env` contains `APIFY_TOKEN=your_token` |
-| `Actor not found` | Verify Actor ID: `apify/e-commerce-scraping-tool` |
-| `Run FAILED` | Check Apify console link in error output |
-| `Timeout` | Reduce `maxProductResults` or increase `--timeout` |
-| `No results` | Verify URLs are valid and accessible |
-| `Invalid marketplace` | Check marketplace value matches supported list exactly |
+`APIFY_TOKEN not found` — Ask user to create `.env` with `APIFY_TOKEN=your_token`
+`mcpc not found` — Ask user to install: `npm install -g @apify/mcpc`
+`Actor not found` — Check Actor ID spelling in routing table
+`Run FAILED` — Ask user to check the Apify console link in error output
+`Timeout` — Reduce result count or increase `--timeout`
+`No results` — Broaden keyword or switch to Fallback Actor from routing table
+`proxy is required` — Add `"proxy": {"useApifyProxy": true}` to input
+`Platform not detected` — Default to `apify/e-commerce-scraping-tool` with `generic` intent
