@@ -1,6 +1,6 @@
 ---
 name: apify-brand-reputation-monitoring
-description: Track reviews, ratings, sentiment, and brand mentions across Google Maps, Booking.com, TripAdvisor, Facebook, Instagram, YouTube, and TikTok. Use when user asks to monitor brand reputation, analyze reviews, track mentions, or gather customer feedback.
+description: Track reviews, ratings, sentiment, and brand mentions across Google Maps, Booking.com, TripAdvisor, Facebook, Instagram, YouTube, TikTok, and Reddit. Use when user asks to monitor brand reputation, analyze reviews, track mentions, or gather customer feedback.
 ---
 
 # Brand Reputation Monitoring
@@ -50,6 +50,9 @@ Select the appropriate Actor based on user needs:
 | Instagram API | `apify/instagram-api-scraper` | API-based monitoring |
 | YouTube comments | `streamers/youtube-comments-scraper` | Video comment sentiment |
 | TikTok comments | `clockworks/tiktok-comments-scraper` | TikTok sentiment |
+| Reddit brand mentions | `openclawai/reddit-deep-scraper` | Search posts and comments mentioning your brand |
+| Reddit subreddit monitoring | `openclawai/reddit-deep-scraper` | Monitor specific subreddits for brand discussions |
+| Reddit AI-powered answers | `openclawai/reddit-deep-scraper` | Get AI-summarized Reddit sentiment on any topic |
 
 ### Step 2: Fetch Actor Schema
 
