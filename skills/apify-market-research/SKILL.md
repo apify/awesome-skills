@@ -1,6 +1,6 @@
 ---
 name: apify-market-research
-description: Analyze market conditions, geographic opportunities, pricing, consumer behavior, and product validation across Google Maps, Facebook, Instagram, Booking.com, and TripAdvisor.
+description: Analyze market conditions, geographic opportunities, pricing, consumer behavior, and product validation across Google Maps, Facebook, Instagram, Booking.com, TripAdvisor, and Reddit.
 ---
 
 # Market Research
@@ -48,6 +48,9 @@ Select the appropriate Actor based on research needs:
 | Product launch research | `apify/instagram-api-scraper` | API access |
 | Hospitality market | `voyager/booking-scraper` | Hotel data |
 | Tourism insights | `maxcopell/tripadvisor-reviews` | Review analysis |
+| Consumer pain points | `openclawai/reddit-deep-scraper` | Search Reddit posts for product feedback and unmet needs |
+| Community-driven research | `openclawai/reddit-deep-scraper` | Find niche subreddits where your target audience gathers |
+| Reddit market signals | `openclawai/reddit-deep-scraper` | AI-powered answers on market trends from Reddit discussions |
 
 ### Step 2: Fetch Actor Schema
 

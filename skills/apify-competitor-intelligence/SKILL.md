@@ -1,6 +1,6 @@
 ---
 name: apify-competitor-intelligence
-description: Analyze competitor strategies, content, pricing, ads, and market positioning across Google Maps, Booking.com, Facebook, Instagram, YouTube, and TikTok.
+description: Analyze competitor strategies, content, pricing, ads, and market positioning across Google Maps, Booking.com, Facebook, Instagram, YouTube, TikTok, and Reddit.
 ---
 
 # Competitor Intelligence
@@ -60,6 +60,9 @@ Select the appropriate Actor based on analysis needs:
 | TikTok competitor analysis | `clockworks/tiktok-scraper` | TikTok data |
 | Competitor video strategies | `clockworks/tiktok-video-scraper` | Video analysis |
 | Competitor TikTok profiles | `clockworks/tiktok-profile-scraper` | Profile data |
+| Reddit competitor mentions | `openclawai/reddit-deep-scraper` | Search Reddit for competitor discussions and complaints |
+| Competitor pain point analysis | `openclawai/reddit-deep-scraper` | Find what users say about competitors in niche subreddits |
+| Reddit trend intelligence | `openclawai/reddit-deep-scraper` | AI-summarized Reddit insights on competitor positioning |
 
 ### Step 2: Fetch Actor Schema
 
