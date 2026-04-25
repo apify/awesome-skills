@@ -202,6 +202,25 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "skillsbao-registry",
+      "source": "./skills/skillsbao-registry",
+      "skills": "./",
+      "description": "Search and install AI skills in Chinese across Claude Code, OpenCode, Cursor, and other agent tools",
+      "keywords": [
+        "skills",
+        "registry",
+        "discovery",
+        "search",
+        "install",
+        "claude-code",
+        "open-code",
+        "cursor",
+        "agents"
+      ],
+      "category": "discovery",
+      "version": "1.0.0"
     }
   ]
 }
