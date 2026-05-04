@@ -1,0 +1,656 @@
+{
+  "_metadata": {
+    "version": "1.1",
+    "last_updated": "2026-04-27",
+    "source": "Adapted from portfolio-research/news-intelligence/references/PIPELINE_DETAIL.md (quick-reference table lines 96-136, critical warnings 138-152, failed paths 154-172)",
+    "actors_allowed": [
+      "data_xplorer/google-news-scraper-fast",
+      "louvre/rss-news-aggregator",
+      "rodrigo_pacelli/headline-news-scraper",
+      "jamie_tran/bloomberg-article-scraper",
+      "romy/bloomberg-news-scraper",
+      "workhard3000/news-intelligence-rag-extractor",
+      "apify/rag-web-browser",
+      "stanvanrooy6/universal-ai-web-scraper"
+    ],
+    "categories": [
+      "Global",
+      "Pan-European",
+      "Institutional",
+      "CEE Local"
+    ],
+    "tier1_count": 33,
+    "upstream_issues": [
+      "PIPELINE_DETAIL.md (lines 9-11, 58-59): duplicate '**Actor**: ...' lines (cosmetic typo). Preserved verbatim per project verbatim-copies rule.",
+      "PIPELINE_DETAIL.md (line 86): free-floating numbered '3.' in 'Non-Article URL Filter Patterns' section is an orphan from a removed numbered list. Preserved verbatim.",
+      "PIPELINE_DETAIL.md Source Quick Reference Table (lines 96-136) lacks an explicit 'Global' category header for sources 1-20. Source SKILL.md (lines 22-29) authoritatively categorizes Les Echos (#12), Euronews (#18), IntelliNews (#19), Handelsblatt (#20) as Pan-European. Our data/sources.json follows SKILL.md categorization (16 Global / 8 Pan-European / 2 Institutional / 7 CEE Local), not the implicit grouping in PIPELINE_DETAIL.md table.",
+      "PIPELINE_DETAIL.md table uses 'present' (MarketWatch #10 chars_verified) and 'varies' (IntelliNews RSS volume) as placeholders for non-numeric values. Our sources.json represents these as null for consistency.",
+      "PIPELINE_DETAIL.md ECB row (#26) gives chars range '6,950–85,009'; EC Press Corner (#25) gives '9,000+'. Both encoded as chars_verified=null in our data, with quantitative info preserved in gotchas array."
+    ]
+  },
+  "sources": [
+    {
+      "id": "afr",
+      "name": "Australian Financial Review",
+      "domain": "afr.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.afr.com/rss/feed.xml",
+      "rss_volume_typical": 20,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 1231,
+      "gotchas": [
+        "Paywall tightened — was 4,399 chars in earlier audit, now 1,231",
+        "APAC focus, limited European coverage"
+      ]
+    },
+    {
+      "id": "barrons",
+      "name": "Barron's",
+      "domain": "barrons.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "stanvanrooy6/universal-ai-web-scraper",
+      "cost_per_article_usd": 0.25,
+      "chars_verified": 3387,
+      "gotchas": [
+        "$0.25/page — use selectively for high-value articles only",
+        "No RSS (returns 403); headline-scraper returns 0"
+      ]
+    },
+    {
+      "id": "bloomberg",
+      "name": "Bloomberg",
+      "domain": "bloomberg.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://feeds.bloomberg.com/markets/news.rss",
+      "rss_volume_typical": 30,
+      "extractor": "jamie_tran/bloomberg-article-scraper",
+      "extractor_fallback": "romy/bloomberg-news-scraper",
+      "cost_per_article_usd": 0.02,
+      "chars_verified": 7577,
+      "gotchas": [
+        "ALWAYS decodeUrls: true (encoded GNews redirects break Bloomberg extractors)",
+        "Use \"InPost SA\" not \"InPost\" to avoid post-Maduro/post-ESG false positives",
+        "Hard paywall — GNews + RSS only discovery"
+      ]
+    },
+    {
+      "id": "caixin",
+      "name": "Caixin Global",
+      "domain": "caixinglobal.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "headlines"
+      ],
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 4166,
+      "gotchas": [
+        "URLs must be complete — truncated URLs fail extraction",
+        "rag-web-browser fetches wrong page — do NOT use",
+        "Headlines volume low (7 articles)"
+      ]
+    },
+    {
+      "id": "cnbc",
+      "name": "CNBC",
+      "domain": "cnbc.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss",
+        "headlines"
+      ],
+      "rss_url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "rss_volume_typical": 30,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 4865,
+      "gotchas": []
+    },
+    {
+      "id": "economist",
+      "name": "The Economist",
+      "domain": "economist.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.economist.com/finance-and-economics/rss.xml",
+      "rss_volume_typical": 300,
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 14256,
+      "gotchas": [
+        "Best RSS coverage of all 33 sources (300 articles)",
+        "Byline always 'The Economist' — no individual authors",
+        "rag-web-browser returns 0 chars — do NOT use"
+      ]
+    },
+    {
+      "id": "forbes",
+      "name": "Forbes",
+      "domain": "forbes.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.forbes.com/business/feed2",
+      "rss_volume_typical": 25,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 4969,
+      "gotchas": [
+        "workhard3000 returns 0 chars — do NOT use",
+        "natasha.lekh Forbes actor under maintenance — do NOT use"
+      ]
+    },
+    {
+      "id": "ft",
+      "name": "Financial Times",
+      "domain": "ft.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.ft.com/rss/home",
+      "rss_volume_typical": 13,
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 6960,
+      "gotchas": [
+        "rag-web-browser returns 16 chars ('Client Challenge') — do NOT use",
+        "GNews query: use site:ft.com/content/ (bare ft.com returns stock pages)"
+      ]
+    },
+    {
+      "id": "ibd",
+      "name": "Investor's Business Daily",
+      "domain": "investors.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 6722,
+      "gotchas": [
+        "GNews coverage limited for non-US companies",
+        "RSS returns 403",
+        "mscraper IBD actor is $20/mo, US tickers only — do NOT use"
+      ]
+    },
+    {
+      "id": "marketwatch",
+      "name": "MarketWatch",
+      "domain": "marketwatch.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.marketwatch.com/rss/topstories",
+      "rss_volume_typical": 10,
+      "extractor": "stanvanrooy6/universal-ai-web-scraper",
+      "cost_per_article_usd": 0.25,
+      "chars_verified": null,
+      "gotchas": [
+        "$0.25/page — use selectively",
+        "rag-web-browser returns HTTP 500 — completely blocked",
+        "Cheap fallback: workhard3000 returns excerpts only (448-878 chars)"
+      ]
+    },
+    {
+      "id": "morningstar",
+      "name": "Morningstar",
+      "domain": "morningstar.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.morningstar.co.uk/uk/news/rss.aspx",
+      "rss_volume_typical": 20,
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 35256,
+      "gotchas": [
+        ".co.uk URLs fail with workhard3000 — use .com URLs only for extraction",
+        "janbruinier Morningstar actor is for fund ratings, not news — do NOT use"
+      ]
+    },
+    {
+      "id": "nikkei",
+      "name": "Nikkei Asia",
+      "domain": "asia.nikkei.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss",
+        "headlines"
+      ],
+      "rss_url": "https://asia.nikkei.com/rss/feed/nar",
+      "rss_volume_typical": 50,
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 5723,
+      "gotchas": [
+        "Best headline coverage (60 articles)",
+        "RSS has title + link only, no description"
+      ]
+    },
+    {
+      "id": "reuters",
+      "name": "Reuters",
+      "domain": "reuters.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 2632,
+      "gotchas": [
+        "RESIDENTIAL proxy mandatory — without it: 386 chars",
+        "Deprecated all public RSS feeds — GNews only",
+        "rag-web-browser returns 0 chars on ~60% of URLs even with RESIDENTIAL — do NOT use",
+        "dadhalfdev/reuters-scraper-per-event ignores keyword param — do NOT use",
+        "headline-news-scraper returns 0 — do NOT use"
+      ]
+    },
+    {
+      "id": "scmp",
+      "name": "South China Morning Post",
+      "domain": "scmp.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss",
+        "headlines"
+      ],
+      "rss_url": "https://www.scmp.com/rss/91/feed",
+      "rss_volume_typical": 50,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 1819,
+      "gotchas": [
+        "Paywall tightened — was 3,014 chars, now 1,819"
+      ]
+    },
+    {
+      "id": "wsj",
+      "name": "Wall Street Journal",
+      "domain": "wsj.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+      "rss_volume_typical": 20,
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 4748,
+      "gotchas": [
+        "wsj.com/livecoverage/ URLs fail extraction — skip them",
+        "byline and publishedDate are null in workhard3000 — get from GNews/RSS metadata"
+      ]
+    },
+    {
+      "id": "zawya",
+      "name": "Zawya",
+      "domain": "zawya.com",
+      "category": "Global",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 12681,
+      "gotchas": [
+        "Headline-scraper returns category/tag pages (/primarykeyword/OIL), NOT article URLs — exclude from headline runs",
+        "rag-web-browser returns HTTP 500 — do NOT use"
+      ]
+    },
+    {
+      "id": "eubusiness",
+      "name": "EUbusiness",
+      "domain": "eubusiness.com",
+      "category": "Pan-European",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 4828,
+      "gotchas": []
+    },
+    {
+      "id": "euobserver",
+      "name": "EUobserver",
+      "domain": "euobserver.com",
+      "category": "Pan-European",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "workhard3000/news-intelligence-rag-extractor",
+      "cost_per_article_usd": 0.025,
+      "chars_verified": 3001,
+      "gotchas": [
+        "Use autoArchive: true in workhard3000 input (paywall bypass)",
+        "rag-web-browser hits 'Unlock article' paywall — do NOT use as primary"
+      ]
+    },
+    {
+      "id": "eureporter",
+      "name": "EU Reporter",
+      "domain": "eureporter.co",
+      "category": "Pan-European",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 5921,
+      "gotchas": []
+    },
+    {
+      "id": "euronews",
+      "name": "Euronews",
+      "domain": "euronews.com",
+      "category": "Pan-European",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.euronews.com/rss?level=theme&name=business",
+      "rss_volume_typical": 50,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 10917,
+      "gotchas": []
+    },
+    {
+      "id": "handelsblatt",
+      "name": "Handelsblatt",
+      "domain": "handelsblatt.com",
+      "category": "Pan-European",
+      "language": "DE",
+      "discovery_methods": [
+        "gnews",
+        "rss",
+        "headlines"
+      ],
+      "rss_url": "https://www.handelsblatt.com/contentexport/feed/schlagzeilen",
+      "rss_volume_typical": 50,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 10435,
+      "region_language": "DE:de",
+      "gotchas": [
+        "German content — use region_language: DE:de for GNews queries"
+      ]
+    },
+    {
+      "id": "intellinews",
+      "name": "IntelliNews",
+      "domain": "intellinews.com",
+      "category": "Pan-European",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.intellinews.com/rss/",
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 10744,
+      "gotchas": [
+        "RSS volume varies",
+        "Niche source — excellent for PPF/CEE coverage",
+        "publishedDate null in workhard3000 — get from RSS/GNews metadata"
+      ],
+      "rss_volume_typical": null
+    },
+    {
+      "id": "lesechos",
+      "name": "Les Echos",
+      "domain": "lesechos.fr",
+      "category": "Pan-European",
+      "language": "FR",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 2832,
+      "region_language": "FR:fr",
+      "gotchas": [
+        "French content — use region_language: FR:fr for GNews queries",
+        "RSS returns 403 — GNews only",
+        "Paywall tightened — was 9,257 chars, now 2,832"
+      ]
+    },
+    {
+      "id": "politico-eu",
+      "name": "POLITICO Europe",
+      "domain": "politico.eu",
+      "category": "Pan-European",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 7677,
+      "gotchas": [
+        "Premium/paywalled articles return partial content — still useful for headline + lead"
+      ]
+    },
+    {
+      "id": "ec-press-corner",
+      "name": "EC Press Corner",
+      "domain": "ec.europa.eu",
+      "category": "Institutional",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews",
+        "rest_api"
+      ],
+      "extractor": "REST API (presscorner)",
+      "rest_api_url": "https://ec.europa.eu/commission/presscorner/api/documents",
+      "cost_per_article_usd": 0,
+      "chars_verified": null,
+      "gotchas": [
+        "Article length 9000+ chars verified; no upper bound captured (PIPELINE_DETAIL.md:126).",
+        "DO NOT use rag-web-browser — Angular SPA returns 0 chars",
+        "Parse IP_XX_NNN reference IDs from GNews titles to construct API calls",
+        "Subdomain pages (energy.ec.europa.eu, research.ec.europa.eu) extract fine with rag-web-browser"
+      ]
+    },
+    {
+      "id": "ecb",
+      "name": "European Central Bank",
+      "domain": "ecb.europa.eu",
+      "category": "Institutional",
+      "language": "EN",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": null,
+      "gotchas": [
+        "Press releases ~6,950 chars; projection reports up to 85,009 chars",
+        "First ~400 chars are nav boilerplate — strip or ignore",
+        "Excellent for SK and BG (eurozone members)"
+      ]
+    },
+    {
+      "id": "bta",
+      "name": "BTA — Bulgarska Telegrafna Agentsia",
+      "domain": "bta.bg",
+      "category": "CEE Local",
+      "language": "BG",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 10851,
+      "region_language": "BG:bg",
+      "gotchas": [
+        "No RSS feeds",
+        "BTA web search is JS rendered — returns empty results",
+        "Only Google News site:bta.bg works"
+      ]
+    },
+    {
+      "id": "ctk",
+      "name": "ČTK / České noviny",
+      "domain": "ceskenoviny.cz",
+      "category": "CEE Local",
+      "language": "CZ",
+      "discovery_methods": [
+        "gnews",
+        "rss"
+      ],
+      "rss_url": "https://www.ceskenoviny.cz/sluzby/rss/ekonomika.php",
+      "rss_volume_typical": 50,
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 4596,
+      "region_language": "CZ:cs",
+      "gotchas": [
+        "Search on ceskenoviny.cz does NOT work (JS rendered, returns shell only)",
+        "Additional RSS: https://www.ceskenoviny.cz/sluzby/rss/cr.php (50 articles)"
+      ]
+    },
+    {
+      "id": "hvg",
+      "name": "HVG.hu",
+      "domain": "hvg.hu",
+      "category": "CEE Local",
+      "language": "HU",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 4883,
+      "region_language": "HU:hu",
+      "gotchas": [
+        "Respected independent weekly (since 1968)"
+      ]
+    },
+    {
+      "id": "pap",
+      "name": "PAP — Polska Agencja Prasowa",
+      "domain": "pap.pl",
+      "category": "CEE Local",
+      "language": "PL",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 9232,
+      "region_language": "PL:pl",
+      "gotchas": [
+        "PAP RSS is blocked by WAF (Incapsula)",
+        "PAP web search returns false positives (3-letter string match)",
+        "Only Google News site:pap.pl works reliably"
+      ]
+    },
+    {
+      "id": "tasr",
+      "name": "TASR — Tlačová agentúra Slovenskej republiky",
+      "domain": "tasr.sk",
+      "category": "CEE Local",
+      "language": "SK",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 3956,
+      "region_language": "SK:sk",
+      "gotchas": [
+        "Google News returns generic titles ('Tlačová agentúra Slovenskej republiky') — extraction needed to determine article content",
+        "TASR web search redirects to homepage (SPA)",
+        "No RSS feeds"
+      ]
+    },
+    {
+      "id": "telex",
+      "name": "Telex.hu",
+      "domain": "telex.hu",
+      "category": "CEE Local",
+      "language": "HU",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 8216,
+      "region_language": "HU:hu",
+      "gotchas": [
+        "Best Hungarian extraction quality among tested sources",
+        "Independent outlet, ex-index.hu journalists — high editorial credibility"
+      ]
+    },
+    {
+      "id": "vg",
+      "name": "Világgazdaság",
+      "domain": "vg.hu",
+      "category": "CEE Local",
+      "language": "HU",
+      "discovery_methods": [
+        "gnews"
+      ],
+      "extractor": "apify/rag-web-browser",
+      "cost_per_article_usd": 0.005,
+      "chars_verified": 9906,
+      "region_language": "HU:hu",
+      "gotchas": [
+        "Hungarian business daily — strongest GNews presence among HU sources",
+        "First ~900 chars contain navigation/ticker noise — article body starts after"
+      ]
+    }
+  ]
+}

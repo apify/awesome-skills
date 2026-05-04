@@ -1,0 +1,10 @@
+{
+  "name": "apify-financial-services",
+  "description": "Financial company intelligence — news monitoring (33 Tier 1 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries, 27 endpoints). All skills use Apify Actors via apify CLI.",
+  "version": "1.2.0",
+  "author": {
+    "name": "pavel242242",
+    "email": "pavel@chocholous.net"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,795 @@
+{
+  "_metadata": {
+    "version": "1.1",
+    "last_updated": "2026-04-27",
+    "source": "Derived from data/companies.json (queries.reddit, queries.twitter, trustpilot_urls) + reference/osint-actor-schemas.md PPF examples",
+    "actors_allowed": [
+      "fatihtahta/reddit-scraper-search-fast",
+      "kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest",
+      "getwally.net/trustpilot-reviews-scraper"
+    ],
+    "coverage_summary": {
+      "total_entries": 31,
+      "reddit": 27,
+      "twitter": 31,
+      "trustpilot": 5,
+      "all_three": 5,
+      "twitter_only": 4,
+      "any": 31
+    },
+    "coverage_notes": [
+      "All 30 portfolio companies + group have at least Twitter queries — none fully skipped.",
+      "Reddit skipped for 4 companies whose queries.reddit is empty in companies.json: ppf-banka (B2B private bank), o2-slovakia, ppf-real-estate (holding), embedit (B2B internal services). yettel-bank does have queries.reddit=['Yettel Bank'] so Reddit IS included.",
+      "Trustpilot present only for 5 consumer brands with verified URLs: inpost (PL+UK), air-bank (source labeled 'flaky' but page verified 2026-04-27 (TrustScore 2.1, 36 reviews, 2 pages indexed by Google) — 'flaky' likely refers to intermittent scraper issues, not page absence), home-credit (PH + IN), o2-czech-republic, heureka-group. PPF Group has no Trustpilot (holding); MONETA, CETIN, SOTIO have no Trustpilot page per source schema (B2B/biotech).",
+      "Home Credit trustpilot URLs (PH, IN) are subdomain-style 'www.homecredit.ph' — passed through verbatim as 'https://www.trustpilot.com/review/www.homecredit.ph' per companies.json. Verify before bulk runs. Verified via Google search 2026-04-27: both pages exist and are indexed by Trustpilot under www.homecredit.* domain.",
+      "lang field set only for single-country B2C non-English brands per brief: cs (Czech retail), pl (InPost), hu (Yettel HU + Yettel Bank), bg (Yettel BG), sk (O2 Slovakia), tr (TEMSA).",
+      "scrapeComments=true for: banks, B2C consumer brands, recent M&A targets (InPost, PPF Group). false for: B2B (CETIN, ITIS, EmbedIT, VITRONIC), biotechs (SOTIO, Cytune, Cellestia, Autolus), holdings (PPF Real Estate).",
+      "timeframe='month' for active high-volume targets (InPost FedEx deal, PPF Group, telecom retail, Czech banks). 'year' for low-volume (biotech, B2B, niche industrial) where month would return < 5 posts.",
+      "ppf-group: companies.json has reddit queries (PPF Group, PPF investments) — included contrary to brief's 'Twitter input only' note. Brief flagged as 'no Reddit queries set' but data says otherwise; followed data.",
+      "Sazka/Allwyn dropped from companies.json upstream — no entry here (per data/README.md §6 issue #5)."
+    ],
+    "upstream_issues": [
+      "osint-actor-schemas.md Section 1 (Reddit): examples at lines ~144-187 (Heureka, Skoda, SOTIO, CME, Dream Yacht) use stale schema fields ('searchQuery' + 'subreddits' array) that do NOT exist in the verified fatihtahta/reddit-scraper-search-fast input schema. Likely carry-over from an older Reddit actor. Our osint-targets.json uses the verified schema ('queries' + 'maxPosts'). Preserved verbatim per project rule.",
+      "osint-actor-schemas.md Section 2 (Twitter): examples at lines ~357-397 (Heureka, SOTIO, Škoda, Home Credit, CME) use stale fields ('searchQueries' + 'tweetLanguage') not in verified kaitoeasyapi schema (correct: 'searchTerms' + 'lang'). Same carry-over issue. Our routing uses verified field names.",
+      "osint-actor-schemas.md Section 4 (Economic Calendar — pintostudio/economic-calendar-data-investing-com) preserved verbatim but out of scope per PLAN.md. SKILL.md references only Sections 1-3.",
+      "Home Credit Trustpilot URLs (www.homecredit.ph, www.homecredit.co.in): verified via Google search 2026-04-27 — both pages exist and are indexed. The 'www.' in Trustpilot path is NOT a typo; Trustpilot registers these businesses under their www subdomain. No fix needed."
+    ]
+  },
+  "targets": [
+    {
+      "company_id": "inpost",
+      "actors": [
+        "reddit",
+        "twitter",
+        "trustpilot"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "InPost",
+            "INPST",
+            "InPost parcel"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "InPost OR $INPST OR \"InPost SA\" OR \"InPost parcel\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "pl"
+        },
+        "trustpilot": {
+          "startUrls": [
+            {
+              "url": "https://www.trustpilot.com/review/inpost.co.uk"
+            },
+            {
+              "url": "https://www.trustpilot.com/review/inpost.pl"
+            }
+          ],
+          "limit": 50
+        }
+      }
+    },
+    {
+      "company_id": "moneta-money-bank",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "MONETA Money Bank",
+            "MONETA banka"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"MONETA Money Bank\" OR \"MONETA banka\" OR $MONET",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "cs"
+        }
+      }
+    },
+    {
+      "company_id": "prosiebensat1-media",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "ProSiebenSat.1",
+            "PSM stock"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "ProSiebenSat1 OR ProSieben OR $PSM OR \"ProSiebenSat.1\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "viaplay-group",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Viaplay",
+            "NENTF"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "Viaplay OR $VPLAY OR \"Viaplay Group\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "autolus-therapeutics",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Autolus Therapeutics"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "Autolus OR $AUTL OR \"Autolus Therapeutics\" OR \"Autolus CAR-T\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "solidcore-resources",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Solidcore Resources",
+            "Polymetal International",
+            "POLY gold"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"Solidcore Resources\" OR Polymetal OR $POLY",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "air-bank",
+      "actors": [
+        "reddit",
+        "twitter",
+        "trustpilot"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Air Bank"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"Air Bank\" OR \"Air Bank CZ\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "cs"
+        },
+        "trustpilot": {
+          "startUrls": [
+            {
+              "url": "https://www.trustpilot.com/review/airbank.cz"
+            }
+          ],
+          "limit": 50
+        }
+      }
+    },
+    {
+      "company_id": "home-credit",
+      "actors": [
+        "reddit",
+        "twitter",
+        "trustpilot"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Home Credit",
+            "Home Credit International"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"Home Credit\" OR \"Home Credit Group\" OR \"Home Credit International\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        },
+        "trustpilot": {
+          "startUrls": [
+            {
+              "url": "https://www.trustpilot.com/review/www.homecredit.ph"
+            },
+            {
+              "url": "https://www.trustpilot.com/review/www.homecredit.co.in"
+            }
+          ],
+          "limit": 50
+        }
+      }
+    },
+    {
+      "company_id": "ppf-banka",
+      "actors": [
+        "twitter"
+      ],
+      "inputs": {
+        "twitter": {
+          "twitterContent": "\"PPF banka\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "cs"
+        }
+      }
+    },
+    {
+      "company_id": "clearbank",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "ClearBank",
+            "ClearBank fintech"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "ClearBank OR \"ClearBank UK\" OR \"ClearBank fintech\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "yettel-bank",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Yettel Bank"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"Yettel Bank\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "hu"
+        }
+      }
+    },
+    {
+      "company_id": "cme",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "TV Nova",
+            "CME media"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"CME media\" OR \"TV Nova\" OR \"Pro TV Romania\" OR \"CME broadcasting\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "eand-ppf-telecom-group",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "PPF Telecom"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"PPF Telecom\" OR \"e& PPF Telecom\" OR \"eppf telecom\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "o2-czech-republic",
+      "actors": [
+        "reddit",
+        "twitter",
+        "trustpilot"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "O2 Czech"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"O2 Czech\" OR \"O2 Česko\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "cs"
+        },
+        "trustpilot": {
+          "startUrls": [
+            {
+              "url": "https://www.trustpilot.com/review/o2.cz"
+            }
+          ],
+          "limit": 50
+        }
+      }
+    },
+    {
+      "company_id": "o2-slovakia",
+      "actors": [
+        "twitter"
+      ],
+      "inputs": {
+        "twitter": {
+          "twitterContent": "\"O2 Slovakia\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "sk"
+        }
+      }
+    },
+    {
+      "company_id": "yettel-serbia",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Yettel Serbia"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"Yettel Serbia\" OR \"Yettel Srbija\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "yettel-hungary",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Yettel Hungary"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"Yettel Hungary\" OR \"Yettel Magyarorszag\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "hu"
+        }
+      }
+    },
+    {
+      "company_id": "yettel-bulgaria",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Yettel Bulgaria"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"Yettel Bulgaria\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "bg"
+        }
+      }
+    },
+    {
+      "company_id": "cetin-group",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "CETIN telecom"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"CETIN infrastructure\" OR \"CETIN telecom\" OR \"CETIN Group\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "sotio-biotech",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "SOTIO Biotech"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"SOTIO biotech\" OR \"SOTIO pharma\" OR \"SOTIO oncology\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "cytune-pharma",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Cytune Pharma",
+            "SO-C101"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"Cytune Pharma\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "cellestia-biotech",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Cellestia Biotech"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"Cellestia Biotech\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "heureka-group",
+      "actors": [
+        "reddit",
+        "twitter",
+        "trustpilot"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Heureka.cz"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"Heureka Group\" OR \"Heureka.cz\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "cs"
+        },
+        "trustpilot": {
+          "startUrls": [
+            {
+              "url": "https://www.trustpilot.com/review/heureka.cz"
+            }
+          ],
+          "limit": 50
+        }
+      }
+    },
+    {
+      "company_id": "skoda-group",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "Skoda Transportation"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"Skoda Transportation\" OR \"Skoda Group trains\" OR \"Skoda Group trams\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "temsa",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "TEMSA bus",
+            "TEMSA electric bus"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "\"TEMSA bus\" OR \"TEMSA electric\" OR \"TEMSA otobüs\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "tr"
+        }
+      }
+    },
+    {
+      "company_id": "itis-holding",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "CzechToll",
+            "SkyToll"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "CzechToll OR SkyToll OR \"ITIS Holding\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "vitronic",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "VITRONIC"
+          ],
+          "maxPosts": 200,
+          "sort": "relevance",
+          "timeframe": "year"
+        },
+        "twitter": {
+          "twitterContent": "VITRONIC OR \"VITRONIC machine vision\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "bestsport",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "O2 Arena Prague"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"O2 Arena Prague\" OR \"O2 universum\"",
+          "maxItems": 100,
+          "queryType": "Latest",
+          "lang": "cs"
+        }
+      }
+    },
+    {
+      "company_id": "ppf-real-estate",
+      "actors": [
+        "twitter"
+      ],
+      "inputs": {
+        "twitter": {
+          "twitterContent": "\"PPF Real Estate\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "embedit",
+      "actors": [
+        "twitter"
+      ],
+      "inputs": {
+        "twitter": {
+          "twitterContent": "EmbedIT",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    },
+    {
+      "company_id": "ppf-group",
+      "actors": [
+        "reddit",
+        "twitter"
+      ],
+      "inputs": {
+        "reddit": {
+          "queries": [
+            "PPF Group",
+            "PPF investments"
+          ],
+          "maxPosts": 200,
+          "scrapeComments": true,
+          "maxComments": 10,
+          "sort": "relevance",
+          "timeframe": "month"
+        },
+        "twitter": {
+          "twitterContent": "\"PPF Group\" OR \"Kellnerova PPF\" OR \"PPF invest\" OR \"PPF acquisition\"",
+          "maxItems": 100,
+          "queryType": "Latest"
+        }
+      }
+    }
+  ]
+}

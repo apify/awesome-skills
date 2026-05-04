@@ -1,0 +1,17 @@
+{
+  "portfolio": {},
+  "competitors": {
+    "media": {
+      "prosiebensat1": {
+        "name": "ProSiebenSat.1 Media SE",
+        "keyword": "ProSiebenSat.1"
+      }
+    },
+    "industrial": {
+      "vitronic": {
+        "name": "VITRONIC Dr.-Ing. Stein Bildverarbeitungssysteme GmbH",
+        "keyword": "VITRONIC"
+      }
+    }
+  }
+}
