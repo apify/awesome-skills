@@ -78,10 +78,11 @@ Clarify before gathering data:
 1. **Clarify scope** — Identify competitors. Select module(s). Default geography: US.
 2. **Fetch actor schemas** — Run `apify actors info "ACTOR_ID" --input --json` for each actor planned for use. Skip re-fetching within the same session.
 3. **Read module reference** — Load `reference/modules/<module>.md` for gathering + analysis instructions.
-4. **Gather live data** — Parallelize independent `call-actor` calls.
+4. **Gather live data** — Parallelize independent `call-actor` calls. Use ONLY actors from the Actor Registry above.
 5. **Checkpoint** (if not autopilot) — Present first findings, confirm direction.
 6. **Analyze** — Select framework, lead with narrative, support with tables.
-7. **Verify & deliver** — Run pre-delivery verification (`reference/verification-checklist.md`). End with strategic recommendations framed for the user's role.
+7. **Verify** — Run pre-delivery verification (`reference/verification-checklist.md`). Check: every claim has a source URL, every major finding has a confidence label, inferences are labeled as such. Remove any ungrounded claims.
+8. **Deliver** — End with strategic recommendations framed for the user's role.
 
 ### Framework Selection
 
@@ -99,7 +100,7 @@ Clarify before gathering data:
 - **Prefer structured actors** over `website-content-crawler` when a dedicated actor exists.
 - **Cost budget** — 3-8 actor calls per snapshot. Track total, warn at 15+.
 - **Parallelize** independent `call-actor` calls in a single response.
-- **Failures** — Report failures, try fallback (`rag-web-browser`). Never hallucinate data.
+- **Failures** — Report every failure explicitly (actor, input, error). Retry with corrected input if the cause is obvious. If retry fails, try `rag-web-browser` as fallback. Never silently skip a failed data source.
 - **Cite everything** — Include source URLs for every data point.
 - **Async for long runs** — Set `async: true` for actors >30s, poll with `get-actor-run`.
 - **Protected platforms** — Do NOT use `website-content-crawler` or `rag-web-browser` for: g2.com, capterra.com, gartner.com, glassdoor.com, reddit.com, linkedin.com. Use dedicated actors.
@@ -113,6 +114,7 @@ Clarify before gathering data:
 ## Data Validation & Grounding
 
 - **Every factual claim needs a source URL.** No link = not a fact.
+- **Confidence labels are mandatory.** Mark every major finding: **High** (primary source), **Medium** (2+ third-party sources), **Low** (single third-party source). Format: `[Confidence | Source]`. No report without labels.
 - **Data tiers**: Verified (primary source) → Reported (third-party, attribute) → Inferred (label as "this suggests...") → Ungrounded (omit).
 - **Numbers are dangerous** — employee counts, revenue, funding change fast. Always cite source and date.
 - **Empty results ARE intelligence** — 0 jobs = not hiring, 0 SimilarWeb = small site, 12 reviews = low adoption.
