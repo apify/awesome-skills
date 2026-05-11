@@ -41,7 +41,7 @@ Generate token: https://console.apify.com/settings/integrations
 
 Every actor call follows three steps:
 1. **Read** — open `reference/actor-schemas.md` for the actor's section (input format, required fields, gotchas, output keys)
-2. **Discover** — find/verify platform URLs via SERP before calling (do not guess slugs, IDs, or URLs)
+2. **Discover** — learn how to get valid inputs, e.g. find/verify platform URLs and slugs via SERP (do not guess)
 3. **Run** — call the actor with verified input
 
 Alternatively, fetch the live schema: `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null`
