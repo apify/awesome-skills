@@ -21,8 +21,7 @@ call-actor: apify/website-content-crawler
 call-actor: pratikdani/crunchbase-companies-scraper
 
 # 5: Traffic comparison
-call-actor: pro100chok/similarweb-scraper
-  input: { "searchType": "similarweb", "domains": ["domain-1.com", "domain-2.com"] }
+call-actor: pro100chok/similarweb-scraper  # minimum 10 domains — batch all competitors in one call
 ```
 
 ## Analysis
