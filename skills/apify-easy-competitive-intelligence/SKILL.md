@@ -46,28 +46,28 @@ The table below lists actor IDs and minimal verified inputs. **Before calling an
 
 Alternatively, fetch the live schema: `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null`
 
-| Data Need | Actor | Verified Input | Notes |
-|---|---|---|---|
-| **Google SERP** | `apify/google-search-scraper` | `{ "queries": "...", "maxPagesPerQuery": 1 }` | Supports country/language. SERP snippets contain ratings & review counts |
-| **Page scrape** | `apify/website-content-crawler` | `{ "startUrls": [{"url": "..."}], "proxyConfiguration": {"useApifyProxy": true} }` | **proxyConfiguration REQUIRED**. Returns markdown |
-| **RAG browse** | `apify/rag-web-browser` | `{ "query": "..." }` | Search + scrape in one call. Good fallback |
-| **LinkedIn company** | `dev_fusion/Linkedin-Company-Scraper` | `{ "profileUrls": ["..."] }` | ⚠️ `profileUrls` not `urls`. Output in KV store |
-| **LinkedIn jobs** | `curious_coder/linkedin-jobs-scraper` | `{ "urls": ["https://www.linkedin.com/jobs/search/?keywords=COMPANY&position=1&pageNum=0"], "count": 10, "scrapeCompany": true }` | **Requires LinkedIn search URL, NOT keywords.** `count` min = 10 |
-| **Crunchbase** | `pratikdani/crunchbase-companies-scraper` | `{ "url": "..." }` | ⚠️ `url` (string), NOT `urls` (array) |
-| **Amazon product** | `junglee/Amazon-crawler` | `{ "categoryOrProductUrls": [{"url": "..."}] }` | ⚠️ `categoryOrProductUrls`, NOT `productUrls` |
-| **Amazon reviews** | `web_wanderer/amazon-reviews-extractor` | `{ "products": ["..."] }` | ⚠️ `products`, NOT `productUrls` |
-| **Walmart product** | `e-commerce/walmart-product-detail-scraper` | `{ "productUrls": ["..."] }` | May return empty |
-| **Google Maps reviews** | `compass/Google-Maps-Reviews-Scraper` | `{ "startUrls": [{"url": "..."}], "maxReviews": 30 }` | Use full Google Maps place URL |
-| **G2 reviews** | `automation-lab/g2-scraper` | `{ "startUrls": [{"url": "..."}], "maxReviews": 10 }` | NPS, ratings, switching data. $0.04/run |
-| **Capterra reviews** | `zen-studio/capterra-reviews-scraper` | `{ "productUrl": "...", "maxReviews": 10 }` | ⚠️ `productUrl` (string), NOT `startUrls`. $1.99/1K |
-| **Gartner Peer Insights** | — | No working actor | All tested actors return empty. Use SERP snippet mining as fallback |
-| **Glassdoor** | `memo23/glassdoor-scraper-ppr` | `{ "startUrls": [{"url": "..."}] }` | Reviews, salaries, culture, ratings |
-| **Reddit** | `harshmaur/reddit-scraper` | `{ "startUrls": [{"url": "..."}], "maxItems": 10 }` | Posts + full comment threads |
-| **Google Play reviews** | `neatrat/google-play-store-reviews-scraper` | `{ "appIdOrUrl": "com.company.app" }` | ⚠️ `appIdOrUrl`, NOT `appId` |
-| **App Store** | `jdtpnjtp/apple-app-store-scraper` | `fetch-actor-details` first | ⚠️ Requires SHADER proxy — may not be available on all plans |
-| **SimilarWeb** | `pro100chok/similarweb-scraper` | `{ "searchType": "similarweb", "domains": ["dom1.com", ... ] }` | **searchType REQUIRED. Minimum 10 domains.** Batch all competitors in one call |
-| **Google News** | `data_xplorer/google-news-scraper-fast` | `{ "keywords": ["..."], "maxArticles": 10, "timeframe": "7d", "region_language": "US:en", "decodeUrls": true, "extractDescriptions": true, "extractImages": false }` | $1/1K. **timeframe: only `1h`, `1d`, `7d`, `1y`, `all`**. No boolean operators in keywords |
-| **Wayback Machine** | `andok/wayback-machine-scraper` | `{ "url": "..." }` | No `maxSnapshots` param |
+| Data Need | Actor | Notes |
+|---|---|---|
+| **Google SERP** | `apify/google-search-scraper` | Supports country/language. SERP snippets contain ratings & review counts |
+| **Page scrape** | `apify/website-content-crawler` | proxyConfiguration REQUIRED. Returns markdown |
+| **RAG browse** | `apify/rag-web-browser` | Search + scrape in one call. Good fallback |
+| **LinkedIn company** | `dev_fusion/Linkedin-Company-Scraper` | Output in KV store, not dataset |
+| **LinkedIn jobs** | `curious_coder/linkedin-jobs-scraper` | Requires LinkedIn search URL, NOT keywords |
+| **Crunchbase** | `pratikdani/crunchbase-companies-scraper` | Single company URL per call |
+| **Amazon product** | `junglee/Amazon-crawler` | Product or category URLs |
+| **Amazon reviews** | `web_wanderer/amazon-reviews-extractor` | May return 0 for some products |
+| **Walmart product** | `e-commerce/walmart-product-detail-scraper` | May return empty |
+| **Google Maps reviews** | `compass/Google-Maps-Reviews-Scraper` | Use full Google Maps place URL |
+| **G2 reviews** | `automation-lab/g2-scraper` | NPS, ratings, switching data. $0.04/run |
+| **Capterra reviews** | `zen-studio/capterra-reviews-scraper` | $1.99/1K |
+| **Gartner Peer Insights** | — | No working actor. Use SERP snippet mining as fallback |
+| **Glassdoor** | `memo23/glassdoor-scraper-ppr` | Reviews, salaries, culture, ratings |
+| **Reddit** | `harshmaur/reddit-scraper` | Posts + full comment threads |
+| **Google Play reviews** | `neatrat/google-play-store-reviews-scraper` | App ID or Play Store URL |
+| **App Store** | `jdtpnjtp/apple-app-store-scraper` | Requires SHADER proxy — may not be available on all plans |
+| **SimilarWeb** | `pro100chok/similarweb-scraper` | Minimum 10 domains per call |
+| **Google News** | `data_xplorer/google-news-scraper-fast` | No boolean operators in keywords |
+| **Wayback Machine** | `andok/wayback-machine-scraper` | Full URL including path |
 
 ## Core Workflow
 
