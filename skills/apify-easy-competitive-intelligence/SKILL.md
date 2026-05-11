@@ -39,7 +39,12 @@ Generate token: https://console.apify.com/settings/integrations
 
 ## Actor Registry
 
-Run `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null` to verify input schema before calling any actor for the first time in a session. Full input/output schemas with sample data: `reference/actor-schemas.md`.
+The table below lists actor IDs and minimal verified inputs. **Before calling any actor, read its section in `reference/actor-schemas.md`** — it contains:
+- **How to find/verify the URL** (most actors need a platform-specific URL that must be discovered via SERP first — do not guess slugs)
+- **Full input parameters** with required fields, gotchas, and valid values
+- **Output keys** for parsing results
+
+Alternatively, fetch the live schema: `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null`
 
 | Data Need | Actor | Verified Input | Notes |
 |---|---|---|---|
@@ -76,7 +81,7 @@ Clarify before gathering data:
 ### Steps 1–7
 
 1. **Clarify scope** — Identify competitors. Select module(s). Default geography: US.
-2. **Fetch actor schemas** — Run `apify actors info "ACTOR_ID" --input --json` for each actor planned for use. Skip re-fetching within the same session.
+2. **Fetch actor schemas** — Read `reference/actor-schemas.md` for each actor planned for use. Verify URLs via SERP before calling (do not guess platform slugs). Optionally fetch live schema: `apify actors info "ACTOR_ID" --input --json`.
 3. **Read module reference** — Load `reference/modules/<module>.md` for gathering + analysis instructions.
 4. **Gather live data** — Parallelize independent `call-actor` calls. Use PRIMARILY actors from the Actor Registry above.
 5. **Checkpoint** (if not autopilot) — Present first findings, confirm direction.
