@@ -37,7 +37,7 @@ Generate token: https://console.apify.com/settings/integrations
 
 ## Actor Registry
 
-Run `apify actors info "ACTOR_ID" --input --json 2>/dev/null` to verify input schema before calling any actor for the first time in a session. Full input/output schemas with sample data: `reference/actor-schemas.md`.
+Run `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null` to verify input schema before calling any actor for the first time in a session. Full input/output schemas with sample data: `reference/actor-schemas.md`.
 
 | Data Need | Actor | Verified Input | Notes |
 |---|---|---|---|
