@@ -23,10 +23,10 @@ Real-time competitive intelligence powered by live web data via Apify actors. **
 
 **CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
 - **Run actor:** `apify actors call "ACTOR_ID" -i 'INPUT' --json 2>/dev/null` → returns run metadata with `defaultDatasetId`
-- **Fetch results:** `apify datasets get-items DATASET_ID --format json > /tmp/ACTOR_results.json` — save locally, parse from file. Formats: `json`, `csv`, `xlsx`, `xml`. Use `reference/actor-schemas.md` output keys to know which fields to extract.
+- **Fetch results:** `apify datasets get-items DATASET_ID --format json` → returns actual data
 - **Fetch schema:** `apify actors info "ACTOR_ID" --input --json 2>/dev/null`
 
-If CLI is unavailable, use MCP `call-actor` / `fetch-actor-details` / `get-actor-output` directly.
+If CLI is unavailable and Apify MCP server is connected, use MCP `call-actor` / `fetch-actor-details` / `get-actor-output` directly.
 
 ## Authentication
 
