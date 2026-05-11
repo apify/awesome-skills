@@ -5,20 +5,11 @@
 ## Data Gathering
 
 ```
-# 1: LinkedIn job listings (requires search URL, NOT keywords)
+# 1: LinkedIn job listings
 call-actor: curious_coder/linkedin-jobs-scraper
-  input: {
-    "urls": ["https://www.linkedin.com/jobs/search/?keywords=[competitor]&position=1&pageNum=0"],
-    "count": 50, "scrapeCompany": true
-  }
 
 # 2: Fallback — careers page
-call-actor: apify/website-content-crawler
-  input: {
-    "startUrls": [{"url": "[competitor-url]/careers"}],
-    "maxCrawlPages": 3,
-    "proxyConfiguration": {"useApifyProxy": true}
-  }
+call-actor: apify/website-content-crawler  # [competitor-url]/careers
 
 # 3: Glassdoor — culture, salaries, internal signals
 call-actor: memo23/glassdoor-scraper-ppr

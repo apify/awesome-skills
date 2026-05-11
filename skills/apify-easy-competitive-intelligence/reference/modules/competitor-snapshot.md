@@ -6,17 +6,10 @@
 
 ```
 # 1: Discover website + news
-call-actor: apify/google-search-scraper
-  input: { "queries": "[competitor name]", "maxPagesPerQuery": 1 }
+call-actor: apify/google-search-scraper  # "[competitor name]" branded query
 
 # 2: Scrape key pages (parallel)
-call-actor: apify/website-content-crawler
-  input: {
-    "startUrls": [{"url": "[url]"}, {"url": "[url]/pricing"}, {"url": "[url]/about"}],
-    "maxCrawlPages": 3, "maxCrawlDepth": 0,
-    "crawlerType": "playwright:adaptive",
-    "proxyConfiguration": {"useApifyProxy": true}
-  }
+call-actor: apify/website-content-crawler  # homepage, /pricing, /about
 
 # 3: Structured enrichment (parallel, if URLs available)
 call-actor: dev_fusion/Linkedin-Company-Scraper

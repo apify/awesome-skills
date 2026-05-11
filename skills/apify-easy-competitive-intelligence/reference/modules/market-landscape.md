@@ -14,8 +14,7 @@ call-actor: apify/rag-web-browser
   input: { "query": "best [category] comparison" }
 
 # 3: Quick snapshot of each discovered competitor
-call-actor: apify/website-content-crawler
-  input: { "startUrls": ["[url-1]", "[url-2]", ...], "maxCrawlPages": 1, "proxyConfiguration": {"useApifyProxy": true} }
+call-actor: apify/website-content-crawler  # homepage of each discovered competitor
 
 # 4: Funding/size enrichment
 call-actor: pratikdani/crunchbase-companies-scraper

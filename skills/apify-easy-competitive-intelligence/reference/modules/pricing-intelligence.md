@@ -6,12 +6,7 @@
 
 ```
 # Scrape pricing pages (parallel)
-call-actor: apify/website-content-crawler
-  input: {
-    "startUrls": [{"url": "[competitor-a]/pricing"}, {"url": "[competitor-b]/pricing"}],
-    "maxCrawlPages": 3, "maxCrawlDepth": 0,
-    "proxyConfiguration": {"useApifyProxy": true}
-  }
+call-actor: apify/website-content-crawler  # [competitor]/pricing for each vendor
 
 # E-commerce products (if applicable)
 call-actor: junglee/Amazon-crawler
