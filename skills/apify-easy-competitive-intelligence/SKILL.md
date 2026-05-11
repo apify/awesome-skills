@@ -39,10 +39,10 @@ Generate token: https://console.apify.com/settings/integrations
 
 ## Actor Registry
 
-The table below lists actor IDs and minimal verified inputs. **Before calling any actor, read its section in `reference/actor-schemas.md`** — it contains:
-- **How to find/verify the URL** (most actors need a platform-specific URL that must be discovered via SERP first — do not guess slugs)
-- **Full input parameters** with required fields, gotchas, and valid values
-- **Output keys** for parsing results
+Every actor call follows three steps:
+1. **Read** — open `reference/actor-schemas.md` for the actor's section (input format, required fields, gotchas, output keys)
+2. **Discover** — find/verify platform URLs via SERP before calling (do not guess slugs, IDs, or URLs)
+3. **Run** — call the actor with verified input
 
 Alternatively, fetch the live schema: `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null`
 
@@ -81,13 +81,12 @@ Clarify before gathering data:
 ### Steps 1–7
 
 1. **Clarify scope** — Identify competitors. Select module(s). Default geography: US.
-2. **Fetch actor schemas** — Read `reference/actor-schemas.md` for each actor planned for use. Verify URLs via SERP before calling (do not guess platform slugs). Optionally fetch live schema: `apify actors info "ACTOR_ID" --input --json`.
-3. **Read module reference** — Load `reference/modules/<module>.md` for gathering + analysis instructions.
-4. **Gather live data** — Parallelize independent `call-actor` calls. Use PRIMARILY actors from the Actor Registry above.
-5. **Checkpoint** (if not autopilot) — Present first findings, confirm direction.
-6. **Analyze** — Select framework, lead with narrative, support with tables.
-7. **Verify** — Run pre-delivery verification (`reference/verification-checklist.md`). Check: every claim has a source URL, every major finding has a confidence label, inferences are labeled as such. Remove any ungrounded claims.
-8. **Deliver** — End with strategic recommendations framed for the user's role.
+2. **Read module reference** — Load `reference/modules/<module>.md` for gathering + analysis instructions.
+3. **Gather live data** — For each actor call, follow the three-step pattern: **Read** (actor-schemas.md) → **Discover** (SERP for URLs) → **Run** (call actor). Use PRIMARILY actors from the Actor Registry above.
+4. **Checkpoint** (if not autopilot) — Present first findings, confirm direction.
+5. **Analyze** — Select framework, lead with narrative, support with tables.
+6. **Verify** — Run pre-delivery verification (`reference/verification-checklist.md`). Check: every claim has a source URL, every major finding has a confidence label, inferences are labeled as such. Remove any ungrounded claims.
+7. **Deliver** — End with strategic recommendations framed for the user's role.
 
 ### Framework Selection
 
