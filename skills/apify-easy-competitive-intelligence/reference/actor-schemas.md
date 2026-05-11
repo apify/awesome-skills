@@ -157,10 +157,11 @@ Replaces `zhorex/g2-reviews-scraper` (broken).
 
 **Input:**
 ```json
-{ "startUrls": [{"url": "https://www.g2.com/products/product-slug/reviews"}], "maxReviews": 10 }
+{ "mode": "product_reviews", "productUrls": ["product-slug"], "maxReviews": 25, "sortReviews": "newest" }
 ```
+⚠️ Field is `productUrls` (array of slugs), NOT `startUrls`. `mode` is required. The slug is the product name lowercased with hyphens (e.g., `apify`, `slack`, `databricks`, `oxylabs`). If actor returns reviews for wrong product (e.g., Slack), the slug was not recognized — verify via SERP.
 
-**How to find the URL:** Search G2 for the product or use SERP: `"[product] site:g2.com/products"`. The URL pattern is `g2.com/products/[slug]/reviews`. The slug is the product name lowercased with hyphens (e.g., `apify`, `slack`, `databricks`).
+**How to find the slug:** Search G2 or use SERP: `"[product] site:g2.com/products"`. The URL pattern is `g2.com/products/[slug]/reviews` — extract the slug from the URL.
 
 **Output keys:** `reviewId`, `title`, `starRating`, `nps`, `reviewText`, `publishedAt`, `submittedAt`, `reviewerName`, `country`, `region`, `easeOfUse`, `easeOfSetup`, `easeOfAdmin`, `qualityOfSupport`, `meetsRequirements`, `loveTheme`, `hateTheme`, `switchedFromOtherProduct`, `switchedReason`, `companySegment`, `industry`, `productName`, `productSlug`, `url`, `helpfulVotes`, `sourceType`
 
@@ -196,8 +197,9 @@ call-actor: apify/google-search-scraper
 
 **Input:**
 ```json
-{ "startUrls": [{"url": "https://www.glassdoor.com/Overview/Working-at-Company-EI_IEID.htm"}] }
+{ "startUrls": [{"url": "https://www.glassdoor.com/Overview/Working-at-Company-EI_IEID.htm"}], "command": "reviews" }
 ```
+`command` values: `reviews`, `jobs`, `interviews`, `salaries`, `overview`. Default to `reviews` for CI.
 
 **How to find the URL:** Search Glassdoor or use SERP: `"[company] site:glassdoor.com/Overview"`. The URL contains an employer ID (`EI_IE[number]`). The company name part can vary — the numeric ID is what matters.
 
