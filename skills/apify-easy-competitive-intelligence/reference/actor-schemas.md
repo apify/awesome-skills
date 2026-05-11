@@ -69,17 +69,17 @@ Each `organicResult`: `title`, `url`, `description`, `position`, `date`, `emphas
 
 ## curious_coder/linkedin-jobs-scraper
 
+⚠️ **Before calling:** Verify the company's exact name on LinkedIn via SERP: `"[company] site:linkedin.com/jobs"`. Multi-word names need URL-encoding (`Bright Data` → `Bright%20Data`). Wrong name returns 0 or unrelated jobs silently.
+
 **Input:**
 ```json
 {
-  "urls": ["https://www.linkedin.com/jobs/search/?keywords=Company&position=1&pageNum=0"],
+  "urls": ["https://www.linkedin.com/jobs/search/?keywords=VERIFIED-COMPANY-NAME&position=1&pageNum=0"],
   "count": 10,
   "scrapeCompany": true
 }
 ```
 ⚠️ `count` minimum is 10. Requires LinkedIn search URL, NOT keyword string.
-
-**How to build the URL:** Replace `Company` in `https://www.linkedin.com/jobs/search/?keywords=Company&position=1&pageNum=0`. URL-encode spaces as `%20` or `+`.
 
 **Output keys:** `id`, `title`, `companyName`, `companyLinkedinUrl`, `companyLogo`, `companyWebsite`, `companyDescription`, `companyEmployeesCount`, `companySlogan`, `location`, `country`, `postedAt`, `postedAtTimestamp`, `expireAt`, `salary`, `salaryInsights`, `seniorityLevel`, `employmentType`, `jobFunction`, `industries`, `descriptionText`, `descriptionHtml`, `applicantsCount`, `applyUrl`, `applyMethod`, `workplaceTypes`, `workRemoteAllowed`, `standardizedTitle`, `link`, `inputUrl`
 
