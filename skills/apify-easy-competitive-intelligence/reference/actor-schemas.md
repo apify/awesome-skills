@@ -247,9 +247,9 @@ Alternatively, scrape a specific subreddit: `https://www.reddit.com/r/subreddit/
 
 **Input:**
 ```json
-{ "searchType": "similarweb", "domains": ["example.com"] }
+{ "searchType": "similarweb", "domains": ["apify.com", "oxylabs.io", "brightdata.com", "zyte.com", "scraperapi.com", "smartproxy.com", "scrapingbee.com", "nimbleway.com", "diffbot.com", "octoparse.com"] }
 ```
-⚠️ `searchType` is required. Returns empty for small/low-traffic sites. Use bare domain without protocol (e.g., `apify.com`, not `https://apify.com`).
+⚠️ `searchType` is required. **Minimum 10 domains required** — actor rejects fewer with "Minimum 10 domains required for analysis." Always batch all competitors into one call. Use bare domain without protocol (e.g., `apify.com`, not `https://apify.com`).
 
 ---
 
