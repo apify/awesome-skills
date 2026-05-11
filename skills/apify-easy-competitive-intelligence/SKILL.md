@@ -23,7 +23,12 @@ Real-time competitive intelligence powered by live web data via Apify actors. **
 
 **CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
 - **Run actor:** `apify actors call "ACTOR_ID" -i 'INPUT' --json 2>/dev/null` → returns run metadata with `defaultDatasetId`
-- **Fetch results:** `apify datasets get-items DATASET_ID --format json` → returns actual data
+- **Fetch results:** `apify datasets get-items DATASET_ID --format json > /tmp/results.json 2>/dev/null` — save locally, parse from file:
+  - Quick extraction: `jq '.[] | "\(.field1) | \(.field2)"' /tmp/results.json`
+  - Aggregation: `python3 -c "import json; d=json.load(open('/tmp/results.json')); ..."`
+  - Tabular: `--format csv > /tmp/results.csv` + `python3` with `csv.DictReader`
+  - Flags: `--limit N`, `--offset N`, `--format json|jsonl|csv|xlsx|xml`
+  - Output fields: `apify datasets info DATASET_ID --json | jq .fields`
 - **Fetch schema:** `apify actors info "ACTOR_ID" --input --json 2>/dev/null`
 
 If CLI is unavailable and Apify MCP server is connected, use MCP `call-actor` / `fetch-actor-details` / `get-actor-output` directly.
