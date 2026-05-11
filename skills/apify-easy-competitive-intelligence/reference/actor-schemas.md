@@ -267,7 +267,7 @@ Alternatively, scrape a specific subreddit: `https://www.reddit.com/r/subreddit/
   "extractImages": false
 }
 ```
-`timeframe` values: `1h`, `1d`, `7d`, `1y`, `all`. Multi-keyword via array. Use quotes for exact phrase match (e.g., `"\"Bright Data\""` to find articles mentioning "Bright Data" as a phrase, not "bright" and "data" separately).
+`timeframe` values: `1h`, `1d`, `7d`, `1y`, `all`. Multi-keyword via array. Use quotes for exact phrase match (e.g., `"\"Bright Data\""` to find articles mentioning "Bright Data" as a phrase, not "bright" and "data" separately). ⚠️ Boolean operators (OR, AND) produce unreliable results — use separate keywords array entries instead of boolean syntax.
 
 **Output keys:** `title`, `url`, `source`, `publishedAt` (ISO), `publishedTimestamp` (unix), `image`, `description` (full text when `extractDescriptions: true`), `metadata`
 
