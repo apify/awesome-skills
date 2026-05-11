@@ -21,11 +21,12 @@ Real-time competitive intelligence powered by live web data via Apify actors. **
 - Apify CLI v1.5.0+ (`npm install -g apify-cli`), or Apify MCP server
 - Authenticated session (`apify login` or `APIFY_TOKEN` env var)
 
-**CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`. Module references use shorthand — translate to CLI:
-- `call-actor: ACTOR_ID` → `apify actors call "ACTOR_ID" -i 'INPUT' ...`
-- `fetch-actor-details` → `apify actors info "ACTOR_ID" --input ...`
+**CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
+- **Run actor:** `apify actors call "ACTOR_ID" -i 'INPUT' --json 2>/dev/null` → returns run metadata with `defaultDatasetId`
+- **Fetch results:** `apify datasets get-items DATASET_ID --format json` → returns actual data
+- **Fetch schema:** `apify actors info "ACTOR_ID" --input --json 2>/dev/null`
 
-If CLI is unavailable and Apify MCP server is connected, use MCP `call-actor` / `fetch-actor-details` directly. If neither is available, install and authenticate the CLI first.
+If CLI is unavailable and Apify MCP server is connected, use MCP `call-actor` / `fetch-actor-details` / `get-actor-output` directly.
 
 ## Authentication
 

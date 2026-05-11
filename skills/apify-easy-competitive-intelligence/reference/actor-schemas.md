@@ -55,13 +55,13 @@ Each `organicResult`: `title`, `url`, `description`, `position`, `date`, `emphas
 
 ## dev_fusion/Linkedin-Company-Scraper
 
+⚠️ **Before calling:** LinkedIn slugs often differ from company names (e.g., Oxylabs → `oxylabs-io`, not `oxylabs`). Wrong slug silently returns 0 results. **Discover via SERP first:** `"[company] site:linkedin.com/company"`
+
 **Input:**
 ```json
-{ "profileUrls": ["https://www.linkedin.com/company/company-name/"] }
+{ "profileUrls": ["https://www.linkedin.com/company/VERIFIED-SLUG/"] }
 ```
 ⚠️ Field is `profileUrls`, NOT `urls`.
-
-**How to find the URL:** Search LinkedIn for the company → company page URL has format `linkedin.com/company/slug/`. Alternatively, use SERP: `"[company] site:linkedin.com/company"`.
 
 **Output:** Data stored in key-value store, not dataset. Check KV store keys after run.
 
@@ -87,15 +87,15 @@ Each `organicResult`: `title`, `url`, `description`, `position`, `date`, `emphas
 
 ## pratikdani/crunchbase-companies-scraper
 
+⚠️ **Before calling:** Verify the org slug via SERP: `"[company] site:crunchbase.com/organization"`. Slug is typically lowercased with hyphens.
+
 **Input:**
 ```json
-{ "url": "https://www.crunchbase.com/organization/company-name" }
+{ "url": "https://www.crunchbase.com/organization/VERIFIED-SLUG" }
 ```
 ⚠️ Field is `url` (singular string), NOT `urls` (array).
 
-**How to find the URL:** Search Crunchbase or use SERP: `"[company] site:crunchbase.com/organization"`. The slug is typically the company name lowercased with hyphens.
-
-**Output:** May return `{"error": "Issue in running the url."}` for some URLs. When successful: company profile data (funding, investors, financials).
+**Output:** May return `{"error": "Issue in running the url."}` for wrong slugs. When successful: company profile data (funding, investors, financials).
 
 ---
 
@@ -155,13 +155,13 @@ May return 0 items for some products — try the full product URL with title slu
 
 Replaces `zhorex/g2-reviews-scraper` (broken).
 
+⚠️ **Before calling:** Discover the G2 slug via SERP: `"[product] site:g2.com/products"`. Extract slug from URL pattern `g2.com/products/[slug]/reviews`. Wrong slug silently returns reviews for a **different product** (e.g., Slack). Always verify `productName` in output matches your target.
+
 **Input:**
 ```json
-{ "mode": "product_reviews", "productUrls": ["product-slug"], "maxReviews": 25, "sortReviews": "newest" }
+{ "mode": "product_reviews", "productUrls": ["VERIFIED-SLUG"], "maxReviews": 25, "sortReviews": "newest" }
 ```
-⚠️ Field is `productUrls` (array of slugs), NOT `startUrls`. `mode` is required. The slug is the product name lowercased with hyphens (e.g., `apify`, `slack`, `databricks`, `oxylabs`). If actor returns reviews for wrong product (e.g., Slack), the slug was not recognized — verify via SERP.
-
-**How to find the slug:** Search G2 or use SERP: `"[product] site:g2.com/products"`. The URL pattern is `g2.com/products/[slug]/reviews` — extract the slug from the URL.
+⚠️ Field is `productUrls` (array of slugs), NOT `startUrls`. `mode` is required.
 
 **Output keys:** `reviewId`, `title`, `starRating`, `nps`, `reviewText`, `publishedAt`, `submittedAt`, `reviewerName`, `country`, `region`, `easeOfUse`, `easeOfSetup`, `easeOfAdmin`, `qualityOfSupport`, `meetsRequirements`, `loveTheme`, `hateTheme`, `switchedFromOtherProduct`, `switchedReason`, `companySegment`, `industry`, `productName`, `productSlug`, `url`, `helpfulVotes`, `sourceType`
 
@@ -169,13 +169,13 @@ Replaces `zhorex/g2-reviews-scraper` (broken).
 
 ## zen-studio/capterra-reviews-scraper
 
+⚠️ **Before calling:** Discover the Capterra URL via SERP: `"[product] site:capterra.com/p/"`. URL pattern is `capterra.com/p/[numeric-id]/[Product-Name]/reviews/`. The numeric ID is required — do not guess it.
+
 **Input:**
 ```json
-{ "productUrl": "https://www.capterra.com/p/ID/Product/reviews/", "maxReviews": 10 }
+{ "productUrl": "https://www.capterra.com/p/NUMERIC-ID/Product-Name/reviews/", "maxReviews": 10 }
 ```
 ⚠️ Field is `productUrl` (singular string), NOT `startUrls`.
-
-**How to find the URL:** Search Capterra or use SERP: `"[product] site:capterra.com/p/"`. URL pattern is `capterra.com/p/[numeric-id]/[Product-Name]/reviews/`. The numeric ID is required.
 
 **Output keys:** `url`, `reviewId`, `title`, `writtenOn`, `overallRating`, `easeOfUseRating`, `customerSupportRating`, `functionalityRating`, `valueForMoneyRating`, `recommendationRating`, `prosText`, `consText`, `generalComments`, `adviceToOthers`, `incentivized`, `reviewer`, `vendorResponse`, `scrapedAt`
 
@@ -195,13 +195,13 @@ call-actor: apify/google-search-scraper
 
 ## memo23/glassdoor-scraper-ppr
 
+⚠️ **Before calling:** Discover the Glassdoor URL via SERP: `"[company] site:glassdoor.com/Overview"`. The URL contains an employer ID (`EI_IE[number]`) — the numeric ID is what matters, not the company name part.
+
 **Input:**
 ```json
-{ "startUrls": [{"url": "https://www.glassdoor.com/Overview/Working-at-Company-EI_IEID.htm"}], "command": "reviews" }
+{ "startUrls": [{"url": "https://www.glassdoor.com/Overview/Working-at-COMPANY-EI_IEVERIFIED-ID.htm"}], "command": "reviews" }
 ```
 `command` values: `reviews`, `jobs`, `interviews`, `salaries`, `overview`. Default to `reviews` for CI.
-
-**How to find the URL:** Search Glassdoor or use SERP: `"[company] site:glassdoor.com/Overview"`. The URL contains an employer ID (`EI_IE[number]`). The company name part can vary — the numeric ID is what matters.
 
 **Output keys:** `reviewId`, `summary`, `pros`, `cons`, `advice`, `ratingOverall`, `ratingWorkLifeBalance`, `ratingCultureAndValues`, `ratingCompensationAndBenefits`, `ratingCareerOpportunities`, `ratingSeniorLeadership`, `ratingDiversityAndInclusion`, `ratingCeo`, `ratingBusinessOutlook`, `ratingRecommendToFriend`, `jobTitle`, `location`, `reviewDateTime`, `isCurrentJob`, `lengthOfEmployment`, `employer`
 
