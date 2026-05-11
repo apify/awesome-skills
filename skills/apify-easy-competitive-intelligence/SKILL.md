@@ -136,7 +136,3 @@ Clarify before gathering data:
 | "How do they rank", "Content strategy", "SEO" | Content & SEO | `reference/modules/content-seo.md` |
 | "Who are the players", "Market landscape" | Market Landscape | `reference/modules/market-landscape.md` |
 | "Full battlecard", "Deep analysis", "Board prep" | Multi-Module | `reference/multi-module-playbook.md` |
-
-## Pre-delivery Verification
-
-Every report undergoes mandatory verification before delivery. Full checklist: `reference/verification-checklist.md`. Core principle: **every factual claim must have a source URL. No exceptions. No inferences presented as facts.**
