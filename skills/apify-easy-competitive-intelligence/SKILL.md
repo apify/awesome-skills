@@ -78,7 +78,7 @@ Clarify before gathering data:
 1. **Clarify scope** — Identify competitors. Select module(s). Default geography: US.
 2. **Fetch actor schemas** — Run `apify actors info "ACTOR_ID" --input --json` for each actor planned for use. Skip re-fetching within the same session.
 3. **Read module reference** — Load `reference/modules/<module>.md` for gathering + analysis instructions.
-4. **Gather live data** — Parallelize independent `call-actor` calls. Use ONLY actors from the Actor Registry above.
+4. **Gather live data** — Parallelize independent `call-actor` calls. Use PRIMARILY actors from the Actor Registry above.
 5. **Checkpoint** (if not autopilot) — Present first findings, confirm direction.
 6. **Analyze** — Select framework, lead with narrative, support with tables.
 7. **Verify** — Run pre-delivery verification (`reference/verification-checklist.md`). Check: every claim has a source URL, every major finding has a confidence label, inferences are labeled as such. Remove any ungrounded claims.
