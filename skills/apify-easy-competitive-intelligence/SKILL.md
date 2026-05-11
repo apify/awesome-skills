@@ -18,43 +18,26 @@ Real-time competitive intelligence powered by live web data via Apify actors. **
 
 ## Prerequisites
 
-Detect available tools at the start of every session, in this order:
+- Apify CLI v1.5.0+ (`npm install -g apify-cli`), or Apify MCP server
+- Authenticated session (`apify login` or `APIFY_TOKEN` env var)
 
-1. **Apify CLI (preferred):** Run `apify --version 2>/dev/null`. If available and authenticated, use CLI for all actor operations.
-2. **Apify MCP server (fallback):** Check for tools prefixed `mcp__claude_ai_apify__`. If available, use MCP `call-actor` / `fetch-actor-details`.
-3. **Neither available:** Install and authenticate the CLI:
-   ```bash
-   npm install -g apify-cli
-   apify login
-   ```
-   Generate token: https://console.apify.com/settings/integrations
+**CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
 
-**Rules for every `apify` CLI command:**
-1. Pass `--json` for machine-readable output.
-2. Pass `--user-agent apify-agent-skills/apify-easy-competitive-intelligence` for telemetry attribution.
-3. Redirect stderr with `2>/dev/null` (progress messages break JSON parsers).
+If CLI is unavailable and Apify MCP server is connected, use MCP `call-actor` / `fetch-actor-details` directly. If neither is available, install and authenticate the CLI first.
 
-### Running Actors
+## Authentication
 
-**CLI:**
-```bash
-# Fetch actor schema
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null
+If a CLI command fails with an auth error, authenticate using one of these methods:
 
-# Run actor (blocking)
-apify actors call "ACTOR_ID" -i 'JSON_INPUT' --user-agent apify-agent-skills/apify-easy-competitive-intelligence --json 2>/dev/null
+1. **OAuth (interactive):** `apify login` (opens browser)
+2. **Environment variable:** `export APIFY_TOKEN=your_token_here`
+3. **From .env file:** `source .env` (if the file contains `APIFY_TOKEN=...`)
 
-# Fetch results
-apify datasets get-items DATASET_ID --user-agent apify-agent-skills/apify-easy-competitive-intelligence --format json
-```
-
-**MCP (if CLI unavailable):** Use `call-actor` and `fetch-actor-details` tools directly.
-
-The module reference files use `call-actor:` shorthand notation. Translate to the appropriate tool based on what's available.
+Generate token: https://console.apify.com/settings/integrations
 
 ## Actor Registry
 
-Run `fetch-actor-details` (MCP) or `apify actors info "ACTOR_ID" --input --json` (CLI) to verify input schema before calling any actor for the first time in a session. Full input/output schemas with sample data: `reference/actor-schemas.md`.
+Run `apify actors info "ACTOR_ID" --input --json 2>/dev/null` to verify input schema before calling any actor for the first time in a session. Full input/output schemas with sample data: `reference/actor-schemas.md`.
 
 | Data Need | Actor | Verified Input | Notes |
 |---|---|---|---|
