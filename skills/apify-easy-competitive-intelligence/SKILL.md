@@ -21,7 +21,9 @@ Real-time competitive intelligence powered by live web data via Apify actors. **
 - Apify CLI v1.5.0+ (`npm install -g apify-cli`), or Apify MCP server
 - Authenticated session (`apify login` or `APIFY_TOKEN` env var)
 
-**CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
+**CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`. Module references use shorthand — translate to CLI:
+- `call-actor: ACTOR_ID` → `apify actors call "ACTOR_ID" -i 'INPUT' ...`
+- `fetch-actor-details` → `apify actors info "ACTOR_ID" --input ...`
 
 If CLI is unavailable and Apify MCP server is connected, use MCP `call-actor` / `fetch-actor-details` directly. If neither is available, install and authenticate the CLI first.
 
@@ -74,7 +76,7 @@ Clarify before gathering data:
 ### Steps 1–7
 
 1. **Clarify scope** — Identify competitors. Select module(s). Default geography: US.
-2. **Fetch actor schemas** — Run `fetch-actor-details` for each actor planned for use. Skip re-fetching within the same session.
+2. **Fetch actor schemas** — Run `apify actors info "ACTOR_ID" --input --json` for each actor planned for use. Skip re-fetching within the same session.
 3. **Read module reference** — Load `reference/modules/<module>.md` for gathering + analysis instructions.
 4. **Gather live data** — Parallelize independent `call-actor` calls.
 5. **Checkpoint** (if not autopilot) — Present first findings, confirm direction.
