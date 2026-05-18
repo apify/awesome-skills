@@ -1,30 +1,152 @@
-name: Check AGENTS.md and marketplace.json
+name: Validate skill PRs and regenerate AGENTS.md
 
 on:
   pull_request:
+    types: [opened, edited, synchronize, reopened]
     paths:
-      - "scripts/AGENTS_TEMPLATE.md"
-      - "scripts/generate_agents.py"
-      - "**/SKILL.md"
-      - "agents/AGENTS.md"
-      - ".claude-plugin/marketplace.json"
+      - "scripts/**"
+      - "skills/**"
+      - "agents/**"
+      - ".claude-plugin/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - ".github/**"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "skills/**"
+      - ".claude-plugin/**"
 
 jobs:
-  validate:
+  validate-pr:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Generate AGENTS.md and validate marketplace.json
+      - name: Detect maintainer override
+        id: override
+        env:
+          LABELS_JSON: ${{ toJSON(github.event.pull_request.labels) }}
+        run: |
+          if echo "$LABELS_JSON" | grep -q '"name": *"maintainer"'; then
+            echo "maintainer=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::PR has 'maintainer' label — file/scope checks will only warn."
+          else
+            echo "maintainer=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check PR scope (one skill per PR, no out-of-bounds files)
+        env:
+          IS_MAINTAINER: ${{ steps.override.outputs.maintainer }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          CHANGED=$(git diff --name-only --diff-filter=ACMRT "origin/$BASE_REF...HEAD")
+          if [ -z "$CHANGED" ]; then
+            echo "No file changes detected."
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED" | sed 's/^/  - /'
+          echo
+
+          SKILL_DIRS=$(echo "$CHANGED" | grep -oE '^skills/apify-[^/]+' | sort -u)
+          N_SKILLS=$(echo "$SKILL_DIRS" | grep -c . || true)
+
+          ALLOWED='^(skills/apify-[^/]+/|\.claude-plugin/marketplace\.json$)'
+          OUT_OF_BOUNDS=$(echo "$CHANGED" | grep -vE "$ALLOWED" || true)
+
+          FAIL=0
+
+          if [ "$N_SKILLS" -gt 1 ]; then
+            echo "::error::PR touches $N_SKILLS skills; one skill per PR."
+            echo "$SKILL_DIRS" | sed 's/^/  - /'
+            FAIL=1
+          fi
+
+          if [ -n "$OUT_OF_BOUNDS" ]; then
+            echo "::error::PR touches files outside 'skills/apify-<name>/' and '.claude-plugin/marketplace.json':"
+            echo "$OUT_OF_BOUNDS" | sed 's/^/  - /'
+            FAIL=1
+          fi
+
+          if [ "$FAIL" -eq 1 ]; then
+            if [ "$IS_MAINTAINER" = "true" ]; then
+              echo "::notice::Scope violations present, but 'maintainer' label is set — continuing."
+            else
+              echo
+              echo "To override, a maintainer can add the 'maintainer' label to this PR."
+              exit 1
+            fi
+          fi
+
+      - name: Check PR checklist
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          IS_MAINTAINER: ${{ steps.override.outputs.maintainer }}
+        run: |
+          if [ -z "$PR_BODY" ]; then
+            echo "::error::PR description is empty — please fill in the template."
+            exit 1
+          fi
+
+          UNCHECKED=$(echo "$PR_BODY" | grep -nE '^- \[ \]' || true)
+          if [ -n "$UNCHECKED" ]; then
+            if [ "$IS_MAINTAINER" = "true" ]; then
+              echo "::notice::Unchecked boxes in PR description, but 'maintainer' label is set — continuing."
+            else
+              echo "::error::PR checklist has unchecked boxes — please complete them:"
+              echo "$UNCHECKED" | sed 's/^/  /'
+              exit 1
+            fi
+          fi
+
+      - name: Validate skills and marketplace sync
         run: uv run scripts/generate_agents.py
 
-      - name: Ensure AGENTS.md is up to date
+      - name: Detect manual edits to generated files
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          git diff --quiet -- agents/AGENTS.md || {
-            echo "::error::agents/AGENTS.md is outdated. Run 'uv run scripts/generate_agents.py' and commit the changes."
-            exit 1
-          }
+          GENERATED='agents/AGENTS.md README.md'
+          if git diff --name-only "origin/$BASE_REF...HEAD" -- $GENERATED | grep -q .; then
+            echo "::notice::PR modifies generated files (agents/AGENTS.md or README.md) — they will be overwritten by the post-merge regenerate job."
+          fi
+
+  regenerate:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Regenerate AGENTS.md and README skills table
+        run: uv run scripts/generate_agents.py
+
+      - name: Commit regenerated files
+        run: |
+          if git diff --quiet -- agents/AGENTS.md README.md; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add agents/AGENTS.md README.md
+          git commit -m 'chore: regenerate agents/AGENTS.md and README skills table [skip ci]'
+          git push
