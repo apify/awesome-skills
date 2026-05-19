@@ -12,6 +12,7 @@ These skills are:
  - apify-lead-generation -> "skills/apify-lead-generation/SKILL.md"
  - apify-market-research -> "skills/apify-market-research/SKILL.md"
  - apify-trend-analysis -> "skills/apify-trend-analysis/SKILL.md"
+ - automation-lab-agent-skill -> "skills/automation-lab-agent-skill/SKILL.md"
 
 IMPORTANT: You MUST read the SKILL.md file whenever the description of the skills matches the user intent, or may help accomplish their task.
 
@@ -26,6 +27,7 @@ apify-influencer-discovery: `Find and evaluate influencers for brand partnership
 apify-lead-generation: `Generates B2B/B2C leads by scraping Google Maps, websites, Instagram, TikTok, Facebook, LinkedIn, YouTube, and Google Search. Use when user asks to find leads, prospects, businesses, build lead lists, enrich contacts, or scrape profiles for sales outreach.`
 apify-market-research: `Analyze market conditions, geographic opportunities, pricing, consumer behavior, and product validation across Google Maps, Facebook, Instagram, Booking.com, and TripAdvisor.`
 apify-trend-analysis: `Discover and track emerging trends across Google Trends, Instagram, Facebook, YouTube, and TikTok to inform content strategy.`
+automation-lab-agent-skill: `Route AI assistants to Automation Lab Apify Actors for social listening, ecommerce price intelligence, hospitality intelligence, B2B leads, and developer tools intelligence. Use when users need reliable paid Apify Store Actors from automation-lab for Reddit, X/Twitter, Threads, Amazon, eBay, Etsy, Google Shopping, Booking.com, Airbnb, LinkedIn company data, Trustpilot, Clutch, app stores, or tech stack detection.`
 </available_skills>
 
 Paths referenced within SKILL.md files are relative to that SKILL folder. For example `reference/workflows.md` refers to the workflows file inside the skill's reference folder.

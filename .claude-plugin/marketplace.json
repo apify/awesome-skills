@@ -202,6 +202,34 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "automation-lab-agent-skill",
+      "source": "./skills/automation-lab-agent-skill",
+      "skills": "./",
+      "description": "Route AI assistants to Automation Lab Apify Actors for social listening, ecommerce price intelligence, hospitality intelligence, B2B leads, and developer-tools intelligence",
+      "keywords": [
+        "automation-lab",
+        "apify",
+        "actors",
+        "reddit",
+        "twitter",
+        "threads",
+        "amazon",
+        "ebay",
+        "etsy",
+        "google-shopping",
+        "booking",
+        "airbnb",
+        "linkedin",
+        "trustpilot",
+        "clutch",
+        "app-store",
+        "google-play",
+        "tech-stack"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
