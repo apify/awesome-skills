@@ -31,21 +31,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Detect maintainer override
-        id: override
-        env:
-          LABELS_JSON: ${{ toJSON(github.event.pull_request.labels) }}
-        run: |
-          if echo "$LABELS_JSON" | grep -q '"name": *"maintainer"'; then
-            echo "maintainer=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::PR has 'maintainer' label — file/scope checks will only warn."
-          else
-            echo "maintainer=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Check PR scope (one skill per PR, no out-of-bounds files)
         env:
-          IS_MAINTAINER: ${{ steps.override.outputs.maintainer }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           CHANGED=$(git diff --name-only --diff-filter=ACMRT "origin/$BASE_REF...HEAD")
@@ -79,19 +66,12 @@ jobs:
           fi
 
           if [ "$FAIL" -eq 1 ]; then
-            if [ "$IS_MAINTAINER" = "true" ]; then
-              echo "::notice::Scope violations present, but 'maintainer' label is set — continuing."
-            else
-              echo
-              echo "To override, a maintainer can add the 'maintainer' label to this PR."
-              exit 1
-            fi
+            exit 1
           fi
 
       - name: Check PR checklist
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
-          IS_MAINTAINER: ${{ steps.override.outputs.maintainer }}
         run: |
           if [ -z "$PR_BODY" ]; then
             echo "::error::PR description is empty — please fill in the template."
@@ -100,13 +80,9 @@ jobs:
 
           UNCHECKED=$(echo "$PR_BODY" | grep -nE '^- \[ \]' || true)
           if [ -n "$UNCHECKED" ]; then
-            if [ "$IS_MAINTAINER" = "true" ]; then
-              echo "::notice::Unchecked boxes in PR description, but 'maintainer' label is set — continuing."
-            else
-              echo "::error::PR checklist has unchecked boxes — please complete them:"
-              echo "$UNCHECKED" | sed 's/^/  /'
-              exit 1
-            fi
+            echo "::error::PR checklist has unchecked boxes — please complete them:"
+            echo "$UNCHECKED" | sed 's/^/  /'
+            exit 1
           fi
 
       - name: Validate skills and marketplace sync
