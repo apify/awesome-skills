@@ -1,11 +1,8 @@
 ---
-name: apify-REPLACE-skill-name
-description: >-
-  REPLACE: One or two sentences describing what the skill does, including
-  trigger phrases a user would say (e.g. "scrape Amazon reviews", "find
-  leads on LinkedIn"). Max 1024 characters per agentskills.io spec.
-author: REPLACE Your Name
-author_url: https://github.com/REPLACE-your-handle
+# TEMPLATE — replace name and description with your real values.
+# Do NOT add real values here; this file is a starting point, not an installable skill.
+name: ""
+description: ""
 ---
 
 # REPLACE: Skill Title
