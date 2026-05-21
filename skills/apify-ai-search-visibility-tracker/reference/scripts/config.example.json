@@ -1,0 +1,55 @@
+{
+  "brand": {
+    "name": "Apify",
+    "domain": "apify.com",
+    "surface_forms": ["Apify", "apify.com", "@apify"]
+  },
+  "competitors": [
+    {
+      "name": "ScrapingBee",
+      "domain": "scrapingbee.com",
+      "surface_forms": ["ScrapingBee", "scrapingbee.com"]
+    },
+    {
+      "name": "Bright Data",
+      "domain": "brightdata.com",
+      "surface_forms": ["Bright Data", "brightdata.com", "Luminati"]
+    }
+  ],
+  "prompts": [
+    "best web scraping tool",
+    "how to scrape Amazon prices",
+    "Apify vs Scrapy",
+    "no-code web scraping",
+    "scraping API for developers"
+  ],
+  "cadence": "daily",
+  "run_hour_local": 9,
+  "include_full_answers": "on_demand",
+  "ai_sources": {
+    "ai_overviews": true,
+    "ai_mode": true,
+    "chatgpt": true,
+    "perplexity": true,
+    "copilot": true,
+    "gemini": true
+  },
+  "apify": {
+    "actor_id": "apify/google-search-scraper",
+    "dataset_name": "ai-visibility-apify",
+    "kv_store_name": "ai-visibility-apify-raw",
+    "country_code": "us",
+    "language_code": "en",
+    "location_uule": null
+  },
+  "_comments": {
+    "brand.domain": "Registrable domain only. blog.<domain> and www.<domain> count as citations.",
+    "competitors": "Zero competitors is allowed — pass an empty array [].",
+    "cadence": "daily | weekly | monthly. Drives the cron schedule.",
+    "run_hour_local": "0-23. Hour of day for daily/weekly/monthly fire.",
+    "include_full_answers": "'on_demand' (default) or 'always'. On 'on_demand' the report shows only a short interpretive note quoting the surface-form context (~80 chars on either side) for any mentioned entity. On 'always' the report embeds the FULL LLM answer text verbatim whenever any tracked entity is mentioned. Long-form gets unwieldy fast at multiple prompts -- recommend 'on_demand' for daily runs.",
+    "ai_sources": "Each adds per-result cost; see https://apify.com/apify/google-search-scraper for current pricing.",
+    "apify.dataset_name": "Named dataset to append to. Created on first run if missing.",
+    "apify.kv_store_name": "Named key-value store for long-term raw preservation. Each run writes one record per prompt with the full Apify dataset item (organic results, AI answers, citations w/ metadata)."
+  }
+}

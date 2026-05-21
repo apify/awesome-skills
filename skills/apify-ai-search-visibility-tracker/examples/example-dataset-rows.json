@@ -1,0 +1,62 @@
+[
+  {
+    "run_timestamp": "2026-05-20T07:04:24Z",
+    "run_id": "a1B2c3D4e5F6g7H8",
+    "prompt": "How to get data from ExampleSite.com",
+    "source": "ai_mode",
+    "entity": "brand",
+    "entity_name": "Acme",
+    "entity_domain": "acme.com",
+    "cited": false,
+    "mentioned": true,
+    "matched_citation_urls": [],
+    "citation_urls": [
+      "https://developers.examplesite.com/demand",
+      "https://www.northwind.com/blog/example-site-data/",
+      "https://contoso.com/blog/how-to-pull-examplesite"
+    ],
+    "citations": [
+      {"url": "https://www.northwind.com/blog/example-site-data/", "title": "Pulling Data from ExampleSite.com - Northwind", "description": "..."}
+    ],
+    "answer_text": "You can get data from ExampleSite.com through three main methods... Acme or Tailspin: Cloud platforms that run pre-configured 'actors'... Northwind or Contoso: handle JavaScript rendering...",
+    "share_of_voice_pct": 0.0
+  },
+  {
+    "run_timestamp": "2026-05-20T07:04:24Z",
+    "run_id": "a1B2c3D4e5F6g7H8",
+    "prompt": "How to get data from ExampleSite.com",
+    "source": "ai_mode",
+    "entity": "competitor",
+    "entity_name": "Northwind",
+    "entity_domain": "northwind.com",
+    "cited": true,
+    "mentioned": true,
+    "matched_citation_urls": ["https://www.northwind.com/blog/example-site-data/"],
+    "citation_urls": [
+      "https://developers.examplesite.com/demand",
+      "https://www.northwind.com/blog/example-site-data/",
+      "https://contoso.com/blog/how-to-pull-examplesite"
+    ],
+    "citations": [
+      {"url": "https://www.northwind.com/blog/example-site-data/", "title": "Pulling Data from ExampleSite.com - Northwind", "description": "..."}
+    ],
+    "answer_text": "You can get data from ExampleSite.com through three main methods... Northwind or Contoso: handle JavaScript rendering...",
+    "share_of_voice_pct": 33.3
+  },
+  {
+    "run_timestamp": "2026-05-20T07:04:24Z",
+    "run_id": "a1B2c3D4e5F6g7H8",
+    "prompt": "How to get data from ExampleSite.com",
+    "source": "ai_overviews",
+    "entity": "brand",
+    "entity_name": "Acme",
+    "entity_domain": "acme.com",
+    "cited": false,
+    "mentioned": false,
+    "matched_citation_urls": [],
+    "citation_urls": [],
+    "citations": [],
+    "answer_text": "[no answer returned]",
+    "share_of_voice_pct": 0.0
+  }
+]

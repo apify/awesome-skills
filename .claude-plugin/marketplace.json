@@ -269,6 +269,31 @@
       ],
       "category": "data-extraction",
       "version": "1.2.0"
+    },
+    {
+      "name": "apify-ai-search-visibility-tracker",
+      "source": "./skills/apify-ai-search-visibility-tracker",
+      "skills": "./",
+      "description": "Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule",
+      "keywords": [
+        "ai-search",
+        "geo",
+        "aeo",
+        "generative-engine-optimization",
+        "answer-engine-optimization",
+        "brand-visibility",
+        "citations",
+        "ai-overviews",
+        "chatgpt-search",
+        "perplexity",
+        "copilot",
+        "gemini",
+        "google-search-scraper",
+        "monitoring",
+        "scheduling"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
