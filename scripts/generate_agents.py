@@ -251,9 +251,31 @@ def validate_marketplace_sync(skills: list[dict[str, str]]) -> list[str]:
             )
 
     for plugin in plugins:
-        if "skills" not in plugin:
+        skills_field = plugin.get("skills")
+        source = plugin["source"]
+        source_path = ROOT / source.lstrip("./")
+
+        if isinstance(skills_field, list):
+            # Nested-plugin layout. Validate each nested skills directory has
+            # at least one sub-skill (i.e. <source>/<subdir>/*/SKILL.md).
+            for subdir in skills_field:
+                nested_root = source_path / subdir.lstrip("./")
+                if not nested_root.is_dir():
+                    errors.append(
+                        f"Marketplace plugin '{plugin['name']}' references "
+                        f"missing nested directory '{nested_root}'"
+                    )
+                    continue
+                sub_skills = list(nested_root.glob("*/SKILL.md"))
+                if not sub_skills:
+                    errors.append(
+                        f"Marketplace plugin '{plugin['name']}' has no sub-skills "
+                        f"under '{nested_root}'"
+                    )
             continue
-        if plugin["source"] not in skill_by_source:
+
+        # Flat-skill layout (skills is "./" or absent).
+        if source not in skill_by_source:
             errors.append(
                 f"Marketplace plugin '{plugin['name']}' at '{plugin['source']}' "
                 "has no SKILL.md"
