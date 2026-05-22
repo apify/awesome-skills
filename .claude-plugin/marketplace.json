@@ -333,7 +333,45 @@
         "serp",
         "unlinked-mentions",
         "competitor-links",
-        "resource-pages"
+        "resource-pages",
+        {
+          "name": "apify-influencer-brand-collabs",
+          "source": "./skills/apify-influencer-brand-collabs",
+          "skills": "./",
+          "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors against Meta's Ad Library. Audit influencer branded-content history, scope a brand's sponsorship roster, and surface paid collaborations in either direction",
+          "keywords": [
+            "influencer",
+            "brand",
+            "collaboration",
+            "sponsored",
+            "branded-content",
+            "partnership",
+            "instagram",
+            "meta-ad-library",
+            "creator-economy"
+          ],
+          "category": "data-extraction",
+          "version": "1.0.0"
+        }
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
+    },
+    {
+      "name": "apify-influencer-brand-collabs",
+      "source": "./skills/apify-influencer-brand-collabs",
+      "skills": "./",
+      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors against Meta's Ad Library. Audit influencer branded-content history, scope a brand's sponsorship roster, and surface paid collaborations in either direction",
+      "keywords": [
+        "influencer",
+        "brand",
+        "collaboration",
+        "sponsored",
+        "branded-content",
+        "partnership",
+        "instagram",
+        "meta-ad-library",
+        "creator-economy"
       ],
       "category": "data-extraction",
       "version": "1.0.0"
