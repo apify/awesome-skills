@@ -1,0 +1,837 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "last_updated": "2026-04-27",
+    "source": "Derived from local/*/fetch_all.py + european-company-data-institutions.md",
+    "upstream_issues": [
+      "DE/fetch_all.py, UK/fetch_all.py, RO/fetch_all.py: depend on mcpc CLI (subprocess calls to 'mcpc @apify tools-call call-actor'), which conflicts with our REST-based tech stack (apify call). Scripts work if user has mcpc installed, but SKILL.md documents apify call alternative for direct Apify REST calls. Migration candidate for Phase 2.",
+      "RO/fetch_all.py: ANAF API endpoint webservicesp.anaf.ro has been offline since March 2026 (returns 404). Noted in script comments (line 102). Fallback: listafirme via Apify scraping. Alternative APIs: openapi.ro, termene.ro (both require registration).",
+      "SK/fetch_all.py: ORSR registry uses regex HTML scraping on windows-1250 encoded pages. Fragile — will break on any layout change to orsr.sk. No REST API currently available.",
+      "UK/fetch_all.py: uses Apify scraping (dhrumil/company-house-scraper) instead of free official Companies House API (api.company-information.service.gov.uk). Migration to free API would eliminate Apify dependency + cost for UK lookups.",
+      "NL/fetch_all.py: no single-company lookup CLI command — only batch fetch for all configured companies. API URL documented in registries.json for direct agent use.",
+      "PL/fetch_all.py financials: the fetch_krs_financials_instructions() function only prints mcpc commands and saves them to a text file — does NOT actually run the Apify actor or retrieve data. Agent must use apify call directly with actor minute_contest/poland-krs-financial-scraper.",
+      "CZ/fetch_all.py justice: uses CKAN API which returns bulk dataset catalog (13GB+ XML/CSV), not per-company filings. Per-company financial statements from justice.cz require Apify scraping of or.justice.cz."
+    ]
+  },
+  "countries": [
+    {
+      "code": "CZ",
+      "name": "Czech Republic",
+      "registries": [
+        {
+          "id": "ares",
+          "name": "ARES (Administrative Register of Economic Entities)",
+          "operator": "Ministerstvo financí ČR",
+          "url": "https://ares.gov.cz/",
+          "api_url": "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/{ico}",
+          "access": "free",
+          "identifier": {
+            "name": "IČO",
+            "format": "8-digit string",
+            "registry_ids_key": "CZ_ICO"
+          },
+          "data_types": [
+            "company_profile",
+            "address",
+            "nace_codes",
+            "dic",
+            "legal_form",
+            "founding_date",
+            "registration_status"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/CZ/fetch_all.py lookup <IČO>",
+          "apify_fallback": false,
+          "gotchas": [
+            "0.3s sleep between requests in batch mode"
+          ]
+        },
+        {
+          "id": "dph",
+          "name": "Registr DPH (VAT Payer Register)",
+          "operator": "Finanční správa ČR",
+          "url": "https://adisrws.mfcr.cz/",
+          "api_url": "https://adisrws.mfcr.cz/adistc/axis2/services/rozhraniCRPDPH.rozhraniCRPDPHSOAP",
+          "access": "free",
+          "identifier": {
+            "name": "DIČ",
+            "format": "CZ + 8-digit IČO (e.g. CZ25099345)",
+            "registry_ids_key": "CZ_DIC"
+          },
+          "data_types": [
+            "vat_status",
+            "unreliable_payer_flag",
+            "registered_bank_accounts"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/CZ/fetch_all.py dph",
+          "apify_fallback": false,
+          "gotchas": [
+            "SOAP API (not REST)",
+            "0.2s sleep between requests"
+          ]
+        },
+        {
+          "id": "cnb_banks",
+          "name": "ČNB Licensed Banks List",
+          "operator": "Česká národní banka",
+          "url": "https://apl.cnb.cz/apljerrsdad/JERRS.WEB07.INTRO_PAGE",
+          "api_url": "https://jerrs.cnb.cz/apljerrsdad/JERRS.OPENDATA.STAHUJ?p_seznam=1",
+          "access": "free",
+          "identifier": {
+            "name": "IČO",
+            "format": "8-digit string",
+            "registry_ids_key": "CZ_ICO"
+          },
+          "data_types": [
+            "bank_license",
+            "bank_name",
+            "address"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/CZ/fetch_all.py cnb_banks",
+          "apify_fallback": false,
+          "gotchas": [
+            "CSV format, windows-1250 encoding possible"
+          ]
+        },
+        {
+          "id": "cnb_oam",
+          "name": "ČNB Central Storage of Regulated Information (OAM)",
+          "operator": "Česká národní banka",
+          "url": "https://oam.cnb.cz/",
+          "api_url": "https://oam.cnb.cz/xmlpserver/OAM_CNB_CZ/R1_K22.xdo",
+          "access": "free",
+          "identifier": {
+            "name": "IČO",
+            "format": "8-digit string",
+            "registry_ids_key": "CZ_ICO"
+          },
+          "data_types": [
+            "regulated_reports",
+            "annual_reports",
+            "half_yearly_reports",
+            "ad_hoc_disclosures"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/CZ/fetch_all.py cnb_oam",
+          "apify_fallback": false,
+          "gotchas": [
+            "Oracle BI XML export format",
+            "Only relevant for emitents (listed companies, banks)",
+            "0.5s sleep between requests"
+          ]
+        },
+        {
+          "id": "justice_cz",
+          "name": "Justice.cz — Sbírka listin (Collection of Documents)",
+          "operator": "Ministerstvo spravedlnosti ČR",
+          "url": "https://or.justice.cz/",
+          "api_url": "https://dataor.justice.cz/api/3/action/package_list",
+          "access": "free",
+          "identifier": {
+            "name": "IČO",
+            "format": "8-digit string",
+            "registry_ids_key": "CZ_ICO"
+          },
+          "data_types": [
+            "financial_filings",
+            "ownership",
+            "articles_of_association"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/CZ/fetch_all.py justice",
+          "apify_fallback": true,
+          "apify_actor": "apify/website-content-crawler",
+          "gotchas": [
+            "CKAN API returns bulk dataset list, not per-company data",
+            "Per-company filings require Apify scraping of or.justice.cz",
+            "SSL certificate sometimes fails on macOS",
+            "Bulk datasets are 13GB+ XML/CSV"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "SK",
+      "name": "Slovakia",
+      "registries": [
+        {
+          "id": "orsr",
+          "name": "ORSR (Obchodný register SR)",
+          "operator": "Ministerstvo spravedlivosti SR",
+          "url": "https://www.orsr.sk/",
+          "api_url": null,
+          "access": "free",
+          "identifier": {
+            "name": "IČO",
+            "format": "8-digit string",
+            "registry_ids_key": "SK_ICO"
+          },
+          "data_types": [
+            "company_profile",
+            "address",
+            "legal_form",
+            "share_capital",
+            "business_purpose",
+            "registration_date"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/SK/fetch_all.py lookup <IČO>",
+          "apify_fallback": false,
+          "gotchas": [
+            "HTML scraping (no REST API)",
+            "windows-1250 encoding",
+            "0.5s sleep between requests",
+            "Fragile HTML parsing with regex"
+          ]
+        },
+        {
+          "id": "finstat",
+          "name": "FinStat.sk (Financial Data)",
+          "operator": "FinStat s.r.o.",
+          "url": "https://finstat.sk/",
+          "api_url": null,
+          "access": "free",
+          "identifier": {
+            "name": "IČO",
+            "format": "8-digit string",
+            "registry_ids_key": "SK_ICO"
+          },
+          "data_types": [
+            "revenue",
+            "profit",
+            "employees",
+            "total_assets"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/SK/fetch_all.py finstat",
+          "apify_fallback": false,
+          "gotchas": [
+            "HTML scraping (regex-based extraction)",
+            "1.0s sleep between requests (be polite)",
+            "May block automated access"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "PL",
+      "name": "Poland",
+      "registries": [
+        {
+          "id": "krs",
+          "name": "KRS (Krajowy Rejestr Sądowy)",
+          "operator": "Ministerstwo Sprawiedliwości",
+          "url": "https://prs.ms.gov.pl/krs",
+          "api_url": "https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/{krs}?rejestr=P&format=json",
+          "access": "free",
+          "identifier": {
+            "name": "KRS",
+            "format": "10-digit, zero-padded (e.g. 0000536554)",
+            "registry_ids_key": "PL_KRS"
+          },
+          "data_types": [
+            "company_profile",
+            "nip",
+            "regon",
+            "share_capital",
+            "management_board",
+            "shareholders"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/PL/fetch_all.py lookup <KRS>",
+          "apify_fallback": false,
+          "gotchas": [
+            "0.5s sleep between requests"
+          ]
+        },
+        {
+          "id": "biala_lista",
+          "name": "Biała Lista VAT (White List of VAT Taxpayers)",
+          "operator": "Krajowa Administracja Skarbowa",
+          "url": "https://www.podatki.gov.pl/narzedzia/white-list/",
+          "api_url": "https://wl-api.mf.gov.pl/api/search/nip/{nip}?date={today}",
+          "access": "free",
+          "identifier": {
+            "name": "NIP",
+            "format": "10-digit",
+            "registry_ids_key": "PL_NIP"
+          },
+          "data_types": [
+            "vat_status",
+            "krs",
+            "regon",
+            "registered_bank_accounts"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/PL/fetch_all.py lookup_nip <NIP>",
+          "apify_fallback": false,
+          "gotchas": [
+            "Rate limit: 100 queries/day",
+            "1.0s sleep between requests",
+            "Requires date parameter (today's date)"
+          ]
+        },
+        {
+          "id": "gus_regon",
+          "name": "GUS/REGON (Główny Urząd Statystyczny)",
+          "operator": "Główny Urząd Statystyczny",
+          "url": "https://wyszukiwarkaregon.stat.gov.pl/",
+          "api_url": "https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc",
+          "access": "api_key_required",
+          "env_var": "GUS_API_KEY",
+          "identifier": {
+            "name": "NIP",
+            "format": "10-digit",
+            "registry_ids_key": "PL_NIP"
+          },
+          "data_types": [
+            "regon",
+            "nip",
+            "name",
+            "address",
+            "pkd_codes"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/PL/fetch_all.py gus",
+          "apify_fallback": false,
+          "gotchas": [
+            "SOAP API (not REST)",
+            "Test env key: abcde12345abcde12345 (but has no real data)",
+            "Production key: email regon_bir@stat.gov.pl",
+            "Session-based: login returns SID, pass in sid header"
+          ]
+        },
+        {
+          "id": "ekrs_financials",
+          "name": "eKRS Financial Statements",
+          "operator": "Ministerstwo Sprawiedliwości",
+          "url": "https://ekrs.ms.gov.pl/",
+          "api_url": null,
+          "access": "apify_required",
+          "env_var": "APIFY_TOKEN",
+          "identifier": {
+            "name": "KRS",
+            "format": "10-digit, zero-padded",
+            "registry_ids_key": "PL_KRS"
+          },
+          "data_types": [
+            "financial_statements",
+            "assets",
+            "equity",
+            "revenue",
+            "profit"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/PL/fetch_all.py financials",
+          "apify_fallback": true,
+          "apify_actor": "minute_contest/poland-krs-financial-scraper",
+          "gotchas": [
+            "Requires Apify actor (mcpc CLI or apify call)",
+            "Cost: ~$0.03/result",
+            "Script only prints instructions, does not run actor directly"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "DE",
+      "name": "Germany",
+      "registries": [
+        {
+          "id": "handelsregister",
+          "name": "Handelsregister (Commercial Register)",
+          "operator": "Bundesministerium der Justiz",
+          "url": "https://www.handelsregister.de/",
+          "api_url": null,
+          "access": "apify_required",
+          "env_var": "APIFY_TOKEN",
+          "identifier": {
+            "name": "Company name (keyword)",
+            "format": "free text",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "company_profile",
+            "legal_form",
+            "share_capital",
+            "management",
+            "hrb_number",
+            "business_purpose"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/DE/fetch_all.py keyword <name>",
+          "apify_fallback": true,
+          "apify_actor": "radeance/handelsregister-api",
+          "gotchas": [
+            "No free public API — entirely Apify-dependent",
+            "Uses mcpc CLI (not apify call)",
+            "Cost: $0.01/search",
+            "Actor: 99.5% success rate, rating 5.0",
+            "1.0s sleep between searches"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "UK",
+      "name": "United Kingdom",
+      "registries": [
+        {
+          "id": "companies_house",
+          "name": "Companies House",
+          "operator": "Companies House (UK Government)",
+          "url": "https://find-and-update.company-information.service.gov.uk/",
+          "api_url": null,
+          "access": "apify_required",
+          "env_var": "APIFY_TOKEN",
+          "identifier": {
+            "name": "Company name",
+            "format": "free text",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "company_profile",
+            "crn",
+            "sic_codes",
+            "directors",
+            "accounts_timeline",
+            "incorporation_date"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/UK/fetch_all.py search <name>",
+          "apify_fallback": true,
+          "apify_actor": "dhrumil/company-house-scraper",
+          "gotchas": [
+            "Script uses mcpc CLI (not apify call)",
+            "Companies House has a free API (api.company-information.service.gov.uk) but this script uses Apify scraping instead",
+            "Actor: 95.7% success rate, rating 5.0, pay-per-event",
+            "1.0s sleep between searches"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "NL",
+      "name": "Netherlands",
+      "registries": [
+        {
+          "id": "kvk",
+          "name": "KvK (Kamer van Koophandel)",
+          "operator": "Kamer van Koophandel",
+          "url": "https://www.kvk.nl/",
+          "api_url": "https://api.kvk.nl/api/v1/basisprofielen/{kvkNummer}",
+          "access": "api_key_required",
+          "env_var": "KVK_API_KEY",
+          "registration_guide": "REGISTRATION/NL.md",
+          "identifier": {
+            "name": "KVK number",
+            "format": "8-digit",
+            "registry_ids_key": "NL_KVK"
+          },
+          "data_types": [
+            "company_profile",
+            "addresses",
+            "trade_names"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/NL/fetch_all.py",
+          "apify_fallback": false,
+          "gotchas": [
+            "Requires API key registration at developers.kvk.nl",
+            "Key sent in 'apikey' header (not Authorization)",
+            "0.5s sleep between requests",
+            "No single-company lookup command — script fetches all configured companies"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "RO",
+      "name": "Romania",
+      "registries": [
+        {
+          "id": "anaf",
+          "name": "ANAF (Agenția Națională de Administrare Fiscală)",
+          "operator": "ANAF",
+          "url": "https://www.anaf.ro/",
+          "api_url": "https://webservicesp.anaf.ro/AsynchWebApi/api/v8/interogare/getInformatii",
+          "access": "free",
+          "identifier": {
+            "name": "CUI",
+            "format": "numeric (e.g. 2835636)",
+            "registry_ids_key": "RO_CUI"
+          },
+          "data_types": [
+            "company_name",
+            "address",
+            "vat_status",
+            "active_status"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/RO/fetch_all.py lookup <CUI>",
+          "apify_fallback": false,
+          "gotchas": [
+            "ANAF API has been OFFLINE since March 2026 (returns 404)",
+            "Alternative: openapi.ro or termene.ro (both require API key)",
+            "0.3s sleep between requests"
+          ]
+        },
+        {
+          "id": "listafirme",
+          "name": "ListaFirme.ro (Company Profiles)",
+          "operator": "ListaFirme.ro",
+          "url": "https://www.listafirme.ro/",
+          "api_url": null,
+          "access": "apify_required",
+          "env_var": "APIFY_TOKEN",
+          "identifier": {
+            "name": "CUI",
+            "format": "numeric",
+            "registry_ids_key": "RO_CUI"
+          },
+          "data_types": [
+            "company_profile",
+            "caen_codes",
+            "financial_data"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/RO/fetch_all.py listafirme",
+          "apify_fallback": true,
+          "apify_actor": "apify/website-content-crawler",
+          "gotchas": [
+            "Cloudflare-protected — requires residential proxy",
+            "Uses playwright:firefox crawler type",
+            "Async runs — check status with: python fetch_all.py status",
+            "Uses mcpc CLI (not apify call)"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "HR",
+      "name": "Croatia",
+      "registries": [
+        {
+          "id": "sudski_registar",
+          "name": "Sudski registar (Court Register)",
+          "operator": "Ministarstvo pravosuđa i uprave",
+          "url": "https://sudreg-data.gov.hr/",
+          "api_url": "https://sudreg-data.gov.hr/api/javni/",
+          "access": "registration_required",
+          "registration_guide": "REGISTRATION/HR.md",
+          "identifier": {
+            "name": "OIB / MBS",
+            "format": "OIB: 11-digit, MBS: company-specific",
+            "registry_ids_key": "HR_OIB"
+          },
+          "data_types": [
+            "company_profile",
+            "address",
+            "roles",
+            "share_capital"
+          ],
+          "has_script": false,
+          "apify_fallback": false,
+          "gotchas": [
+            "OAuth2 client_credentials flow required",
+            "Must register at sudreg-data.gov.hr for Client ID + Secret",
+            "REST/JSON + XML output",
+            "Test environment available at sudreg-data-test.gov.hr"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "SE",
+      "name": "Sweden",
+      "registries": [
+        {
+          "id": "bolagsverket",
+          "name": "Bolagsverket (Swedish Companies Registration Office)",
+          "operator": "Bolagsverket",
+          "url": "https://bolagsverket.se/",
+          "api_url": "https://api.bolagsverket.se/foretagsinformation-vardefulladatamangder/v1/organisationer/{org_nr}",
+          "access": "registration_required",
+          "registration_guide": "REGISTRATION/SE.md",
+          "identifier": {
+            "name": "Organisationsnummer",
+            "format": "10-digit (e.g. 559124-6847)",
+            "registry_ids_key": "SE_ORG"
+          },
+          "data_types": [
+            "company_profile",
+            "address",
+            "legal_form"
+          ],
+          "has_script": false,
+          "apify_fallback": true,
+          "apify_actor": "apify/website-content-crawler",
+          "gotchas": [
+            "Free datasets available since Feb 2025 (EU High-Value Datasets regulation)",
+            "Full API requires contract with Bolagsverket",
+            "Allabolag.se is Cloudflare-protected — use residential proxy",
+            "UBO API available from 2025"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "EU",
+      "name": "EU-Level Sources",
+      "registries": [
+        {
+          "id": "gleif",
+          "name": "GLEIF (Global Legal Entity Identifier Foundation)",
+          "operator": "GLEIF",
+          "url": "https://search.gleif.org/",
+          "api_url": "https://api.gleif.org/api/v1/lei-records",
+          "access": "free",
+          "identifier": {
+            "name": "LEI or Company name",
+            "format": "LEI: 20-char alphanumeric",
+            "registry_ids_key": "LEI"
+          },
+          "data_types": [
+            "lei",
+            "company_profile",
+            "jurisdiction",
+            "status",
+            "ownership_chain",
+            "parent_lei"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/EU/fetch_all.py lookup <name>",
+          "script_command_lei": "python3 reference/scripts/EU/fetch_all.py lookup_lei <LEI>",
+          "apify_fallback": false,
+          "gotchas": [
+            "Best starting point for cross-country lookups — returns registered-as numbers usable in country-specific registries",
+            "Ownership chain via direct-parent-relationship endpoint",
+            "0.3s sleep between requests"
+          ]
+        },
+        {
+          "id": "esma_firds",
+          "name": "ESMA FIRDS (Financial Instruments Reference Data)",
+          "operator": "ESMA",
+          "url": "https://registers.esma.europa.eu/",
+          "api_url": "https://registers.esma.europa.eu/solr/esma_registers_firds/select",
+          "access": "free",
+          "identifier": {
+            "name": "Company name",
+            "format": "free text (quoted in Solr query)",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "isin",
+            "lei",
+            "instrument_name",
+            "cfi_code",
+            "status"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/EU/fetch_all.py lookup <name>",
+          "apify_fallback": false,
+          "gotchas": [
+            "Solr-based search engine",
+            "Returns ISIN, LEI, instrument name, CFI code",
+            "0.3s sleep between requests"
+          ]
+        },
+        {
+          "id": "ted",
+          "name": "TED (Tenders Electronic Daily)",
+          "operator": "Publications Office of the European Union",
+          "url": "https://ted.europa.eu/",
+          "api_url": "https://api.ted.europa.eu/v3/notices/search",
+          "access": "free",
+          "identifier": {
+            "name": "Company name (buyer)",
+            "format": "free text (wildcard query)",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "contract_awards",
+            "buyer_name",
+            "winner_name",
+            "total_value",
+            "procedure_type"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/EU/fetch_all.py lookup <name>",
+          "apify_fallback": false,
+          "gotchas": [
+            "Low value for PPF — most PPF companies are private and don't do public procurement",
+            "winner-name only populated in eForms notices (~2024+)",
+            "Expert query syntax: buyer-name ~ \"*keyword*\" AND notice-type = can-standard",
+            "0.5s sleep between requests"
+          ]
+        },
+        {
+          "id": "eurostat",
+          "name": "Eurostat (Macro Statistics)",
+          "operator": "European Commission",
+          "url": "https://ec.europa.eu/eurostat/",
+          "api_url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/",
+          "access": "free",
+          "identifier": {
+            "name": "Dataset + parameters",
+            "format": "SDMX query parameters",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "gdp",
+            "sector_statistics",
+            "trade_data"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/EU/fetch_all.py eurostat",
+          "apify_fallback": false,
+          "gotchas": [
+            "Low value: aggregate macro data only, no company-level data",
+            "Only useful as contextual benchmark for PPF countries",
+            "SDMX 3.0 REST API"
+          ]
+        },
+        {
+          "id": "eba_transparency",
+          "name": "EBA Transparency Exercise (Bank Data)",
+          "operator": "European Banking Authority",
+          "url": "https://www.eba.europa.eu/risk-analysis-and-data/eu-wide-transparency-exercise",
+          "api_url": "https://www.eba.europa.eu/assets/TE2025/Full_database/883401/",
+          "access": "free",
+          "identifier": {
+            "name": "LEI",
+            "format": "20-char alphanumeric (LEI_Code field)",
+            "registry_ids_key": "LEI"
+          },
+          "data_types": [
+            "capital_adequacy",
+            "credit_risk",
+            "market_risk",
+            "sovereign_exposure"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/EU/fetch_all.py eba",
+          "apify_fallback": false,
+          "gotchas": [
+            "CSV files are 100MB+ each — run separately",
+            "Filters by LEI code — needs GLEIF data first",
+            "~120 EU banks covered",
+            "Files: tr_cre.csv, tr_mrk.csv, tr_sov.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ESG",
+      "name": "ESG / Sustainability Sources",
+      "registries": [
+        {
+          "id": "eu_ets",
+          "name": "EU ETS (Emissions Trading System)",
+          "operator": "European Commission",
+          "url": "https://climate.ec.europa.eu/eu-action/eu-emissions-trading-system-eu-ets_en",
+          "api_url": null,
+          "access": "free",
+          "identifier": {
+            "name": "Country name/ISO code",
+            "format": "free text or ISO code",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "verified_co2_emissions",
+            "installation_name",
+            "sector"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/ESG/fetch_all.py lookup <country>",
+          "apify_fallback": false,
+          "gotchas": [
+            "GitHub CSV source (76K rows)",
+            "Filtered for PPF countries (BG, HU, PL, RO, SK) — CZ missing from dataset",
+            "Contextual benchmark — PPF firms unlikely to appear (not heavy industry)"
+          ]
+        },
+        {
+          "id": "climate_trace",
+          "name": "Climate TRACE (Country Emissions)",
+          "operator": "Climate TRACE",
+          "url": "https://climatetrace.org/",
+          "api_url": "https://api.climatetrace.org/v6/country/emissions",
+          "access": "free",
+          "identifier": {
+            "name": "Country ISO code",
+            "format": "3-letter ISO (e.g. CZE, POL)",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "co2e_100yr",
+            "co2",
+            "ch4",
+            "global_rank"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/ESG/fetch_all.py lookup <country>",
+          "apify_fallback": false,
+          "gotchas": [
+            "Country-level only, no company-level data",
+            "REST API with JSON response",
+            "0.3s sleep between requests",
+            "Maps common country names to ISO codes (e.g. 'czech republic' -> 'CZE')"
+          ]
+        },
+        {
+          "id": "eba_pillar3_esg",
+          "name": "EBA Pillar 3 ESG Signposting",
+          "operator": "European Banking Authority",
+          "url": "https://www.eba.europa.eu/",
+          "api_url": null,
+          "access": "free",
+          "identifier": {
+            "name": "Bank name",
+            "format": "manual lookup in XLSX",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "esg_disclosure_links"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/ESG/fetch_all.py eba_esg",
+          "apify_fallback": false,
+          "gotchas": [
+            "Downloads XLSX file (62KB) — not JSON",
+            "Requires Referer header for download",
+            "Contains links to ESG disclosures for ~120 EU banks"
+          ]
+        },
+        {
+          "id": "esg_ratings",
+          "name": "ESG Rating URLs",
+          "operator": "Various (S&P Global, Sustainalytics, MSCI, LSEG)",
+          "url": null,
+          "api_url": null,
+          "access": "free",
+          "identifier": {
+            "name": "Listed company name",
+            "format": "manual lookup",
+            "registry_ids_key": null
+          },
+          "data_types": [
+            "esg_score_urls"
+          ],
+          "has_script": true,
+          "script_command": "python3 reference/scripts/ESG/fetch_all.py ratings",
+          "apify_fallback": false,
+          "gotchas": [
+            "LOW VALUE: only prints URLs for manual lookup, no machine-readable data",
+            "Only covers listed PPF companies (InPost, O2 CZ)",
+            "PPF Group is private — not covered by major ESG raters",
+            "ESAP (centralized EU ESG database with API) launches CSRD data January 2028"
+          ]
+        }
+      ]
+    }
+  ]
+}

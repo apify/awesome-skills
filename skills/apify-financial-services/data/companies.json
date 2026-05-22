@@ -1,0 +1,2061 @@
+{
+  "_metadata": {
+    "version": "1.1",
+    "last_updated": "2026-04-27",
+    "source_repos": [
+      "~/Projects/cowork/portfolio-research/.claude/skills/news-intelligence/data/companies.json (2026-03-25, v3.0) — schema base, queries, social IDs",
+      "~/Projects/cowork/ppf-ma/data/companies.json (2026-03-17, older subset) — fallback only",
+      "~/Projects/cowork/local/CZ/companies.json (2026-03-19) — CZ IČO/DIČ",
+      "~/Projects/cowork/local/DE/companies.json (2026-03-19) — DE HRB",
+      "~/Projects/cowork/local/SK/companies.json (2026-03-19) — SK IČO",
+      "~/Projects/cowork/local/PL/companies.json (2026-03-19) — PL KRS/NIP/REGON",
+      "~/Projects/cowork/local/UK/companies.json (2026-03-19) — UK Companies House",
+      "~/Projects/cowork/local/NL/companies.json (2026-03-19) — NL KVK",
+      "~/Projects/cowork/local/RO/companies.json (2026-03-19) — RO CUI",
+      "~/Projects/cowork/local/SE/companies.json (2026-03-19) — SE organisationsnummer",
+      "~/Projects/cowork/local/HR/companies.json (2026-03-19) — HR MBS/OIB",
+      "~/Projects/cowork/local/EU/companies.json (2026-03-19) — LEI codes",
+      "~/Projects/cowork/local/ESG/companies.json (2026-03-19) — ISIN codes"
+    ],
+    "schema": "see data/README.md",
+    "actor_field_mapping": {
+      "queries.twitter": "apidojo/tweet-scraper, kaitoeasyapi/twitter-x-data-tweet-scraper",
+      "queries.gnews_en": "easyapi/google-news-scraper, data_xplorer/google-news-scraper-fast",
+      "queries.gnews_cz": "easyapi/google-news-scraper (region CZ:cs)",
+      "queries.bloomberg": "romy/bloomberg-news-scraper (via rag-web-browser URL discovery)",
+      "identifiers.linkedin_url": "dev_fusion/Linkedin-Company-Scraper, harvestapi/linkedin-company-posts",
+      "identifiers.glassdoor_id": "getdataforme/glassdoor-reviews-scraper (use glassdoor_search field)",
+      "queries.reddit": "vulnv/reddit-posts-search-scraper, fatihtahta/reddit-scraper-search-fast",
+      "queries.youtube": "topaz_sharingan/Youtube-Transcript-Scraper-1",
+      "trustpilot_urls": "getwally.net/trustpilot-reviews-scraper",
+      "google_play_ids": "curious_coder/google-play-scraper",
+      "app_store_ids": "jdtpnjtp/apple-app-store-scraper",
+      "queries.tender": "stagsz/ted-tender-crawler",
+      "identifiers.ir_url": "desmond-dev/website-change-monitor",
+      "identifiers.sec_cik": "SEC EDGAR MCP + constant_quadruped/sec-edgar-filings-scraper",
+      "identifiers.seeking_alpha_ticker": "parsley/seeking-alpha-headlines-scraper",
+      "queries.linkedin": "harvestapi/linkedin-post-search (keyword search across all LI posts)",
+      "linkedin_hashtags": "harvestapi/linkedin-post-search (hashtag filter)",
+      "instagram_hashtags": "apidojo/instagram-hashtag-scraper, apify/instagram-hashtag-scraper",
+      "instagram_profile": "apify/instagram-profile-scraper",
+      "identifiers.registry_ids.CZ_ICO": "valek.josef/obchodni-rejstrik-downloader"
+    },
+    "data_quality_notes": [
+      "IČO: verified via or.justice.cz / ARES (CZ_ICO key in identifiers.registry_ids).",
+      "Glassdoor IDs: verified for companies with employer profiles.",
+      "SEC CIK: only Autolus (0001730463) actively files with SEC.",
+      "Seeking Alpha: verified tickers for publicly traded companies.",
+      "Trustpilot: verified URLs for consumer-facing brands.",
+      "App IDs: verified for companies with consumer apps. B2B companies have none.",
+      "IR URLs: verified for public companies + group-level entry.",
+      "Empty arrays = intentional: company has no presence on that platform (verified, not missing data).",
+      "LinkedIn queries: all companies have queries for harvestapi/linkedin-post-search.",
+      "Instagram hashtags: B2C + consumer-facing brands. B2B/biotech = empty (verified no IG presence).",
+      "Instagram profiles: best-effort handles. Verify via apify/instagram-profile-scraper before bulk scraping."
+    ],
+    "upstream_issues": [
+      "local/CZ/companies.json (2026-03-19): MONETA Money Bank a.s. (IČO 25672720) is classified under competitors.banking, but is in fact a portfolio company (~29% PPF stake via Tanemo a.s.). Upstream source needs correction.",
+      "local/ESG/companies.json (2026-03-19): air_bank and ppf_banka LEI placeholders ('TODO_lookup_LEI') resolved via GLEIF: Air Bank a.s. = 31570010000000049662, PPF banka a.s. = 31570010000000036567. Upstream source can be enriched.",
+      "local/UK/companies.json (2026-03-19): ClearBank entry was placeholder-only (search_url, no CRN). Resolved via UK Companies House: ClearBank Limited CRN 09736376; parent ClearBank Group Holdings Limited CRN 14254435. Upstream source can be enriched.",
+      "Original news-intel data_quality_notes claimed '16 Czech IČO verified' — actual count is 14 portfolio + 1 group = 15. Adjusted in this version.",
+      "Sazka/Allwyn removed from portfolio (was in news-intel v3.0 with ppf_stake='via KKCG partnership'). User-confirmed: not a PPF portfolio company. KKCG (Karel Komárek) is the owner; PPF has no documented stake."
+    ]
+  },
+  "portfolio": [
+    {
+      "id": "inpost",
+      "name": "InPost",
+      "country": "PL",
+      "type": "public",
+      "identifiers": {
+        "lei": "2221003M23QLERR89585",
+        "isin": "LU2290522684",
+        "ticker": "INPST.AS",
+        "ticker_us": "INPOY",
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": 470246,
+        "glassdoor_search": "InPost",
+        "linkedin_url": "https://www.linkedin.com/company/inpost/",
+        "ir_url": "https://inpost.eu/investors",
+        "registry_ids": {
+          "PL_KRS": "0000536554",
+          "PL_NIP": "6793087624",
+          "PL_REGON": "12272626000000"
+        }
+      },
+      "sector": "E-Commerce & Logistics",
+      "stake": "28.75%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "InPost SA",
+          "InPost parcel lockers",
+          "InPost FedEx"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [
+          "InPost"
+        ],
+        "twitter": [
+          "InPost",
+          "$INPST",
+          "InPost SA",
+          "InPost parcel"
+        ],
+        "reddit": [
+          "InPost",
+          "INPST",
+          "InPost parcel"
+        ],
+        "youtube": [
+          "InPost earnings",
+          "InPost SA investor"
+        ],
+        "linkedin": [
+          "InPost",
+          "InPost SA",
+          "InPost parcel lockers"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [
+        "trustpilot.com/review/inpost.co.uk",
+        "trustpilot.com/review/inpost.pl"
+      ],
+      "google_play_ids": [
+        "pl.inpost.inmobile"
+      ],
+      "app_store_ids": [
+        "1437787639"
+      ],
+      "linkedin_hashtags": [
+        "#InPost",
+        "#parcellockers",
+        "#lastmiledelivery"
+      ],
+      "instagram_hashtags": [
+        "InPost",
+        "InPostLocker",
+        "paczkomat"
+      ],
+      "instagram_profile": "inpost_polska",
+      "notes": "FedEx/Advent takeover bid EUR15.60/share active. Euronext Amsterdam only, no SEC filings, no SA coverage."
+    },
+    {
+      "id": "moneta-money-bank",
+      "name": "MONETA Money Bank",
+      "country": "CZ",
+      "type": "public",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": "MONET.PR",
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": "GMYYF",
+        "glassdoor_id": 1810967,
+        "glassdoor_search": "MONETA Money Bank",
+        "linkedin_url": "https://www.linkedin.com/company/moneta-money-bank/",
+        "ir_url": "https://investors.moneta.cz/",
+        "registry_ids": {
+          "CZ_ICO": "25672720"
+        }
+      },
+      "sector": "Financial Services",
+      "stake": "~29% via Tanemo a.s.",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "MONETA Money Bank",
+          "MONETA Bank Czech"
+        ],
+        "gnews_cz": [
+          "MONETA Money Bank",
+          "MONETA banka",
+          "Tanemo"
+        ],
+        "bloomberg": [
+          "MONETA Money Bank"
+        ],
+        "twitter": [
+          "MONETA Money Bank",
+          "MONETA banka",
+          "$MONET"
+        ],
+        "reddit": [
+          "MONETA Money Bank",
+          "MONETA banka"
+        ],
+        "youtube": [
+          "MONETA Money Bank earnings",
+          "MONETA banka"
+        ],
+        "linkedin": [
+          "MONETA Money Bank",
+          "MONETA banka"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [
+        "cz.moneta.smartbanka"
+      ],
+      "app_store_ids": [
+        "1122443334"
+      ],
+      "linkedin_hashtags": [
+        "#MONETAMoneyBank"
+      ],
+      "instagram_hashtags": [
+        "MONETAMoneyBank",
+        "MONETAbanka"
+      ],
+      "instagram_profile": "monaborka",
+      "notes": "Listed Prague Stock Exchange, PPF ~29% via Tanemo a.s. Major Czech retail bank. SA coverage via OTC ticker GMYYF."
+    },
+    {
+      "id": "prosiebensat1-media",
+      "name": "ProSiebenSat.1 Media",
+      "country": "DE",
+      "type": "public",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": "PSM.DE",
+        "ticker_us": "PBSFF",
+        "sec_cik": null,
+        "seeking_alpha_ticker": "PBSFF",
+        "glassdoor_id": 13329,
+        "glassdoor_search": "ProSiebenSat.1 Media",
+        "linkedin_url": "https://www.linkedin.com/company/prosiebensat1/",
+        "ir_url": "https://www.prosiebensat1.com/en/investor-relations",
+        "registry_ids": {}
+      },
+      "sector": "Media",
+      "stake": "exited",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "ProSiebenSat.1",
+          "ProSieben Media",
+          "ProSiebenSat.1 Media SE"
+        ],
+        "gnews_cz": [
+          "ProSiebenSat",
+          "ProSieben"
+        ],
+        "bloomberg": [
+          "ProSiebenSat.1"
+        ],
+        "twitter": [
+          "ProSiebenSat1",
+          "ProSieben",
+          "$PSM",
+          "ProSiebenSat.1"
+        ],
+        "reddit": [
+          "ProSiebenSat.1",
+          "ProSieben",
+          "PSM stock"
+        ],
+        "youtube": [
+          "ProSiebenSat.1 earnings",
+          "ProSieben investor"
+        ],
+        "linkedin": [
+          "ProSiebenSat.1",
+          "ProSieben Media"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#ProSiebenSat1",
+        "#ProSieben"
+      ],
+      "instagram_hashtags": [
+        "ProSieben",
+        "ProSiebenSat1"
+      ],
+      "instagram_profile": "prosieben",
+      "notes": "German media group. PPF exited — sold entire ~15% stake to MFE-MediaForEurope in Aug 2025. SA coverage via OTC PBSFF/PBSFY."
+    },
+    {
+      "id": "viaplay-group",
+      "name": "Viaplay Group",
+      "country": "SE",
+      "type": "public",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": "VPLAY-B.ST",
+        "ticker_us": "NENTF",
+        "sec_cik": null,
+        "seeking_alpha_ticker": "NENTF",
+        "glassdoor_id": null,
+        "glassdoor_search": "Viaplay Group",
+        "linkedin_url": "https://www.linkedin.com/company/viaplay-group/",
+        "ir_url": "https://www.viaplaygroup.com/en/investors",
+        "registry_ids": {
+          "SE_ORG": "5591246847"
+        }
+      },
+      "sector": "Media",
+      "stake": "~30%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "Viaplay Group",
+          "Viaplay streaming",
+          "Viaplay Nordic"
+        ],
+        "gnews_cz": [
+          "Viaplay"
+        ],
+        "bloomberg": [
+          "Viaplay"
+        ],
+        "twitter": [
+          "Viaplay",
+          "$VPLAY",
+          "Viaplay Group"
+        ],
+        "reddit": [
+          "Viaplay",
+          "Viaplay Group",
+          "NENTF"
+        ],
+        "youtube": [
+          "Viaplay Group earnings",
+          "Viaplay streaming"
+        ],
+        "linkedin": [
+          "Viaplay Group",
+          "Viaplay streaming"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#Viaplay",
+        "#ViaplayGroup"
+      ],
+      "instagram_hashtags": [
+        "Viaplay"
+      ],
+      "instagram_profile": "viaplay",
+      "notes": "Nordic streaming, PPF significant stake ~30%. SA coverage via legacy ticker NENTF."
+    },
+    {
+      "id": "autolus-therapeutics",
+      "name": "Autolus Therapeutics",
+      "country": "UK",
+      "type": "public",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": "AUTL",
+        "ticker_us": "AUTL",
+        "sec_cik": "0001730463",
+        "seeking_alpha_ticker": "AUTL",
+        "glassdoor_id": null,
+        "glassdoor_search": "Autolus Therapeutics",
+        "linkedin_url": "https://www.linkedin.com/company/autolus/",
+        "ir_url": "https://www.autolus.com/investor-relations-media/",
+        "registry_ids": {}
+      },
+      "sector": "Biotechnology",
+      "stake": "significant",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "Autolus Therapeutics",
+          "Autolus CAR-T",
+          "Autolus obe-cel"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [
+          "Autolus"
+        ],
+        "twitter": [
+          "Autolus",
+          "$AUTL",
+          "Autolus Therapeutics",
+          "Autolus CAR-T"
+        ],
+        "reddit": [
+          "AUTL",
+          "Autolus",
+          "Autolus Therapeutics"
+        ],
+        "youtube": [
+          "Autolus Therapeutics earnings",
+          "Autolus CAR-T"
+        ],
+        "linkedin": [
+          "Autolus Therapeutics",
+          "Autolus CAR-T",
+          "obe-cel"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#Autolus",
+        "#CART",
+        "#celltherapy"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "CAR-T cell therapy biotech, NASDAQ listed. SEC CIK verified. Full SA coverage."
+    },
+    {
+      "id": "solidcore-resources",
+      "name": "Solidcore Resources",
+      "country": "UK",
+      "type": "public",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": "POLY.AIX",
+        "ticker_us": "POYYF",
+        "sec_cik": null,
+        "seeking_alpha_ticker": "POYYF",
+        "glassdoor_id": null,
+        "glassdoor_search": "Solidcore Resources",
+        "linkedin_url": "https://www.linkedin.com/company/solidcore-resources/",
+        "ir_url": "https://www.solidcore-resources.com/en/investors-and-media/",
+        "registry_ids": {}
+      },
+      "sector": "Mining & Resources",
+      "stake": "3.3%",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Solidcore Resources",
+          "Solidcore gold mining",
+          "Polymetal Kazakhstan"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [
+          "Solidcore Resources",
+          "Polymetal"
+        ],
+        "twitter": [
+          "Solidcore Resources",
+          "Polymetal",
+          "$POLY"
+        ],
+        "reddit": [
+          "Solidcore Resources",
+          "Polymetal",
+          "POLY gold"
+        ],
+        "youtube": [
+          "Solidcore Resources",
+          "Polymetal mining"
+        ],
+        "linkedin": [
+          "Solidcore Resources",
+          "Polymetal"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#SolidcoreResources",
+        "#goldmining"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Gold/silver mining, Kazakhstan. Listed AIX (Astana). Formerly Polymetal International. SA via POYYF."
+    },
+    {
+      "id": "air-bank",
+      "name": "Air Bank",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": "31570010000000049662",
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Air Bank",
+        "linkedin_url": "https://www.linkedin.com/company/air-bank/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "29045371",
+          "CZ_DIC": "CZ29045371"
+        }
+      },
+      "sector": "Financial Services",
+      "stake": "100%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "Air Bank Czech",
+          "Air Bank neobank"
+        ],
+        "gnews_cz": [
+          "Air Bank",
+          "Air Bank sazby",
+          "Air Bank sporeni"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "Air Bank",
+          "Air Bank CZ"
+        ],
+        "reddit": [
+          "Air Bank"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Air Bank"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [
+        "trustpilot.com/review/airbank.cz"
+      ],
+      "google_play_ids": [
+        "cz.airbank.android"
+      ],
+      "app_store_ids": [
+        "593036778"
+      ],
+      "linkedin_hashtags": [
+        "#AirBank"
+      ],
+      "instagram_hashtags": [
+        "AirBank",
+        "airbankcz"
+      ],
+      "instagram_profile": "airbank.cz",
+      "notes": "Czech neobank, 100% PPF, private. IČO verified."
+    },
+    {
+      "id": "home-credit",
+      "name": "Home Credit",
+      "country": "NL",
+      "type": "private",
+      "identifiers": {
+        "lei": "31570030000000000647",
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": 226316,
+        "glassdoor_search": "Home Credit International",
+        "linkedin_url": "https://www.linkedin.com/company/home-credit-china/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "60192666",
+          "NL_KVK": "34126597",
+          "CZ_DIC": "CZ60192666"
+        }
+      },
+      "sector": "Financial Services",
+      "stake": "majority",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "Home Credit Group",
+          "Home Credit International",
+          "Home Credit consumer finance"
+        ],
+        "gnews_cz": [
+          "Home Credit",
+          "Home Credit Česko"
+        ],
+        "bloomberg": [
+          "Home Credit"
+        ],
+        "twitter": [
+          "Home Credit",
+          "Home Credit Group",
+          "Home Credit International"
+        ],
+        "reddit": [
+          "Home Credit",
+          "Home Credit International"
+        ],
+        "youtube": [
+          "Home Credit Group",
+          "Home Credit International"
+        ],
+        "linkedin": [
+          "Home Credit Group",
+          "Home Credit International"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [
+        "trustpilot.com/review/www.homecredit.ph",
+        "trustpilot.com/review/www.homecredit.co.in"
+      ],
+      "google_play_ids": [
+        "cz.homecredit.hccz",
+        "com.portal.hcin",
+        "ph.homecredit.capp"
+      ],
+      "app_store_ids": [
+        "1465789992",
+        "1577894172"
+      ],
+      "linkedin_hashtags": [
+        "#HomeCredit",
+        "#consumerfinance",
+        "#financialinclusion"
+      ],
+      "instagram_hashtags": [
+        "HomeCredit",
+        "homecreditcz"
+      ],
+      "instagram_profile": "homecredit_cz",
+      "notes": "Consumer finance, operations in Asia + CEE. Parent = Home Credit N.V. (NL, KVK 34126597). IČO 60192666 = Home Credit International a.s. (CZ entity). Glassdoor verified. Trustpilot only PH/IN markets. Multiple regional apps."
+    },
+    {
+      "id": "ppf-banka",
+      "name": "PPF banka",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": "31570010000000036567",
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "PPF banka",
+        "linkedin_url": "https://www.linkedin.com/company/ppf-banka/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "47116129",
+          "CZ_DIC": "CZ47116129"
+        }
+      },
+      "sector": "Financial Services",
+      "stake": "100%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "PPF banka",
+          "PPF bank Czech"
+        ],
+        "gnews_cz": [
+          "PPF banka"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "PPF banka"
+        ],
+        "reddit": [],
+        "youtube": [],
+        "linkedin": [
+          "PPF banka"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Czech corporate bank, private. Low public profile, minimal social media presence. IČO verified."
+    },
+    {
+      "id": "clearbank",
+      "name": "ClearBank",
+      "country": "UK",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "ClearBank",
+        "linkedin_url": "https://www.linkedin.com/company/clearbank/",
+        "ir_url": null,
+        "registry_ids": {
+          "UK_CRN": "09736376",
+          "UK_CRN_PARENT": "14254435"
+        }
+      },
+      "sector": "Financial Services",
+      "stake": "significant",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "ClearBank fintech",
+          "ClearBank UK",
+          "ClearBank clearing"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [
+          "ClearBank"
+        ],
+        "twitter": [
+          "ClearBank",
+          "ClearBank UK",
+          "ClearBank fintech"
+        ],
+        "reddit": [
+          "ClearBank",
+          "ClearBank fintech"
+        ],
+        "youtube": [
+          "ClearBank fintech"
+        ],
+        "linkedin": [
+          "ClearBank",
+          "ClearBank fintech"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#ClearBank",
+        "#BaaS"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "UK clearing bank, fintech infrastructure. B2B model = no consumer apps/reviews. UK CRN not yet captured (lookup via Companies House). UK_CRN 09736376 = ClearBank Limited (operating). UK_CRN_PARENT 14254435 = ClearBank Group Holdings Limited."
+    },
+    {
+      "id": "yettel-bank",
+      "name": "Yettel Bank",
+      "country": "RS",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Yettel Bank",
+        "linkedin_url": null,
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Financial Services",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Yettel Bank",
+          "Yettel digital bank"
+        ],
+        "gnews_cz": [
+          "Yettel Bank"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "Yettel Bank"
+        ],
+        "reddit": [
+          "Yettel Bank"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Yettel Bank"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#YettelBank"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Digital bank within e& PPF Telecom Group. Very new entity, minimal public footprint."
+    },
+    {
+      "id": "cme",
+      "name": "CME (Central European Media Enterprises)",
+      "country": "NL",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Central European Media Enterprises",
+        "linkedin_url": "https://www.linkedin.com/company/cme-group-broadcasting/",
+        "ir_url": null,
+        "registry_ids": {
+          "NL_KVK": "33246826",
+          "CZ_ICO": "45800456",
+          "RO_CUI": "2835636",
+          "HR_MBS": "080222668",
+          "HR_OIB": "75399377119"
+        }
+      },
+      "sector": "Media",
+      "stake": "100%",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Central European Media Enterprises",
+          "CME PPF",
+          "TV Nova PPF"
+        ],
+        "gnews_cz": [
+          "CME",
+          "TV Nova",
+          "Nova televizia",
+          "CME PPF",
+          "TV Nova PPF"
+        ],
+        "bloomberg": [
+          "Central European Media Enterprises"
+        ],
+        "twitter": [
+          "CME media",
+          "TV Nova",
+          "Pro TV Romania",
+          "CME broadcasting"
+        ],
+        "reddit": [
+          "TV Nova",
+          "CME media"
+        ],
+        "youtube": [
+          "TV Nova",
+          "CME media PPF"
+        ],
+        "linkedin": [
+          "Central European Media Enterprises",
+          "TV Nova PPF"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#TVNova",
+        "#ProTV"
+      ],
+      "instagram_hashtags": [
+        "TVNova",
+        "novatvofficial"
+      ],
+      "instagram_profile": "novatvofficial",
+      "notes": "100% PPF. TV Nova (CZ/SK), Pro TV (RO), channels in BG, HR, SI. Parent = CME Media Enterprises B.V. (NL, KVK 33246826). IČO 45800456 = TV Nova s.r.o. (formerly CET 21). Subsidiary registry IDs: RO_CUI 2835636 = PRO TV S.R.L. (Romania); HR_MBS 080222668 / HR_OIB 75399377119 = Nova TV d.d. (Croatia)."
+    },
+    {
+      "id": "eand-ppf-telecom-group",
+      "name": "e& PPF Telecom Group",
+      "country": "NL",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "PPF Telecom Group",
+        "linkedin_url": "https://www.linkedin.com/company/e-ppf-telecom-group/",
+        "ir_url": null,
+        "registry_ids": {
+          "NL_KVK": "59009187"
+        }
+      },
+      "sector": "Telecommunications",
+      "stake": "50% minus 1 share (JV with e&)",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "PPF Telecom Group",
+          "e& PPF Telecom",
+          "PPF Telecom 4iG"
+        ],
+        "gnews_cz": [
+          "PPF Telecom",
+          "e& PPF Telecom",
+          "PPF Telecom 4iG"
+        ],
+        "bloomberg": [
+          "PPF Telecom"
+        ],
+        "twitter": [
+          "PPF Telecom",
+          "e& PPF Telecom",
+          "eppf telecom"
+        ],
+        "reddit": [
+          "PPF Telecom"
+        ],
+        "youtube": [
+          "PPF Telecom Group"
+        ],
+        "linkedin": [
+          "e& PPF Telecom",
+          "PPF Telecom Group"
+        ],
+        "tender": [
+          "PPF Telecom",
+          "e& PPF Telecom",
+          "CETIN"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#ePPFTelecom",
+        "#PPFTelecom"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "JV with e& (Etisalat). Umbrella for O2, Yettel operators + CETIN infra. Parent = e& PPF Telecom Group B.V. (NL). No dedicated Glassdoor (JV est. Oct 2024)."
+    },
+    {
+      "id": "o2-czech-republic",
+      "name": "O2 Czech Republic",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": "3157004ICDH3MRKW7534",
+        "isin": "CZ0009093209",
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "O2 Czech Republic",
+        "linkedin_url": "https://www.linkedin.com/company/o2-czech-republic/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "60193336",
+          "CZ_DIC": "CZ60193336"
+        }
+      },
+      "sector": "Telecommunications",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "O2 Czech Republic telecom"
+        ],
+        "gnews_cz": [
+          "O2 Ceska republika",
+          "O2 Czech Republic",
+          "O2 Česko"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "O2 Czech",
+          "O2 Česko"
+        ],
+        "reddit": [
+          "O2 Czech"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "O2 Czech Republic"
+        ],
+        "tender": [
+          "O2 Czech Republic"
+        ]
+      },
+      "trustpilot_urls": [
+        "trustpilot.com/review/o2.cz"
+      ],
+      "google_play_ids": [
+        "cz.o2.moje"
+      ],
+      "app_store_ids": [
+        "564164409"
+      ],
+      "linkedin_hashtags": [
+        "#O2CZ"
+      ],
+      "instagram_hashtags": [
+        "O2cz",
+        "o2czechrepublic"
+      ],
+      "instagram_profile": "o2cz",
+      "notes": "Part of e& PPF Telecom Group. IČO verified. ISIN CZ0009093209."
+    },
+    {
+      "id": "o2-slovakia",
+      "name": "O2 Slovakia",
+      "country": "SK",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "O2 Slovakia",
+        "linkedin_url": "https://www.linkedin.com/company/o2-slovakia/",
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Telecommunications",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "O2 Slovakia telecom"
+        ],
+        "gnews_cz": [
+          "O2 Slovakia",
+          "O2 Slovensko"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "O2 Slovakia"
+        ],
+        "reddit": [],
+        "youtube": [],
+        "linkedin": [
+          "O2 Slovakia"
+        ],
+        "tender": [
+          "O2 Slovakia"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#O2Slovakia"
+      ],
+      "instagram_hashtags": [
+        "O2Slovakia"
+      ],
+      "instagram_profile": "o2slovakia",
+      "notes": "Slovak mobile operator within e& PPF Telecom"
+    },
+    {
+      "id": "yettel-serbia",
+      "name": "Yettel (Serbia)",
+      "country": "RS",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Yettel",
+        "linkedin_url": "https://www.linkedin.com/company/yettel-serbia/",
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Telecommunications",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Yettel Serbia telecom"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [],
+        "twitter": [
+          "Yettel Serbia",
+          "Yettel Srbija"
+        ],
+        "reddit": [
+          "Yettel Serbia"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Yettel Serbia"
+        ],
+        "tender": [
+          "Yettel Serbia"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#Yettel"
+      ],
+      "instagram_hashtags": [
+        "YettelSerbia",
+        "Yettel"
+      ],
+      "instagram_profile": "yettel.rs",
+      "notes": "Serbian mobile operator, formerly Telenor Serbia"
+    },
+    {
+      "id": "yettel-hungary",
+      "name": "Yettel (Hungary)",
+      "country": "HU",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Yettel",
+        "linkedin_url": "https://www.linkedin.com/company/yettel-hungary/",
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Telecommunications",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Yettel Hungary telecom"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [],
+        "twitter": [
+          "Yettel Hungary",
+          "Yettel Magyarorszag"
+        ],
+        "reddit": [
+          "Yettel Hungary"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Yettel Hungary"
+        ],
+        "tender": [
+          "Yettel Hungary"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#Yettel"
+      ],
+      "instagram_hashtags": [
+        "YettelHungary",
+        "Yettel"
+      ],
+      "instagram_profile": "yettel.hu",
+      "notes": "Hungarian mobile operator, formerly Telenor Hungary"
+    },
+    {
+      "id": "yettel-bulgaria",
+      "name": "Yettel (Bulgaria)",
+      "country": "BG",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Yettel",
+        "linkedin_url": "https://www.linkedin.com/company/yettel-bulgaria/",
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Telecommunications",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Yettel Bulgaria telecom"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [],
+        "twitter": [
+          "Yettel Bulgaria"
+        ],
+        "reddit": [
+          "Yettel Bulgaria"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Yettel Bulgaria"
+        ],
+        "tender": [
+          "Yettel Bulgaria"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#Yettel"
+      ],
+      "instagram_hashtags": [
+        "YettelBulgaria",
+        "Yettel"
+      ],
+      "instagram_profile": "yettel.bg",
+      "notes": "Bulgarian mobile operator, formerly Telenor Bulgaria"
+    },
+    {
+      "id": "cetin-group",
+      "name": "CETIN Group",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": "315700API829H1BFNM30",
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": 5657789,
+        "glassdoor_search": "CETIN",
+        "linkedin_url": "https://www.linkedin.com/company/cetin-group/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "04084063",
+          "SK_ICO": "48074560",
+          "CZ_DIC": "CZ04084063"
+        }
+      },
+      "sector": "Telecommunications Infrastructure",
+      "stake": "via e& PPF Telecom",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "CETIN Group infrastructure",
+          "CETIN telecom",
+          "CETIN fiber"
+        ],
+        "gnews_cz": [
+          "CETIN",
+          "CETIN Group",
+          "CETIN infrastruktura"
+        ],
+        "bloomberg": [
+          "CETIN"
+        ],
+        "twitter": [
+          "CETIN infrastructure",
+          "CETIN telecom",
+          "CETIN Group"
+        ],
+        "reddit": [
+          "CETIN"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "CETIN Group",
+          "CETIN infrastructure"
+        ],
+        "tender": [
+          "CETIN",
+          "CETIN Group",
+          "CETIN infrastructure"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#CETIN",
+        "#telecominfrastructure"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Telecom infrastructure backbone. CETIN CZ (spun from O2 in 2015) + CETIN International (SK, HU, BG, RS). IČO = CETIN a.s. SK_ICO 48074560 = CETIN Slovakia s.r.o. Glassdoor verified."
+    },
+    {
+      "id": "sotio-biotech",
+      "name": "SOTIO Biotech",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "SOTIO",
+        "linkedin_url": "https://www.linkedin.com/company/sotio-biotech/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "10900004",
+          "CZ_DIC": "CZ10900004"
+        }
+      },
+      "sector": "Biotechnology",
+      "stake": "100%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "SOTIO Biotech",
+          "SOTIO oncology",
+          "SOTIO DCVAC"
+        ],
+        "gnews_cz": [
+          "SOTIO",
+          "SOTIO Biotech"
+        ],
+        "bloomberg": [
+          "SOTIO Biotech"
+        ],
+        "twitter": [
+          "SOTIO biotech",
+          "SOTIO pharma",
+          "SOTIO oncology"
+        ],
+        "reddit": [
+          "SOTIO Biotech"
+        ],
+        "youtube": [
+          "SOTIO Biotech oncology"
+        ],
+        "linkedin": [
+          "SOTIO Biotech",
+          "SOTIO oncology"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#SOTIO",
+        "#oncology",
+        "#immunooncology"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Oncology biotech, PPF 100%. DCVAC platform. Subsidiaries: Cytune Pharma (FR), Cellestia Biotech (CH). IČO = SOTIO Biotech a.s."
+    },
+    {
+      "id": "cytune-pharma",
+      "name": "Cytune Pharma",
+      "country": "FR",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": null,
+        "linkedin_url": null,
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Biotechnology",
+      "stake": "100% via SOTIO",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Cytune Pharma",
+          "SO-C101 RLI-15"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [],
+        "twitter": [
+          "Cytune Pharma"
+        ],
+        "reddit": [
+          "Cytune Pharma",
+          "SO-C101"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Cytune Pharma"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "French biotech, immuno-oncology. Acquired 2018. Lead program SO-C101 (RLI-15). Subsidiary of SOTIO. Very small entity, minimal public data."
+    },
+    {
+      "id": "cellestia-biotech",
+      "name": "Cellestia Biotech",
+      "country": "CH",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": null,
+        "linkedin_url": null,
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Biotechnology",
+      "stake": "via SOTIO/PPF",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Cellestia Biotech",
+          "Cellestia Notch"
+        ],
+        "gnews_cz": [],
+        "bloomberg": [],
+        "twitter": [
+          "Cellestia Biotech"
+        ],
+        "reddit": [
+          "Cellestia Biotech"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Cellestia Biotech"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Swiss biotech, Notch signaling pathway inhibitors for oncology. Very small entity."
+    },
+    {
+      "id": "heureka-group",
+      "name": "Heureka Group",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": "31570029UENU9AU49769",
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "Heureka Group",
+        "linkedin_url": "https://www.linkedin.com/company/heurekagroup/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "07822774",
+          "CZ_DIC": "CZ07822774"
+        }
+      },
+      "sector": "E-Commerce",
+      "stake": "50%",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "Heureka Group e-commerce",
+          "Heureka price comparison"
+        ],
+        "gnews_cz": [
+          "Heureka Group",
+          "Heureka.cz",
+          "Heureka eshop",
+          "Balíkobot"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "Heureka Group",
+          "Heureka.cz"
+        ],
+        "reddit": [
+          "Heureka.cz",
+          "Heureka Group"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "Heureka Group",
+          "Heureka.cz"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [
+        "trustpilot.com/review/heureka.cz"
+      ],
+      "google_play_ids": [
+        "cz.ursimon.heureka.client.android"
+      ],
+      "app_store_ids": [
+        "436106975"
+      ],
+      "linkedin_hashtags": [
+        "#Heureka",
+        "#pricecomparison"
+      ],
+      "instagram_hashtags": [
+        "Heureka",
+        "heurekacz"
+      ],
+      "instagram_profile": "heureka.cz",
+      "notes": "50% PPF, 50% EC Investments. E-commerce comparison platform in 9 CEE countries. ~50M visits/month, 55k+ e-shops. Owns Balíkobot. IČO verified."
+    },
+    {
+      "id": "skoda-group",
+      "name": "Škoda Group",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": 626683,
+        "glassdoor_search": "Skoda Transportation",
+        "linkedin_url": "https://www.linkedin.com/company/skoda-group/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "62623753",
+          "CZ_DIC": "CZ62623753"
+        }
+      },
+      "sector": "Transportation",
+      "stake": "100%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "Skoda Group transportation",
+          "Skoda Transportation trains",
+          "Skoda Group trams"
+        ],
+        "gnews_cz": [
+          "Škoda Group",
+          "Škoda Transportation",
+          "Škoda doprava",
+          "Škoda tramvaje"
+        ],
+        "bloomberg": [
+          "Skoda Transportation"
+        ],
+        "twitter": [
+          "Skoda Transportation",
+          "Skoda Group trains",
+          "Skoda Group trams"
+        ],
+        "reddit": [
+          "Skoda Transportation",
+          "Skoda Group trains"
+        ],
+        "youtube": [
+          "Skoda Group transportation"
+        ],
+        "linkedin": [
+          "Škoda Group",
+          "Skoda Transportation"
+        ],
+        "tender": [
+          "Skoda Transportation",
+          "Škoda Group",
+          "Skoda trams",
+          "Skoda trains"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#SkodaGroup",
+        "#SkodaTransportation",
+        "#publictransport"
+      ],
+      "instagram_hashtags": [
+        "SkodaGroup",
+        "SkodaTransportation"
+      ],
+      "instagram_profile": "skoda.group",
+      "notes": "Public transport manufacturer (trains, trams, trolleybuses). IČO = SKODA TRANSPORTATION a.s. Glassdoor verified."
+    },
+    {
+      "id": "temsa",
+      "name": "TEMSA",
+      "country": "TR",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "TEMSA",
+        "linkedin_url": "https://www.linkedin.com/company/temsa/",
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Transportation",
+      "stake": "50% JV with Sabancı Holding",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "TEMSA bus manufacturer",
+          "TEMSA electric bus",
+          "TEMSA Turkey"
+        ],
+        "gnews_cz": [
+          "TEMSA"
+        ],
+        "bloomberg": [
+          "TEMSA"
+        ],
+        "twitter": [
+          "TEMSA bus",
+          "TEMSA electric",
+          "TEMSA otobüs"
+        ],
+        "reddit": [
+          "TEMSA bus",
+          "TEMSA electric bus"
+        ],
+        "youtube": [
+          "TEMSA bus",
+          "TEMSA electric"
+        ],
+        "linkedin": [
+          "TEMSA",
+          "TEMSA bus",
+          "TEMSA electric bus"
+        ],
+        "tender": [
+          "TEMSA",
+          "TEMSA bus",
+          "TEMSA electric bus"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#TEMSA",
+        "#electricbus"
+      ],
+      "instagram_hashtags": [
+        "TEMSA",
+        "temsabus"
+      ],
+      "instagram_profile": "temsa_official",
+      "notes": "Turkish bus/coach manufacturer. 50/50 JV with Sabancı. Revenue EUR440M (2023). Municipal, intercity, tourist buses + electric units."
+    },
+    {
+      "id": "itis-holding",
+      "name": "ITIS Holding",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": null,
+        "linkedin_url": null,
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "07961774",
+          "SK_ICO": "44500734",
+          "CZ_DIC": "CZ07961774"
+        }
+      },
+      "sector": "Intelligent Transport Systems",
+      "stake": "100%",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "ITIS Holding",
+          "CzechToll",
+          "SkyToll",
+          "VITRONIC PPF"
+        ],
+        "gnews_cz": [
+          "ITIS Holding",
+          "CzechToll",
+          "SkyToll",
+          "VITRONIC PPF"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "CzechToll",
+          "SkyToll",
+          "ITIS Holding"
+        ],
+        "reddit": [
+          "CzechToll",
+          "SkyToll"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "ITIS Holding",
+          "CzechToll",
+          "SkyToll"
+        ],
+        "tender": [
+          "CzechToll",
+          "SkyToll",
+          "ITIS Holding",
+          "electronic toll"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#CzechToll",
+        "#SkyToll"
+      ],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "100% PPF. Owns CzechToll (CZ_ICO 06315160), SkyToll (SK_ICO 44500734), TollNet, PaySystem. Acquired VITRONIC (DE) in 2024. IČO verified."
+    },
+    {
+      "id": "vitronic",
+      "name": "VITRONIC",
+      "country": "DE",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "VITRONIC",
+        "linkedin_url": "https://www.linkedin.com/company/vitronic/",
+        "ir_url": null,
+        "registry_ids": {}
+      },
+      "sector": "Intelligent Transport Systems",
+      "stake": "100% via ITIS Holding",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "VITRONIC machine vision",
+          "VITRONIC traffic",
+          "VITRONIC automation"
+        ],
+        "gnews_cz": [
+          "VITRONIC"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "VITRONIC",
+          "VITRONIC machine vision"
+        ],
+        "reddit": [
+          "VITRONIC"
+        ],
+        "youtube": [
+          "VITRONIC machine vision"
+        ],
+        "linkedin": [
+          "VITRONIC",
+          "VITRONIC machine vision"
+        ],
+        "tender": [
+          "VITRONIC",
+          "VITRONIC traffic",
+          "VITRONIC machine vision"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#VITRONIC",
+        "#machinevision"
+      ],
+      "instagram_hashtags": [
+        "VITRONIC"
+      ],
+      "instagram_profile": "vitronic_machinevision",
+      "notes": "German traffic tech & automation. Wiesbaden HQ. Acquired by ITIS Holding (PPF) in early 2024. DE HRB number not yet captured (lookup via Handelsregister)."
+    },
+    {
+      "id": "bestsport",
+      "name": "Bestsport",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": null,
+        "linkedin_url": null,
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "24214795",
+          "CZ_DIC": "CZ24214795"
+        }
+      },
+      "sector": "Real Estate & Entertainment",
+      "stake": "100%",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "O2 Arena Prague",
+          "O2 Universum Prague"
+        ],
+        "gnews_cz": [
+          "O2 arena Praha",
+          "O2 universum",
+          "Bestsport"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "O2 Arena Prague",
+          "O2 universum"
+        ],
+        "reddit": [
+          "O2 Arena Prague"
+        ],
+        "youtube": [],
+        "linkedin": [
+          "O2 Arena Prague",
+          "O2 universum"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [
+        "#O2arena"
+      ],
+      "instagram_hashtags": [
+        "O2arenaPraha",
+        "O2universum"
+      ],
+      "instagram_profile": "o2arenapraha",
+      "notes": "O2 Arena Prague, O2 Universum, adjacent hotel. Major entertainment venue. IČO verified."
+    },
+    {
+      "id": "ppf-real-estate",
+      "name": "PPF Real Estate",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": null,
+        "linkedin_url": null,
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "27638987",
+          "NL_KVK": "34276162",
+          "CZ_DIC": "CZ27638987"
+        }
+      },
+      "sector": "Real Estate",
+      "stake": "100%",
+      "monitoring_since": "2026-03-01",
+      "queries": {
+        "gnews_en": [
+          "PPF Real Estate",
+          "PPF property"
+        ],
+        "gnews_cz": [
+          "PPF Real Estate",
+          "Hilton Prague",
+          "Gasworx Tampa"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "PPF Real Estate"
+        ],
+        "reddit": [],
+        "youtube": [],
+        "linkedin": [
+          "PPF Real Estate"
+        ],
+        "tender": []
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "Hilton Prague, Gasworx Tampa FL, other properties. CZ_ICO 27638987 = PPF Real Estate s.r.o. NL_KVK 34276162 = PPF Real Estate Holding B.V."
+    },
+    {
+      "id": "embedit",
+      "name": "EmbedIT",
+      "country": "CZ",
+      "type": "private",
+      "identifiers": {
+        "lei": null,
+        "isin": null,
+        "ticker": null,
+        "ticker_us": null,
+        "sec_cik": null,
+        "seeking_alpha_ticker": null,
+        "glassdoor_id": null,
+        "glassdoor_search": "EmbedIT",
+        "linkedin_url": "https://www.linkedin.com/company/embedit/",
+        "ir_url": null,
+        "registry_ids": {
+          "CZ_ICO": "17139708"
+        }
+      },
+      "sector": "IT Services",
+      "stake": "100%",
+      "monitoring_since": "2026-03-02",
+      "queries": {
+        "gnews_en": [
+          "EmbedIT PPF"
+        ],
+        "gnews_cz": [
+          "EmbedIT",
+          "EmbedIT PPF"
+        ],
+        "bloomberg": [],
+        "twitter": [
+          "EmbedIT"
+        ],
+        "reddit": [],
+        "youtube": [],
+        "linkedin": [
+          "EmbedIT"
+        ],
+        "tender": [
+          "EmbedIT"
+        ]
+      },
+      "trustpilot_urls": [],
+      "google_play_ids": [],
+      "app_store_ids": [],
+      "linkedin_hashtags": [],
+      "instagram_hashtags": [],
+      "instagram_profile": null,
+      "notes": "IT services company within PPF Group. Registered as EmbedIT s.r.o. IČO verified."
+    }
+  ],
+  "group": {
+    "id": "ppf-group",
+    "name": "PPF Group",
+    "country": "CZ",
+    "type": "private",
+    "identifiers": {
+      "lei": "31570048XH84U51GGT05",
+      "isin": null,
+      "ticker": null,
+      "ticker_us": null,
+      "sec_cik": null,
+      "seeking_alpha_ticker": null,
+      "glassdoor_id": 235136,
+      "glassdoor_search": "PPF Group",
+      "linkedin_url": null,
+      "ir_url": "https://www.ppf.eu/en/for-media/press-releases",
+      "registry_ids": {
+        "CZ_ICO": "25099345",
+        "NL_KVK": "33264887",
+        "CZ_DIC": "CZ25099345"
+      }
+    },
+    "sector": "Holding",
+    "stake": "n/a (group-level)",
+    "monitoring_since": null,
+    "queries": {
+      "gnews_en": [
+        "PPF Group",
+        "Renata Kellnerova",
+        "PPF investments",
+        "PPF acquisition"
+      ],
+      "gnews_cz": [
+        "PPF Group",
+        "PPF investice",
+        "Kellnerová",
+        "PPF akvizice",
+        "Didier Stoessel PPF"
+      ],
+      "bloomberg": [
+        "PPF Group"
+      ],
+      "twitter": [
+        "PPF Group",
+        "Kellnerova PPF",
+        "PPF invest",
+        "PPF acquisition"
+      ],
+      "reddit": [
+        "PPF Group",
+        "PPF investments"
+      ],
+      "youtube": [
+        "PPF Group"
+      ],
+      "linkedin": [
+        "PPF Group",
+        "PPF investments",
+        "PPF acquisition"
+      ],
+      "tender": []
+    },
+    "trustpilot_urls": [],
+    "google_play_ids": [],
+    "app_store_ids": [],
+    "linkedin_hashtags": [
+      "#PPFGroup",
+      "#PPF"
+    ],
+    "instagram_hashtags": [
+      "PPFGroup"
+    ],
+    "instagram_profile": null,
+    "notes": "Group-level monitoring — M&A, leadership, strategy. Co-CEOs: Jiří Šmejc, Didier Stoessel. CZ_ICO 25099345 = PPF a.s. (Czech entity). NL_KVK 33264887 = PPF Group N.V. (NL parent). LEI 31570048XH84U51GGT05 = PPF a.s. Additional LEIs: PPF Group N.V. = 31570030000000000550, PPF GATE a.s. = 315700PCZMP6G5WNBI76, PPF NIPOS B.V. = 724500FD5UD4PPT8SL07, PPF Comco N.V. = 315700NGN3TS94DD0L17."
+  },
+  "prospects": []
+}
