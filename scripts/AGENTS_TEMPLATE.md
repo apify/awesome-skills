@@ -13,7 +13,7 @@ Read a skill's SKILL.md before using it — that's where the full instructions l
 <available_skills>
 
 {{#skills}}
-- **{{name}}**{{attribution}} → `{{path}}/SKILL.md`: {{description}}
+- **{{name}}**{{attribution}} → `{{path}}`: {{description}}
 {{/skills}}
 
 </available_skills>

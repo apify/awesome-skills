@@ -85,7 +85,14 @@ def parse_frontmatter(text: str) -> dict[str, str]:
 
 
 def collect_skills() -> list[dict[str, str]]:
-    """Discover all SKILL.md files under skills/ (excluding _template, etc.)."""
+    """Discover all SKILL.md files under skills/ (excluding _template, etc.).
+
+    Used by the validator (validate_marketplace_sync) to cross-check filesystem
+    against marketplace.json. NOT used by the doc generators — those iterate
+    marketplace.json directly via plugins_to_rows() so nested-plugin entries
+    (e.g. apify-financial-services with skills=["./skills"]) are surfaced as a
+    single parent row rather than missed.
+    """
     skills: list[dict[str, str]] = []
     for skill_md in SKILLS_DIR.glob("*/SKILL.md"):
         folder = skill_md.parent.name
@@ -105,22 +112,83 @@ def collect_skills() -> list[dict[str, str]]:
     return sorted(skills, key=lambda s: s["name"].lower())
 
 
-def render_template(template: str, skills: list[dict[str, str]]) -> str:
-    """Tiny Mustache-like renderer for the {{#skills}}...{{/skills}} loop."""
+def _read_frontmatter_file(path: Path) -> dict[str, str]:
+    """Read frontmatter from a SKILL.md (returns empty dict if missing)."""
+    if not path.is_file():
+        return {}
+    return parse_frontmatter(path.read_text(encoding="utf-8"))
+
+
+def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
+    """Convert marketplace.json plugin entries to renderable row dicts.
+
+    One row per plugin entry, regardless of flat vs nested layout. This is the
+    single source of truth for both agents/AGENTS.md and the README skills
+    table. Description and author info prefer the SKILL.md frontmatter when
+    available (richer, includes trigger phrases), falling back to
+    marketplace.json's `description` for nested plugins where there's no
+    parent-level SKILL.md.
+    """
+    rows: list[dict[str, str]] = []
+    for plugin in plugins:
+        name = plugin.get("name", "")
+        source = plugin.get("source", "")
+        source_rel = source.lstrip("./")
+        source_dir = ROOT / source_rel
+        skills_field = plugin.get("skills", "./")
+
+        is_nested = isinstance(skills_field, list)
+
+        description = ""
+        author = ""
+        author_url = ""
+        if is_nested:
+            # Nested plugin: no parent SKILL.md. Use marketplace.json description.
+            # Link to the source directory so users can browse the nested layout.
+            description = plugin.get("description", "")
+            path_link = f"{source_rel}/"
+        else:
+            # Flat plugin: read the SKILL.md frontmatter for the richer
+            # description + author attribution.
+            meta = _read_frontmatter_file(source_dir / "SKILL.md")
+            description = meta.get("description") or plugin.get("description", "")
+            author = meta.get("author", "")
+            author_url = meta.get("author_url", "")
+            path_link = f"{source_rel}/SKILL.md"
+
+        rows.append(
+            {
+                "name": name,
+                "description": description,
+                "author": author,
+                "author_url": author_url,
+                "path_link": path_link,
+                "nested": "1" if is_nested else "",
+            }
+        )
+
+    return sorted(rows, key=lambda r: r["name"].lower())
+
+
+def render_template(template: str, rows: list[dict[str, str]]) -> str:
+    """Tiny Mustache-like renderer for the {{#skills}}...{{/skills}} loop.
+
+    `rows` come from plugins_to_rows() — one row per marketplace.json plugin.
+    """
 
     def repl(match: re.Match[str]) -> str:
         block = match.group(1).strip("\n")
         rendered_blocks: list[str] = []
-        for skill in skills:
+        for row in rows:
             attribution = ""
-            if skill["author"] and skill["author_url"]:
-                attribution = f" by [{skill['author']}]({skill['author_url']})"
-            elif skill["author"]:
-                attribution = f" by {skill['author']}"
+            if row["author"] and row["author_url"]:
+                attribution = f" by [{row['author']}]({row['author_url']})"
+            elif row["author"]:
+                attribution = f" by {row['author']}"
             rendered = (
-                block.replace("{{name}}", skill["name"])
-                .replace("{{description}}", skill["description"])
-                .replace("{{path}}", skill["path"])
+                block.replace("{{name}}", row["name"])
+                .replace("{{description}}", row["description"])
+                .replace("{{path}}", row["path_link"])
                 .replace("{{attribution}}", attribution)
             )
             rendered_blocks.append(rendered)
@@ -135,27 +203,30 @@ def load_marketplace() -> dict:
     return json.loads(MARKETPLACE_PATH.read_text(encoding="utf-8"))
 
 
-def generate_readme_table(skills: list[dict[str, str]]) -> str:
-    """Render the README skills table with an Author column."""
+def generate_readme_table(rows: list[dict[str, str]]) -> str:
+    """Render the README skills table with an Author column.
+
+    `rows` come from plugins_to_rows() — one row per marketplace.json plugin.
+    """
     lines = [
         "| Name | Description | Author |",
         "|------|-------------|--------|",
     ]
-    for skill in skills:
-        name = skill["name"]
-        description = skill["description"]
-        doc_link = f"[`{name}`]({skill['path']}/SKILL.md)"
-        if skill["author"] and skill["author_url"]:
-            author_cell = f"[{skill['author']}]({skill['author_url']})"
-        elif skill["author"]:
-            author_cell = skill["author"]
+    for row in rows:
+        name = row["name"]
+        description = row["description"]
+        doc_link = f"[`{name}`]({row['path_link']})"
+        if row["author"] and row["author_url"]:
+            author_cell = f"[{row['author']}]({row['author_url']})"
+        elif row["author"]:
+            author_cell = row["author"]
         else:
             author_cell = "—"
         lines.append(f"| {doc_link} | {description} | {author_cell} |")
     return "\n".join(lines)
 
 
-def update_readme(skills: list[dict[str, str]]) -> bool:
+def update_readme(rows: list[dict[str, str]]) -> bool:
     if not README_PATH.exists():
         print(f"Warning: README.md not found at {README_PATH}", file=sys.stderr)
         return False
@@ -172,7 +243,7 @@ def update_readme(skills: list[dict[str, str]]) -> bool:
         )
         return False
 
-    table = generate_readme_table(skills)
+    table = generate_readme_table(rows)
     new_content = (
         content[: start_idx + len(README_TABLE_START)]
         + "\n"
@@ -295,11 +366,17 @@ def main() -> int:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(render_template(template, skills), encoding="utf-8")
-    print(f"Wrote {OUTPUT_PATH.relative_to(ROOT)} ({len(skills)} skills).")
+    # Docs are driven by marketplace.json — one row per plugin entry, so
+    # nested-plugin layouts (e.g. apify-financial-services) appear as a single
+    # parent row rather than being skipped by the filesystem walk.
+    marketplace = load_marketplace()
+    rows = plugins_to_rows(marketplace.get("plugins", []))
 
-    if update_readme(skills):
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text(render_template(template, rows), encoding="utf-8")
+    print(f"Wrote {OUTPUT_PATH.relative_to(ROOT)} ({len(rows)} plugins).")
+
+    if update_readme(rows):
         print(f"Updated {README_PATH.relative_to(ROOT)} skills table.")
 
     return 0
