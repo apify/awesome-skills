@@ -1,11 +1,15 @@
 ---
 name: apify-ads-intelligence
 description: Research, spy on, and analyze ads across Meta (Facebook & Instagram), Google (Ads Transparency Center + paid search results), TikTok (Ads Library + Creative Center), LinkedIn Ad Library, and X (Twitter — promoted tweets, best-effort) using Apify Actors. Use when user asks about competitor ads, ad library research, winning creatives, ad copy analysis, landing page audits from ads, cross-platform ad audits, brand transparency checks, or any task involving paid ad creatives, advertiser data, or ad targeting from public ad libraries.
+author: Sameh Jarour
+author_url: https://github.com/samehjarour
 ---
 
 # Ads Intelligence Cluster
 
 Answer natural language questions about ads, ad libraries, and competitor advertising activity by routing to the right Apify Actor and delivering a synthesized answer.
+
+**CLI rules:** Always pass `--user-agent apify-agent-skills/apify-ads-intelligence`, `--json` (or the relevant `--format` flag on `datasets get-items`), and `2>/dev/null`. The `--user-agent` flag is critical for telemetry — never omit it.
 
 ## Note on platform coverage
 
@@ -20,9 +24,14 @@ That skill has an `ads-intelligence` intent that routes to `apify/facebook-ads-s
 
 (No need to check it upfront)
 
-- `.env` file with `APIFY_TOKEN`
-- Node.js 20.6+ (for native `--env-file` support)
-- `mcpc` CLI tool: `npm install -g @apify/mcpc`
+- Apify CLI v1.5.0+ (`npm install -g apify-cli`)
+- `jq` (recommended for response parsing and filtering; `brew install jq` on macOS, `apt install jq` on Linux)
+- Authentication via one of:
+  - `apify login` (OAuth, opens browser)
+  - `APIFY_TOKEN` env variable (e.g. `export APIFY_TOKEN=...` or `.env` file)
+  - Token from [Apify Console → Settings → Integrations](https://console.apify.com/settings/integrations)
+
+Verify auth: `apify info --user-agent apify-agent-skills/apify-ads-intelligence` — should show username and userId.
 
 ## Workflow
 
@@ -31,9 +40,9 @@ Copy this checklist and track progress:
 ```
 Task Progress:
 - [ ] Step 1: Detect intent and select Actor(s)
-- [ ] Step 2: Fetch Actor schema via mcpc
+- [ ] Step 2: Fetch Actor schema
 - [ ] Step 3: Ask user preferences (output format, result count, country)
-- [ ] Step 4: Run the Actor (or Actors in parallel for cross-platform-audit)
+- [ ] Step 4: Run the Actor (or Actors in parallel for cross-platform-audit) and fetch results
 - [ ] Step 5: Synthesize a direct answer (not a data dump)
 ```
 
@@ -86,19 +95,21 @@ Surface results with the explicit caveat: *"X has no public ad library; results 
 
 ### Step 2: Fetch Actor Schema
 
-Fetch the Actor's input schema dynamically using mcpc:
+Fetch the Actor summary, input schema, and README:
 
 ```bash
-export $(grep APIFY_TOKEN .env | xargs) && mcpc --json mcp.apify.com --header "Authorization: Bearer $APIFY_TOKEN" tools-call fetch-actor-details actor:="ACTOR_ID" | jq -r ".content"
+# Summary (title, description, pricing, stats)
+apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null
+
+# Input schema (required and optional parameters; schema lives in
+# .taggedBuilds.latest.build.inputSchema as an escaped JSON string)
+apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ads-intelligence --input --json 2>/dev/null
+
+# README (capabilities, examples, gotchas)
+apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ads-intelligence --readme 2>/dev/null
 ```
 
 Replace `ACTOR_ID` with the selected Actor (e.g., `apify/facebook-ads-scraper`).
-
-This returns:
-
-- Actor description and README
-- Required and optional input parameters
-- Output fields (if available)
 
 ### Step 3: Ask User Preferences
 
@@ -120,37 +131,75 @@ Before running, ask:
 
 3. **Country** — default `US`. For TikTok library specifically, default `DE` (EU-only) and warn the user; for global TikTok use `source: creative_center`. X routes are global by handle/keyword, no country parameter.
 
-### Step 4: Run the Actor
+**Cost safety**: Always set a sensible result limit in the Actor input (e.g., `maxResults`, `resultsLimit`, or the equivalent field per Actor schema). Warn the user before runs of 500+ ads — `apify/facebook-ads-scraper` charges per ad and X primaries charge per tweet.
 
-**Quick answer (display in chat, no file):**
+### Step 4: Run the Actor and Fetch Results
 
-```bash
-node --env-file=.env ${CLAUDE_PLUGIN_ROOT}/reference/scripts/run_actor.js \
-  --actor "ACTOR_ID" \
-  --input 'JSON_INPUT'
-```
+Two steps: run the Actor (blocks until done), then fetch dataset items in the requested format.
 
-**CSV:**
+**Run the Actor** — returns run metadata as JSON; extract `defaultDatasetId` for the next step:
 
 ```bash
-node --env-file=.env ${CLAUDE_PLUGIN_ROOT}/reference/scripts/run_actor.js \
-  --actor "ACTOR_ID" \
-  --input 'JSON_INPUT' \
-  --output YYYY-MM-DD_filename.csv \
-  --format csv
+apify actors call "ACTOR_ID" -i 'JSON_INPUT' \
+  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null
 ```
 
-**JSON:**
+From the output use `.id` (run ID), `.status` (should be `SUCCEEDED`), and `.defaultDatasetId`.
+
+**Fetch results** — pick the variant based on the user's preference:
 
 ```bash
-node --env-file=.env ${CLAUDE_PLUGIN_ROOT}/reference/scripts/run_actor.js \
-  --actor "ACTOR_ID" \
-  --input 'JSON_INPUT' \
-  --output YYYY-MM-DD_filename.json \
-  --format json
+# Quick answer: total count + fields + top 5 in chat (no file)
+apify datasets info DATASET_ID --json \
+  --user-agent apify-agent-skills/apify-ads-intelligence 2>/dev/null \
+  | jq '{itemCount, fields, consoleUrl}'
+apify datasets get-items DATASET_ID --limit 5 \
+  --user-agent apify-agent-skills/apify-ads-intelligence --format json 2>/dev/null
+
+# CSV file
+apify datasets get-items DATASET_ID \
+  --user-agent apify-agent-skills/apify-ads-intelligence --format csv 2>/dev/null > YYYY-MM-DD_filename.csv
+
+# JSON file
+apify datasets get-items DATASET_ID \
+  --user-agent apify-agent-skills/apify-ads-intelligence --format json 2>/dev/null > YYYY-MM-DD_filename.json
 ```
 
-For `cross-platform-audit`, run multiple Actors in parallel by backgrounding each `node ...` invocation with `&` and calling `wait` before merging the JSON outputs by advertiser.
+Other `--format` options: `jsonl`, `xlsx`, `xml`, `rss`, `html`. Use `--offset N` to paginate large datasets.
+
+**Tip:** for anything more than a quick peek, save the dataset to a local file first (with `> file.json` / `> file.csv`) and run further analysis from disk. `apify datasets get-items` always streams over the network, so piping it straight into `jq` re-downloads the whole thing every iteration.
+
+**Cross-platform audit (parallel runs):** For `cross-platform-audit`, kick off Meta + Google + TikTok + LinkedIn primaries in parallel by backgrounding each `apify actors call ...` invocation with `&` and calling `wait` before fetching results. Example:
+
+```bash
+apify actors call "apify/facebook-ads-scraper" -i '<META_INPUT>' \
+  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > meta_run.json &
+apify actors call "dz_omar/google-ads-scraper" -i '<GOOGLE_INPUT>' \
+  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > google_run.json &
+apify actors call "brilliant_gum/tiktok-ads-library-scraper" -i '<TIKTOK_INPUT>' \
+  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > tiktok_run.json &
+apify actors call "silva95gustavo/linkedin-ad-library-scraper" -i '<LINKEDIN_INPUT>' \
+  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > linkedin_run.json &
+wait
+# Then extract each .defaultDatasetId and fetch items per platform; X workaround runs separately with caveat.
+```
+
+**Combining with `jq` for quick extraction:**
+
+Treat `jq` as a complement to `apify datasets get-items`, not a replacement: server-side `--limit` / `--offset` / `--format` keeps cost and bandwidth down. Use `jq` on a sample item or on a file you already saved.
+
+```bash
+# Discover real field names from one sample item (Actor outputs vary —
+# use this before composing further jq queries)
+apify datasets get-items DATASET_ID --limit 1 --format json \
+  --user-agent apify-agent-skills/apify-ads-intelligence 2>/dev/null \
+  | jq '.[0]'
+
+# X heuristic filter on a saved tweets file: keep items with non-empty card
+# or source containing "Ads"
+jq '[.[] | select((.card != null and .card != "") or (.source != null and (.source | contains("Ads"))))]' \
+  YYYY-MM-DD_x_tweets.json
+```
 
 ### Step 5: Analyze Results and Deliver Answer
 
@@ -188,15 +237,12 @@ Synthesize, don't dump. Patterns by intent:
 
 ## Error Handling
 
-```
-APIFY_TOKEN not found       → ask user to create .env with APIFY_TOKEN=...
-mcpc not found              → ask user: npm install -g @apify/mcpc
-Actor not found             → check Actor ID against routing table
-Run FAILED                  → check Apify console link in error output
-Timeout                     → reduce result count or increase --timeout
-0 results                   → switch to fallback Actor; if still 0, try a different country code
-TikTok library: no EU ctry  → default to DE and warn user
-Google Ads minimum: 10      → bump resultsPerQuery to 10
-X scraper: noResults only   → switch to fallback X Actor
-proxy is required           → add `"proxy": {"useApifyProxy": true}` to input
-```
+- Auth error → run `apify login`, or set `APIFY_TOKEN` env var
+- `Actor not found` → check Actor ID against the routing table
+- Run status `FAILED` → open the console URL (`.consoleUrl` from run metadata) for logs
+- Timeout / very long run → pass `--timeout <seconds>` to `apify actors call`, or reduce result count
+- 0 results → switch to the Fallback Actor; if still 0, try a different country code
+- TikTok library: no EU country supplied → default to `DE` and warn the user
+- `dz_omar/google-ads-scraper`: validation error on `resultsPerQuery` → bump to 10+
+- X scraper: only `noResults` sentinels → switch to the fallback X Actor
+- `proxy is required` error → add `"proxy": {"useApifyProxy": true}` to the input
