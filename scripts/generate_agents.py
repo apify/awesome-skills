@@ -3,27 +3,25 @@
 # requires-python = ">=3.10"
 # dependencies = []
 # ///
-"""Generate AGENTS.md from AGENTS_TEMPLATE.md and SKILL.md frontmatter.
+"""Generate agents/AGENTS.md and the README skills table from SKILL.md frontmatter.
 
-Also validates that marketplace.json is in sync with discovered skills,
-updates the skills table in README.md, and handles version bumping.
+Also validates that .claude-plugin/marketplace.json is in sync with discovered
+skills. Fails (exit 1) on hard errors; prints nothing for healthy skills.
 
-Version bumping (conventional commits):
-  - BREAKING CHANGE: or feat!: → major bump (1.0.0 → 2.0.0)
-  - feat: → minor bump (1.0.0 → 1.1.0)
-  - fix:, docs:, chore:, etc. → patch bump (1.0.0 → 1.0.1)
+Frontmatter fields:
+  - name         (required) — must match folder name, kebab-case, apify- prefix
+  - description  (required) — max 1024 chars per agentskills.io spec
+  - author       (optional) — free string
+  - author_url   (optional) — must be a valid http(s) URL if present
 
 Usage:
-  uv run scripts/generate_agents.py                    # Just regenerate
-  uv run scripts/generate_agents.py --bump "feat: X"   # Bump based on commit msg
+  uv run scripts/generate_agents.py
 """
 
 from __future__ import annotations
 
-import argparse
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -32,123 +30,146 @@ ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_PATH = ROOT / "scripts" / "AGENTS_TEMPLATE.md"
 OUTPUT_PATH = ROOT / "agents" / "AGENTS.md"
 MARKETPLACE_PATH = ROOT / ".claude-plugin" / "marketplace.json"
-PLUGIN_PATH = ROOT / ".claude-plugin" / "plugin.json"
 README_PATH = ROOT / "README.md"
 SKILLS_DIR = ROOT / "skills"
 
-# Markers for the auto-generated skills table in README
 README_TABLE_START = "<!-- BEGIN_SKILLS_TABLE -->"
 README_TABLE_END = "<!-- END_SKILLS_TABLE -->"
 
+DESCRIPTION_MAX_CHARS = 1024
+NAME_PATTERN = re.compile(r"^apify-[a-z0-9]+(-[a-z0-9]+)*$")
+URL_PATTERN = re.compile(r"^https?://[^\s]+$")
 
-def load_template() -> str:
-    return TEMPLATE_PATH.read_text(encoding="utf-8")
+# Skill directories that exist for tooling/templates, not for discovery.
+EXCLUDED_DIRS = {"_template"}
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
-    """Parse a minimal YAML-ish frontmatter block without external deps."""
+    """Parse a minimal YAML-ish frontmatter block without external deps.
+
+    Supports:
+      - Single-line scalars:        key: value
+      - Folded scalars over lines:  key: >- ... (joined with single spaces)
+    """
     match = re.search(r"^---\s*\n(.*?)\n---\s*", text, re.DOTALL)
     if not match:
         return {}
+
     data: dict[str, str] = {}
-    for line in match.group(1).splitlines():
+    lines = match.group(1).splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         if ":" not in line:
+            i += 1
             continue
-        key, value = line.split(":", 1)
-        data[key.strip()] = value.strip()
+        key, raw_value = line.split(":", 1)
+        key = key.strip()
+        value = raw_value.strip()
+
+        if value in {">-", ">", "|", "|-"}:
+            # Folded/block scalar — collect indented continuation lines
+            parts: list[str] = []
+            i += 1
+            while i < len(lines) and (lines[i].startswith((" ", "\t")) or lines[i] == ""):
+                stripped = lines[i].strip()
+                if stripped:
+                    parts.append(stripped)
+                i += 1
+            data[key] = " ".join(parts)
+            continue
+
+        data[key] = value
+        i += 1
     return data
 
 
 def collect_skills() -> list[dict[str, str]]:
+    """Discover all SKILL.md files under skills/ (excluding _template, etc.)."""
     skills: list[dict[str, str]] = []
-    for skill_md in ROOT.glob("skills/*/SKILL.md"):
-        meta = parse_frontmatter(skill_md.read_text(encoding="utf-8"))
-        name = meta.get("name")
-        description = meta.get("description")
-        if not name or not description:
+    for skill_md in SKILLS_DIR.glob("*/SKILL.md"):
+        folder = skill_md.parent.name
+        if folder in EXCLUDED_DIRS:
             continue
+        meta = parse_frontmatter(skill_md.read_text(encoding="utf-8"))
         skills.append(
             {
-                "name": name,
-                "description": description,
+                "folder": folder,
+                "name": meta.get("name", ""),
+                "description": meta.get("description", ""),
+                "author": meta.get("author", ""),
+                "author_url": meta.get("author_url", ""),
                 "path": str(skill_md.parent.relative_to(ROOT)),
             }
         )
-    # Keep deterministic order for consistent output
     return sorted(skills, key=lambda s: s["name"].lower())
 
 
-def render(template: str, skills: list[dict[str, str]]) -> str:
-    """Very small Mustache-like renderer that only supports a single skills loop."""
+def render_template(template: str, skills: list[dict[str, str]]) -> str:
+    """Tiny Mustache-like renderer for the {{#skills}}...{{/skills}} loop."""
+
     def repl(match: re.Match[str]) -> str:
         block = match.group(1).strip("\n")
-        rendered_blocks = []
+        rendered_blocks: list[str] = []
         for skill in skills:
+            attribution = ""
+            if skill["author"] and skill["author_url"]:
+                attribution = f" by [{skill['author']}]({skill['author_url']})"
+            elif skill["author"]:
+                attribution = f" by {skill['author']}"
             rendered = (
                 block.replace("{{name}}", skill["name"])
                 .replace("{{description}}", skill["description"])
                 .replace("{{path}}", skill["path"])
+                .replace("{{attribution}}", attribution)
             )
             rendered_blocks.append(rendered)
         return "\n".join(rendered_blocks)
 
-    # Render loop blocks
-    content = re.sub(r"{{#skills}}(.*?){{/skills}}", repl, template, flags=re.DOTALL)
-    return content
+    return re.sub(r"{{#skills}}(.*?){{/skills}}", repl, template, flags=re.DOTALL)
 
 
 def load_marketplace() -> dict:
-    """Load marketplace.json and return parsed structure."""
     if not MARKETPLACE_PATH.exists():
         raise FileNotFoundError(f"marketplace.json not found at {MARKETPLACE_PATH}")
     return json.loads(MARKETPLACE_PATH.read_text(encoding="utf-8"))
 
 
 def generate_readme_table(skills: list[dict[str, str]]) -> str:
-    """Generate the skills table for README.md using marketplace.json names."""
-    marketplace = load_marketplace()
-    plugins = {p["source"]: p for p in marketplace.get("plugins", [])}
-
+    """Render the README skills table with an Author column."""
     lines = [
-        "| Name | Description | Documentation |",
-        "|------|-------------|---------------|",
+        "| Name | Description | Author |",
+        "|------|-------------|--------|",
     ]
-
     for skill in skills:
-        source = f"./{skill['path']}"
-        plugin = plugins.get(source, {})
-        name = plugin.get("name", skill["name"])
-        description = plugin.get("description", skill["description"])
-        doc_link = f"[SKILL.md]({skill['path']}/SKILL.md)"
-        lines.append(f"| `{name}` | {description} | {doc_link} |")
-
+        name = skill["name"]
+        description = skill["description"]
+        doc_link = f"[`{name}`]({skill['path']}/SKILL.md)"
+        if skill["author"] and skill["author_url"]:
+            author_cell = f"[{skill['author']}]({skill['author_url']})"
+        elif skill["author"]:
+            author_cell = skill["author"]
+        else:
+            author_cell = "—"
+        lines.append(f"| {doc_link} | {description} | {author_cell} |")
     return "\n".join(lines)
 
 
 def update_readme(skills: list[dict[str, str]]) -> bool:
-    """
-    Update the README.md skills table between markers.
-    Returns True if the file was updated, False if markers not found.
-    """
     if not README_PATH.exists():
         print(f"Warning: README.md not found at {README_PATH}", file=sys.stderr)
         return False
 
     content = README_PATH.read_text(encoding="utf-8")
-
     start_idx = content.find(README_TABLE_START)
     end_idx = content.find(README_TABLE_END)
 
-    if start_idx == -1 or end_idx == -1:
+    if start_idx == -1 or end_idx == -1 or end_idx < start_idx:
         print(
-            f"Warning: README.md markers not found. Add {README_TABLE_START} and "
-            f"{README_TABLE_END} to enable table generation.",
+            f"Warning: README.md markers {README_TABLE_START}/{README_TABLE_END} "
+            "missing or out of order — skills table not regenerated.",
             file=sys.stderr,
         )
-        return False
-
-    if end_idx < start_idx:
-        print("Warning: README.md markers are in wrong order.", file=sys.stderr)
         return False
 
     table = generate_readme_table(skills)
@@ -159,244 +180,130 @@ def update_readme(skills: list[dict[str, str]]) -> bool:
         + "\n"
         + content[end_idx:]
     )
-
+    if new_content == content:
+        return False
     README_PATH.write_text(new_content, encoding="utf-8")
     return True
 
 
-def validate_marketplace(skills: list[dict[str, str]]) -> list[str]:
-    """
-    Validate marketplace.json against discovered skills.
-    Returns list of error messages (empty = passed).
-    """
+def validate_skills(skills: list[dict[str, str]]) -> list[str]:
+    """Hard validation. Returns list of error messages (empty = OK)."""
     errors: list[str] = []
-    marketplace = load_marketplace()
-    plugins = marketplace.get("plugins", [])
-
-    # Build lookups (normalize paths: skill uses "skills/x", marketplace uses "./skills/x")
-    skill_by_source = {f"./{s['path']}": s for s in skills}
-    plugin_by_source = {p["source"]: p for p in plugins}
-
-    # Check: every skill has a marketplace entry with matching name
     for skill in skills:
-        expected_source = f"./{skill['path']}"
-        if expected_source not in plugin_by_source:
+        folder = skill["folder"]
+        name = skill["name"]
+        description = skill["description"]
+
+        if not name:
+            errors.append(f"skills/{folder}/SKILL.md: missing 'name' in frontmatter")
+            continue
+        if not description:
+            errors.append(f"skills/{folder}/SKILL.md: missing 'description' in frontmatter")
+
+        if not NAME_PATTERN.match(name):
             errors.append(
-                f"Skill '{skill['name']}' at '{skill['path']}' is missing from marketplace.json"
+                f"skills/{folder}/SKILL.md: name '{name}' must be kebab-case "
+                "with 'apify-' prefix (lowercase letters, digits, hyphens)"
             )
-        elif plugin_by_source[expected_source]["name"] != skill["name"]:
+        if name != f"apify-{folder.removeprefix('apify-')}":
+            # Folder name and `name` must match exactly.
+            if name != folder:
+                errors.append(
+                    f"skills/{folder}/SKILL.md: name '{name}' does not match "
+                    f"folder name '{folder}' (they must be identical)"
+                )
+
+        if len(description) > DESCRIPTION_MAX_CHARS:
             errors.append(
-                f"Name mismatch at '{expected_source}': "
-                f"SKILL.md='{skill['name']}', marketplace.json='{plugin_by_source[expected_source]['name']}'"
+                f"skills/{folder}/SKILL.md: description is {len(description)} chars "
+                f"(max {DESCRIPTION_MAX_CHARS} per agentskills.io spec)"
             )
 
-    # Check: every marketplace plugin with skills has a corresponding skill
-    for plugin in plugins:
-        # Skip plugins that don't have skills (e.g., commands-only plugins)
-        if "skills" not in plugin:
-            continue
-        if plugin["source"] not in skill_by_source:
+        author_url = skill["author_url"]
+        if author_url and not URL_PATTERN.match(author_url):
             errors.append(
-                f"Marketplace plugin '{plugin['name']}' at '{plugin['source']}' has no SKILL.md"
+                f"skills/{folder}/SKILL.md: author_url '{author_url}' is not a valid http(s) URL"
             )
 
     return errors
 
 
-def parse_version(version: str) -> tuple[int, int, int]:
-    """Parse semver string to tuple."""
-    match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
-    if not match:
-        return (1, 0, 0)
-    return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
-
-
-def format_version(version: tuple[int, int, int]) -> str:
-    """Format version tuple to string."""
-    return f"{version[0]}.{version[1]}.{version[2]}"
-
-
-def get_bump_type(commit_msg: str) -> str:
-    """
-    Determine version bump type from conventional commit message.
-    Returns: 'major', 'minor', 'patch', or 'none'
-    """
-    msg_lower = commit_msg.lower()
-
-    # Major: BREAKING CHANGE or ! after type
-    if "breaking change" in msg_lower or re.match(r"^\w+!:", commit_msg):
-        return "major"
-
-    # Minor: feat
-    if re.match(r"^feat(\(.+\))?:", commit_msg, re.IGNORECASE):
-        return "minor"
-
-    # Patch: fix, docs, chore, refactor, style, test, perf, ci, build
-    patch_types = ["fix", "docs", "chore", "refactor", "style", "test", "perf", "ci", "build"]
-    for t in patch_types:
-        if re.match(rf"^{t}(\(.+\))?:", commit_msg, re.IGNORECASE):
-            return "patch"
-
-    return "none"
-
-
-def bump_version(version: str, bump_type: str) -> str:
-    """Bump version based on type."""
-    major, minor, patch = parse_version(version)
-
-    if bump_type == "major":
-        return format_version((major + 1, 0, 0))
-    elif bump_type == "minor":
-        return format_version((major, minor + 1, 0))
-    elif bump_type == "patch":
-        return format_version((major, minor, patch + 1))
-    return version
-
-
-def update_user_agent_in_skill(skill_name: str, new_version: str) -> bool:
-    """
-    Update USER_AGENT version in skill's run_actor.py script.
-    Returns True if updated, False otherwise.
-    """
-    script_path = SKILLS_DIR / skill_name / "reference" / "scripts" / "run_actor.py"
-    if not script_path.exists():
-        return False
-
-    content = script_path.read_text(encoding="utf-8")
-
-    # Pattern: USER_AGENT = "apify-agent-skills/skill-name-X.Y.Z"
-    pattern = rf'(USER_AGENT\s*=\s*"apify-agent-skills/{re.escape(skill_name)}-)\d+\.\d+\.\d+"'
-    replacement = rf'\g<1>{new_version}"'
-
-    new_content, count = re.subn(pattern, replacement, content)
-
-    if count > 0:
-        script_path.write_text(new_content, encoding="utf-8")
-        print(f"Updated USER_AGENT in {script_path.relative_to(ROOT)}: {new_version}")
-        return True
-
-    return False
-
-
-def get_changed_skills() -> set[str]:
-    """Get list of skill names that have staged changes."""
-    try:
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
-            capture_output=True,
-            text=True,
-            cwd=ROOT,
-        )
-        changed_files = result.stdout.strip().split("\n") if result.stdout.strip() else []
-    except Exception:
-        return set()
-
-    changed_skills = set()
-    for f in changed_files:
-        # Match skills/skill-name/... pattern
-        match = re.match(r"skills/([^/]+)/", f)
-        if match:
-            changed_skills.add(match.group(1))
-
-    return changed_skills
-
-
-def update_versions(commit_msg: str) -> bool:
-    """
-    Update versions based on commit message and changed files.
-    Returns True if any version was bumped.
-    """
-    bump_type = get_bump_type(commit_msg)
-    if bump_type == "none":
-        print(f"No version bump needed for commit: {commit_msg[:50]}...")
-        return False
-
-    changed_skills = get_changed_skills()
-    bumped = False
-
-    # Load marketplace.json
+def validate_marketplace_sync(skills: list[dict[str, str]]) -> list[str]:
+    errors: list[str] = []
     marketplace = load_marketplace()
+    plugins = marketplace.get("plugins", [])
 
-    # Bump individual skill versions if they changed
-    for plugin in marketplace.get("plugins", []):
-        skill_name = plugin["source"].replace("./skills/", "")
-        if skill_name in changed_skills:
-            old_version = plugin.get("version", "1.0.0")
-            new_version = bump_version(old_version, bump_type)
-            if old_version != new_version:
-                plugin["version"] = new_version
-                print(f"Bumped {skill_name}: {old_version} → {new_version} ({bump_type})")
-                bumped = True
-                # Also update USER_AGENT in skill's run_actor.py
-                update_user_agent_in_skill(skill_name, new_version)
+    skill_by_source = {f"./{s['path']}": s for s in skills}
+    plugin_by_source = {p["source"]: p for p in plugins}
 
-    # Bump marketplace version if any skill changed
-    if changed_skills or bumped:
-        old_version = marketplace.get("metadata", {}).get("version", "1.0.0")
-        new_version = bump_version(old_version, bump_type)
-        if old_version != new_version:
-            if "metadata" not in marketplace:
-                marketplace["metadata"] = {}
-            marketplace["metadata"]["version"] = new_version
-            print(f"Bumped marketplace: {old_version} → {new_version} ({bump_type})")
-            bumped = True
-
-    # Save marketplace.json
-    if bumped:
-        MARKETPLACE_PATH.write_text(
-            json.dumps(marketplace, indent=2) + "\n",
-            encoding="utf-8"
-        )
-
-    # Also bump plugin.json version
-    if bumped and PLUGIN_PATH.exists():
-        plugin_data = json.loads(PLUGIN_PATH.read_text(encoding="utf-8"))
-        old_version = plugin_data.get("version", "1.0.0")
-        new_version = bump_version(old_version, bump_type)
-        if old_version != new_version:
-            plugin_data["version"] = new_version
-            PLUGIN_PATH.write_text(
-                json.dumps(plugin_data, indent=2) + "\n",
-                encoding="utf-8"
+    for skill in skills:
+        expected_source = f"./{skill['path']}"
+        if expected_source not in plugin_by_source:
+            errors.append(
+                f"Skill '{skill['name']}' at '{skill['path']}' is missing "
+                "from .claude-plugin/marketplace.json"
             )
-            print(f"Bumped plugin.json: {old_version} → {new_version}")
+        elif plugin_by_source[expected_source]["name"] != skill["name"]:
+            errors.append(
+                f"Name mismatch at '{expected_source}': "
+                f"SKILL.md='{skill['name']}', "
+                f"marketplace.json='{plugin_by_source[expected_source]['name']}'"
+            )
 
-    return bumped
+    for plugin in plugins:
+        skills_field = plugin.get("skills")
+        source = plugin["source"]
+        source_path = ROOT / source.lstrip("./")
+
+        if isinstance(skills_field, list):
+            # Nested-plugin layout. Validate each nested skills directory has
+            # at least one sub-skill (i.e. <source>/<subdir>/*/SKILL.md).
+            for subdir in skills_field:
+                nested_root = source_path / subdir.lstrip("./")
+                if not nested_root.is_dir():
+                    errors.append(
+                        f"Marketplace plugin '{plugin['name']}' references "
+                        f"missing nested directory '{nested_root}'"
+                    )
+                    continue
+                sub_skills = list(nested_root.glob("*/SKILL.md"))
+                if not sub_skills:
+                    errors.append(
+                        f"Marketplace plugin '{plugin['name']}' has no sub-skills "
+                        f"under '{nested_root}'"
+                    )
+            continue
+
+        # Flat-skill layout (skills is "./" or absent).
+        if source not in skill_by_source:
+            errors.append(
+                f"Marketplace plugin '{plugin['name']}' at '{plugin['source']}' "
+                "has no SKILL.md"
+            )
+
+    return errors
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate AGENTS.md and manage versions")
-    parser.add_argument(
-        "--bump",
-        metavar="COMMIT_MSG",
-        help="Bump versions based on conventional commit message"
-    )
-    args = parser.parse_args()
-
-    # Handle version bumping if requested
-    if args.bump:
-        update_versions(args.bump)
-
-    template = load_template()
+def main() -> int:
+    template = TEMPLATE_PATH.read_text(encoding="utf-8")
     skills = collect_skills()
-    output = render(template, skills)
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(output, encoding="utf-8")
-    print(f"Wrote {OUTPUT_PATH} with {len(skills)} skills.")
 
-    # Validate marketplace.json
-    errors = validate_marketplace(skills)
+    errors = validate_skills(skills) + validate_marketplace_sync(skills)
     if errors:
-        print("\nMarketplace.json validation errors:", file=sys.stderr)
-        for error in errors:
-            print(f"  - {error}", file=sys.stderr)
-        sys.exit(1)
-    print("Marketplace.json validation passed.")
+        print("Validation failed:", file=sys.stderr)
+        for err in errors:
+            print(f"  - {err}", file=sys.stderr)
+        return 1
 
-    # Update README.md skills table
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text(render_template(template, skills), encoding="utf-8")
+    print(f"Wrote {OUTPUT_PATH.relative_to(ROOT)} ({len(skills)} skills).")
+
     if update_readme(skills):
-        print(f"Updated {README_PATH} skills table.")
+        print(f"Updated {README_PATH.relative_to(ROOT)} skills table.")
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

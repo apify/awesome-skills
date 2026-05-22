@@ -1,81 +1,55 @@
 # Awesome Apify Skills
 
-Community collection of Apify agent skills for web scraping, data extraction, and automation. Works with Claude Code, Cursor, Codex, Gemini CLI, and other AI coding assistants.
+[![skills.sh](https://skills.sh/b/apify/awesome-skills)](https://skills.sh/apify/awesome-skills)
 
-> For the official consolidated Apify plugins, see [apify/agent-skills](https://github.com/apify/agent-skills).
+Community collection of [Apify](https://apify.com) agent skills for web scraping, data extraction, and automation.
+
+> Companion to [apify/agent-skills](https://github.com/apify/agent-skills), the home of official Apify-maintained skills. This repo collects community contributions that follow the same [agentskills.io](https://agentskills.io/specification) open standard.
+
+## What's a skill?
+
+A skill is a `SKILL.md` file with YAML frontmatter that teaches an AI agent how to do a specific task with [Apify Actors](https://apify.com/store) — which Actors to use, how to build inputs, how to handle errors.
+
+## Install
+
+```bash
+npx skills add apify/awesome-skills
+```
+
+Works with Claude Code, Codex, Cursor, Gemini CLI, Windsurf, OpenCode, and [50+ other agents](https://skills.sh). Pass `--list` to preview, `-s <name>` to install one specific skill.
 
 ## Available skills
 
 <!-- BEGIN_SKILLS_TABLE -->
-| Name | Description | Documentation |
-|------|-------------|---------------|
-| `apify-audience-analysis` | Understand audience demographics, preferences, behavior patterns, and engagement quality across Facebook, Instagram, YouTube, and TikTok | [SKILL.md](skills/apify-audience-analysis/SKILL.md) |
-| `apify-brand-reputation-monitoring` | Track reviews, ratings, sentiment, and brand mentions across Google Maps, Booking.com, TripAdvisor, Facebook, Instagram, YouTube, and TikTok | [SKILL.md](skills/apify-brand-reputation-monitoring/SKILL.md) |
-| `apify-competitor-intelligence` | Analyze competitor strategies, content, pricing, ads, and market positioning across Google Maps, Booking.com, Facebook, Instagram, YouTube, and TikTok | [SKILL.md](skills/apify-competitor-intelligence/SKILL.md) |
-| `apify-content-analytics` | Track engagement metrics, measure campaign ROI, and analyze content performance across Instagram, Facebook, YouTube, and TikTok | [SKILL.md](skills/apify-content-analytics/SKILL.md) |
-| `apify-ecommerce` | Scrape e-commerce data for pricing intelligence, customer sentiment, product research, quality analysis, and supply chain monitoring across Amazon, Walmart, eBay, IKEA, and 50+ marketplaces | [SKILL.md](skills/apify-ecommerce/SKILL.md) |
-| `apify-influencer-discovery` | Find and evaluate influencers for brand partnerships, verify authenticity, and track collaboration performance across Instagram, Facebook, YouTube, and TikTok | [SKILL.md](skills/apify-influencer-discovery/SKILL.md) |
-| `apify-lead-generation` | Generate B2B/B2C leads by scraping Google Maps, websites, Instagram, TikTok, Facebook, LinkedIn, YouTube, and Google Search using Apify Actors | [SKILL.md](skills/apify-lead-generation/SKILL.md) |
-| `apify-market-research` | Analyze market conditions, geographic opportunities, pricing, consumer behavior, and product validation across Google Maps, Facebook, Instagram, Booking.com, and TripAdvisor | [SKILL.md](skills/apify-market-research/SKILL.md) |
-| `apify-trend-analysis` | Discover and track emerging trends across Google Trends, Instagram, Facebook, YouTube, and TikTok to inform content strategy | [SKILL.md](skills/apify-trend-analysis/SKILL.md) |
+| Name | Description | Author |
+|------|-------------|--------|
+| [`apify-audience-analysis`](skills/apify-audience-analysis/SKILL.md) | Understand audience demographics, preferences, behavior patterns, and engagement quality across Facebook, Instagram, YouTube, and TikTok. | — |
+| [`apify-brand-reputation-monitoring`](skills/apify-brand-reputation-monitoring/SKILL.md) | Track reviews, ratings, sentiment, and brand mentions across Google Maps, Booking.com, TripAdvisor, Facebook, Instagram, YouTube, and TikTok. Use when user asks to monitor brand reputation, analyze reviews, track mentions, or gather customer feedback. | — |
+| [`apify-competitor-intelligence`](skills/apify-competitor-intelligence/SKILL.md) | Analyze competitor strategies, content, pricing, ads, and market positioning across Google Maps, Booking.com, Facebook, Instagram, YouTube, and TikTok. | — |
+| [`apify-content-analytics`](skills/apify-content-analytics/SKILL.md) | Track engagement metrics, measure campaign ROI, and analyze content performance across Instagram, Facebook, YouTube, and TikTok. | — |
+| [`apify-ecommerce`](skills/apify-ecommerce/SKILL.md) | Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence. | — |
+| [`apify-influencer-discovery`](skills/apify-influencer-discovery/SKILL.md) | Find and evaluate influencers for brand partnerships, verify authenticity, and track collaboration performance across Instagram, Facebook, YouTube, and TikTok. | — |
+| [`apify-lead-generation`](skills/apify-lead-generation/SKILL.md) | Generates B2B/B2C leads by scraping Google Maps, websites, Instagram, TikTok, Facebook, LinkedIn, YouTube, and Google Search. Use when user asks to find leads, prospects, businesses, build lead lists, enrich contacts, or scrape profiles for sales outreach. | — |
+| [`apify-market-research`](skills/apify-market-research/SKILL.md) | Analyze market conditions, geographic opportunities, pricing, consumer behavior, and product validation across Google Maps, Facebook, Instagram, Booking.com, and TripAdvisor. | — |
+| [`apify-trend-analysis`](skills/apify-trend-analysis/SKILL.md) | Discover and track emerging trends across Google Trends, Instagram, Facebook, YouTube, and TikTok to inform content strategy. | — |
 <!-- END_SKILLS_TABLE -->
 
-## Installation
+## Add your skill
 
-> For the official consolidated Apify plugins, see [apify/agent-skills](https://github.com/apify/agent-skills).
+See [CONTRIBUTING.md](CONTRIBUTING.md) — 1-minute setup.
 
-```bash
-# Add the marketplace
-/plugin marketplace add apify/awesome-skills
+## For AI agents
 
-# Install a skill
-/plugin install apify-lead-generation@awesome-skills
-```
-
-### Cursor / Windsurf
-
-Add to your project's `.cursor/settings.json` or use the same Claude Code plugin format.
-
-### Codex / Gemini CLI
-
-Point your agent to the `agents/AGENTS.md` file which contains skill descriptions and paths:
-
-```bash
-# Gemini CLI uses gemini-extension.json automatically
-# For Codex, reference agents/AGENTS.md in your configuration
-```
-
-### Other AI tools
-
-Any AI tool that supports Markdown context can use the skills by pointing to:
-- `agents/AGENTS.md` - auto-generated skill index
-- `skills/*/SKILL.md` - individual skill documentation
+See [agents/AGENTS.md](agents/AGENTS.md) — same content as this README plus the contributing guide, in a format optimised for autonomous agents.
 
 ## Prerequisites
 
-1. **Apify account** - [apify.com](https://apify.com)
-2. **API token** - get from [Apify Console](https://console.apify.com/account/integrations), add `APIFY_TOKEN=your_token` to `.env`
-3. **Node.js 20.6+**
-
-## Pricing
-
-Apify Actors use pay-per-result pricing. Check individual Actor pricing on the [Apify platform](https://apify.com).
-
-## Contributing
-
-1. Fork this repository.
-2. Create your skill in `skills/your-skill-name/`.
-3. Add `SKILL.md` with proper frontmatter:
-   ```yaml
-   ---
-   name: your-skill-name
-   description: What your skill does and when to use it
-   ---
-   ```
-4. Add entry to `.claude-plugin/marketplace.json`.
-5. Submit a pull request.
+- [Apify account](https://apify.com)
+- (Optional) [Apify CLI](https://docs.apify.com/cli): `npm install -g apify-cli`
+- Authentication: `apify login` or `APIFY_TOKEN` env var ([get a token](https://console.apify.com/settings/integrations))
 
 ## Support
 
 - [Apify Documentation](https://docs.apify.com)
 - [Apify Discord](https://discord.gg/jyEM2PRvMU)
+- [Agent Skills Specification](https://agentskills.io/specification)
