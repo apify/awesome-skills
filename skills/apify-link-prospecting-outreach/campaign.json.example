@@ -1,0 +1,21 @@
+{
+  "base": "YYYY-MM-DD_<short-name>_outreach",
+  "goal": "Topical authority links to specific URL | Maximum link volume from any relevant site | Recover unlinked brand mentions | Replace competitor links | Custom",
+  "today": "YYYY-MM-DD",
+
+  "brand": {
+    "name": "",
+    "aliases": []
+  },
+  "user_url": "",
+
+  "own_domains": [],
+  "competitor_domains": [],
+  "already_pitched_domains": [],
+
+  "category_keywords": [],
+  "subject_keywords": [],
+
+  "brand_voice": "",
+  "partnership_type": "ABC link exchange | Direct A B link exchange | Resource page / list inclusion | Unilateral ask (no reciprocal) | Other"
+}
