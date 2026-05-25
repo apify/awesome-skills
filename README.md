@@ -1,10 +1,49 @@
-# Awesome Apify Skills
+<p align="center">
+  <img src="https://docs.apify.com/img/apify_logo.svg" alt="Apify" width="96" height="96">
+</p>
 
-[![skills.sh](https://skills.sh/b/apify/awesome-skills)](https://skills.sh/apify/awesome-skills)
+<h1 align="center">Awesome Apify Skills</h1>
 
-Community collection of [Apify](https://apify.com) agent skills for web scraping, data extraction, and automation.
+<p align="center">
+  <strong>Community-driven agent skills for AI coding assistants</strong>
+</p>
 
-> Companion to [apify/agent-skills](https://github.com/apify/agent-skills), the home of official Apify-maintained skills. This repo collects community contributions that follow the same [agentskills.io](https://agentskills.io/specification) open standard.
+<p align="center">
+  <a href="https://apify.com"><img src="https://img.shields.io/badge/Powered%20by-Apify-20A34E?style=for-the-badge" alt="Powered by Apify"></a>
+  <a href="#bounty"><img src="https://img.shields.io/badge/Bounty-%24100%2FPR-F86606?style=for-the-badge" alt="$100/PR bounty open"></a>
+  <a href="#available-skills"><img src="https://img.shields.io/badge/Skills-8-246DFF?style=for-the-badge" alt="8 Skills"></a>
+  <a href="https://apify.com/store"><img src="https://img.shields.io/badge/Actors-30%2C000%2B-F86606?style=for-the-badge" alt="30,000+ Actors"></a>
+  <a href="https://mcp.apify.com/"><img src="https://img.shields.io/badge/MCP-Compatible-15C1E6?style=for-the-badge" alt="MCP Compatible"></a>
+  <a href="https://github.com/apify/awesome-skills/stargazers"><img src="https://img.shields.io/github/stars/apify/awesome-skills?style=for-the-badge&color=9D97F4&label=Stars" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
+  <a href="#install">Quick start</a> &bull;
+  <a href="#available-skills">Skills</a> &bull;
+  <a href="#contribute">Contribute</a> &bull;
+  <a href="#bounty">Bounty</a> &bull;
+  <a href="#for-ai-agents">For AI agents</a> &bull;
+  <a href="#support">Support</a>
+</p>
+
+<p align="center">
+  <a href="https://skills.sh/apify/awesome-skills"><img src="https://skills.sh/b/apify/awesome-skills" alt="skills.sh installs"></a>
+</p>
+
+Companion to [apify/agent-skills](https://github.com/apify/agent-skills), the home of official Apify-maintained skills. This repo collects community contributions that follow the same [agentskills.io](https://agentskills.io/specification) open standard.
+
+<a id="bounty"></a>
+
+> [!IMPORTANT]
+> ### 🎁 Community bounty open
+>
+> Get **$100 in Apify credits** for every merged PR that adds a new creative skill to this repo.
+>
+> - One per contributor
+> - First 10 merged PRs only
+> - Closes **June 30, 2026** or after the 10th merge, whichever comes first
+>
+> [How to submit →](CONTRIBUTING.md)
 
 ## What's a skill?
 
@@ -33,9 +72,9 @@ Works with Claude Code, Codex, Cursor, Gemini CLI, Windsurf, OpenCode, and [50+ 
 | [`apify-verified-email-finder`](skills/apify-verified-email-finder/SKILL.md) | Builds a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed. Use when user asks to find verified emails, build a leads list, scrape emails from Maps or SERP, verify emails for a URL list, or find an Apollo / Hunter alternative. | [Daniela Ryplová](https://github.com/danielarypl) |
 <!-- END_SKILLS_TABLE -->
 
-## Add your skill
+## Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) — 1-minute setup.
+See [CONTRIBUTING.md](CONTRIBUTING.md) — 1-minute setup. Eligible PRs qualify for the [community bounty](#bounty).
 
 ## For AI agents
 
