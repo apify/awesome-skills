@@ -48,7 +48,10 @@ jobs:
           SKILL_DIRS=$(echo "$CHANGED" | grep -oE '^skills/apify-[^/]+' | sort -u)
           N_SKILLS=$(echo "$SKILL_DIRS" | grep -c . || true)
 
-          ALLOWED='^(skills/apify-[^/]+/|\.claude-plugin/marketplace\.json$)'
+          # Allowed paths fall into two buckets:
+          #   - Skill submissions: skills/apify-<name>/ + the marketplace manifest.
+          #   - Repo maintenance:  root meta files, CI, scripts, generated agents/.
+          ALLOWED='^(skills/apify-[^/]+/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$|\.gitignore$|\.github/|scripts/|agents/)'
           OUT_OF_BOUNDS=$(echo "$CHANGED" | grep -vE "$ALLOWED" || true)
 
           FAIL=0
@@ -60,7 +63,7 @@ jobs:
           fi
 
           if [ -n "$OUT_OF_BOUNDS" ]; then
-            echo "::error::PR touches files outside 'skills/apify-<name>/' and '.claude-plugin/marketplace.json':"
+            echo "::error::PR touches files outside the allowed paths (skill dirs, marketplace.json, root meta files, .github/, scripts/, agents/):"
             echo "$OUT_OF_BOUNDS" | sed 's/^/  - /'
             FAIL=1
           fi
