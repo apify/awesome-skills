@@ -9,11 +9,15 @@
 </p>
 
 <p align="center">
+  <a href="https://skills.sh/apify/awesome-skills"><img src="https://skills.sh/b/apify/awesome-skills" alt="skills.sh installs"></a>
+</p>
+
+<p align="center">
   <a href="https://apify.com"><img src="https://img.shields.io/badge/Powered%20by-Apify-20A34E?style=for-the-badge" alt="Powered by Apify"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-555555?style=for-the-badge" alt="Apache 2.0"></a>
   <a href="#bounty"><img src="https://img.shields.io/badge/Bounty-%24100%2FPR-F86606?style=for-the-badge" alt="$100/PR bounty open"></a>
   <a href="#available-skills"><img src="https://img.shields.io/badge/Skills-8-246DFF?style=for-the-badge" alt="8 Skills"></a>
   <a href="https://apify.com/store"><img src="https://img.shields.io/badge/Actors-30%2C000%2B-F86606?style=for-the-badge" alt="30,000+ Actors"></a>
-  <a href="https://mcp.apify.com/"><img src="https://img.shields.io/badge/MCP-Compatible-15C1E6?style=for-the-badge" alt="MCP Compatible"></a>
   <a href="https://github.com/apify/awesome-skills/stargazers"><img src="https://img.shields.io/github/stars/apify/awesome-skills?style=for-the-badge&color=9D97F4&label=Stars" alt="GitHub stars"></a>
 </p>
 
@@ -24,10 +28,6 @@
   <a href="#bounty">Bounty</a> &bull;
   <a href="#for-ai-agents">For AI agents</a> &bull;
   <a href="#support">Support</a>
-</p>
-
-<p align="center">
-  <a href="https://skills.sh/apify/awesome-skills"><img src="https://skills.sh/b/apify/awesome-skills" alt="skills.sh installs"></a>
 </p>
 
 Companion to [apify/agent-skills](https://github.com/apify/agent-skills), the home of official Apify-maintained skills. This repo collects community contributions that follow the same [agentskills.io](https://agentskills.io/specification) open standard.
