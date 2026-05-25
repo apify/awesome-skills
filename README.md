@@ -1,3 +1,5 @@
+<a href="https://skills.sh/apify/awesome-skills"><img src="https://skills.sh/b/apify/awesome-skills" alt="skills.sh installs"></a>
+
 <p align="center">
   <img src="https://docs.apify.com/img/apify_logo.svg" alt="Apify" width="96" height="96">
 </p>
@@ -15,10 +17,6 @@
   <a href="#available-skills"><img src="https://img.shields.io/badge/Skills-8-246DFF?style=for-the-badge" alt="8 Skills"></a>
   <a href="https://apify.com/store"><img src="https://img.shields.io/badge/Actors-30%2C000%2B-F86606?style=for-the-badge" alt="30,000+ Actors"></a>
   <a href="https://github.com/apify/awesome-skills/stargazers"><img src="https://img.shields.io/github/stars/apify/awesome-skills?style=for-the-badge&color=9D97F4&label=Stars" alt="GitHub stars"></a>
-</p>
-
-<p align="center">
-  <a href="https://skills.sh/apify/awesome-skills"><img src="https://skills.sh/b/apify/awesome-skills" alt="skills.sh installs"></a>
 </p>
 
 <p align="center">
