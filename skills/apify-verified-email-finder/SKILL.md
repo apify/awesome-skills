@@ -1,6 +1,8 @@
 ---
 name: apify-verified-email-finder
 description: Builds a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed. Use when user asks to find verified emails, build a leads list, scrape emails from Maps or SERP, verify emails for a URL list, or find an Apollo / Hunter alternative.
+author: Daniela Ryplová
+author_url: https://github.com/danielarypl
 ---
 
 # Verified Email Finder

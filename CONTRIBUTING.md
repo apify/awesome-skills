@@ -40,3 +40,42 @@ No. We recommend it for cross-tool compatibility, but anything works — the [Ap
 
 **Can I test locally?**
 Yes. After editing, run `uv run scripts/generate_agents.py` to validate. To preview installation, use [`npx skills add <path-to-your-fork>`](https://github.com/vercel-labs/skills).
+
+## Telemetry on CLI commands
+
+Every `apify` CLI invocation inside a `SKILL.md` file must follow three rules. CI will fail the PR if any of them are missing.
+
+### Rule 1 — `--user-agent` flag
+
+Every `apify` CLI command must include:
+
+```
+--user-agent apify-awesome-skills/<skill-name>
+```
+
+where `<skill-name>` is the exact directory name of the skill (e.g., `apify-awesome-skills/apify-ai-search-visibility-tracker`).
+
+**Important:** the namespace is `apify-awesome-skills/` — NOT `apify-agent-skills/`. The `apify-agent-skills/` namespace belongs to the separate [apify/agent-skills](https://github.com/apify/agent-skills) repository. Using it here blurs Snowflake attribution between the two repos.
+
+### Rule 2 — `--json` flag
+
+Always pass `--json` (or `--format json` for `datasets get-items`) to get machine-readable output. This ensures structured data that downstream tools and agents can parse reliably.
+
+### Rule 3 — `2>/dev/null` stderr redirect
+
+Always append `2>/dev/null` to suppress CLI progress messages and spinners. These messages are written to stderr and break JSON parsers that consume the combined output stream.
+
+### Example
+
+```bash
+apify actors call apify/web-scraper \
+  --input '{"startUrls": [{"url": "https://example.com"}]}' \
+  --user-agent apify-awesome-skills/apify-my-skill \
+  --json 2>/dev/null
+```
+
+CI checks these rules automatically via `scripts/lint_telemetry.sh`. Run it locally before opening a PR:
+
+```bash
+bash scripts/lint_telemetry.sh
+```

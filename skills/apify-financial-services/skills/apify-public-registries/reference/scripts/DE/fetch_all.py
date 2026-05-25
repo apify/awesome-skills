@@ -31,7 +31,7 @@ with open(BASE_DIR / "lookup_targets.json") as f:
     COMPANIES = json.load(f)
 
 ACTOR = "radeance/handelsregister-api"
-UA = "User-Agent: apify-agent-skills/apify-mcpc-1.4.1/call_actor"
+UA = "User-Agent: apify-awesome-skills/apify-mcpc-1.4.1/call_actor"
 
 
 def mcpc_call_actor(input_data: dict, timeout: int = 120) -> dict:

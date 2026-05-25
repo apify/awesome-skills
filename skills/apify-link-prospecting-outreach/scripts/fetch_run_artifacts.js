@@ -17,7 +17,7 @@ import { parseArgs } from 'node:util';
 import { writeFileSync } from 'node:fs';
 import { dirname, basename, extname, join } from 'node:path';
 
-const USER_AGENT = 'apify-agent-skills/link-prospecting-outreach-1.0.0/fetch';
+const USER_AGENT = 'apify-awesome-skills/link-prospecting-outreach-1.0.0/fetch';
 
 function parseCliArgs() {
     const options = {

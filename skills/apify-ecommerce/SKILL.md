@@ -9,7 +9,7 @@ author_url: https://github.com/luispintoapify
 
 Answer natural language e-commerce questions by routing to the right Apify Actor and delivering a synthesized answer via the `apify` CLI.
 
-**CLI rules:** Always pass `--user-agent apify-agent-skills/apify-ecommerce`, `--json` (or the relevant `--format` flag on `datasets get-items`), and `2>/dev/null`. The `--user-agent` flag is critical for telemetry — never omit it.
+**CLI rules:** Always pass `--user-agent apify-awesome-skills/apify-ecommerce`, `--json` (or the relevant `--format` flag on `datasets get-items`), and `2>/dev/null`. The `--user-agent` flag is critical for telemetry — never omit it.
 
 ## Prerequisites
 (No need to check it upfront)
@@ -21,7 +21,7 @@ Answer natural language e-commerce questions by routing to the right Apify Actor
   - `APIFY_TOKEN` env variable (e.g. `export APIFY_TOKEN=...` or `.env` file)
   - Token from [Apify Console → Settings → Integrations](https://console.apify.com/settings/integrations)
 
-Verify auth: `apify info --user-agent apify-agent-skills/apify-ecommerce` — should show username and userId.
+Verify auth: `apify info --user-agent apify-awesome-skills/apify-ecommerce` — should show username and userId.
 
 ## Workflow
 
@@ -116,14 +116,14 @@ Fetch the Actor summary, input schema, and README:
 
 ```bash
 # Summary (title, description, pricing, stats)
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ecommerce --json 2>/dev/null
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --json 2>/dev/null
 
 # Input schema (required and optional parameters; schema lives in
 # .taggedBuilds.latest.build.inputSchema as an escaped JSON string)
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ecommerce --input --json 2>/dev/null
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --input --json 2>/dev/null
 
 # README (capabilities, examples, gotchas)
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ecommerce --readme 2>/dev/null
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --readme 2>/dev/null
 ```
 
 Replace `ACTOR_ID` with the selected Actor (e.g., `apify/e-commerce-scraping-tool`).
@@ -157,7 +157,7 @@ Two steps: run the Actor (blocks until done), then fetch dataset items in the re
 
 ```bash
 apify actors call "ACTOR_ID" -i 'JSON_INPUT' \
-  --user-agent apify-agent-skills/apify-ecommerce --json 2>/dev/null
+  --user-agent apify-awesome-skills/apify-ecommerce --json 2>/dev/null
 ```
 
 From the output use `.id` (run ID), `.status` (should be `SUCCEEDED`), and `.defaultDatasetId`.
@@ -167,18 +167,18 @@ From the output use `.id` (run ID), `.status` (should be `SUCCEEDED`), and `.def
 ```bash
 # Quick answer: total count + fields + top 5 in chat (no file)
 apify datasets info DATASET_ID --json \
-  --user-agent apify-agent-skills/apify-ecommerce 2>/dev/null \
+  --user-agent apify-awesome-skills/apify-ecommerce 2>/dev/null \
   | jq '{itemCount, fields, consoleUrl}'
 apify datasets get-items DATASET_ID --limit 5 \
-  --user-agent apify-agent-skills/apify-ecommerce --format json 2>/dev/null
+  --user-agent apify-awesome-skills/apify-ecommerce --format json 2>/dev/null
 
 # CSV file
 apify datasets get-items DATASET_ID \
-  --user-agent apify-agent-skills/apify-ecommerce --format csv 2>/dev/null > YYYY-MM-DD_OUTPUT_FILE.csv
+  --user-agent apify-awesome-skills/apify-ecommerce --format csv 2>/dev/null > YYYY-MM-DD_OUTPUT_FILE.csv
 
 # JSON file
 apify datasets get-items DATASET_ID \
-  --user-agent apify-agent-skills/apify-ecommerce --format json 2>/dev/null > YYYY-MM-DD_OUTPUT_FILE.json
+  --user-agent apify-awesome-skills/apify-ecommerce --format json 2>/dev/null > YYYY-MM-DD_OUTPUT_FILE.json
 ```
 
 Other `--format` options: `jsonl`, `xlsx`, `xml`, `rss`, `html`. Use `--offset N` to paginate large datasets.
@@ -193,7 +193,7 @@ Treat `jq` as a complement to `apify datasets get-items`, not a replacement: ser
 # Discover real field names from one sample item (Actor outputs vary —
 # use this before composing further jq queries)
 apify datasets get-items DATASET_ID --limit 1 --format json \
-  --user-agent apify-agent-skills/apify-ecommerce 2>/dev/null \
+  --user-agent apify-awesome-skills/apify-ecommerce 2>/dev/null \
   | jq '.[0]'
 
 # Quick aggregation from a JSON file you already saved with the commands above

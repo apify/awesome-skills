@@ -22,7 +22,7 @@ import { writeFileSync, readFileSync, statSync } from 'node:fs';
 import { dirname, basename, extname, join } from 'node:path';
 
 // User-Agent for tracking skill usage in Apify analytics
-const USER_AGENT = 'apify-agent-skills/link-prospecting-outreach-1.0.0';
+const USER_AGENT = 'apify-awesome-skills/link-prospecting-outreach-1.0.0';
 
 function parseCliArgs() {
     const options = {

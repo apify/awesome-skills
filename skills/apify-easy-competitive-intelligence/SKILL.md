@@ -10,6 +10,8 @@ description: >
   "SWOT analysis", "how does [X] compare to [Y]",
   or mentions competitor analysis, pricing comparison, customer sentiment,
   or market landscape research. Requires Apify CLI or Apify MCP server.
+author: chocholous
+author_url: https://github.com/chocholous
 ---
 
 # Competitive Intelligence
@@ -21,7 +23,7 @@ Real-time competitive intelligence powered by live web data via Apify actors. **
 - Apify CLI v1.5.0+ (`npm install -g apify-cli`), or Apify MCP server
 - Authenticated session (`apify login` or `APIFY_TOKEN` env var)
 
-**CLI rules:** Always pass `--json`, `--user-agent apify-agent-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
+**CLI rules:** Always pass `--json`, `--user-agent apify-awesome-skills/apify-easy-competitive-intelligence`, and `2>/dev/null`.
 - **Run actor:** `apify actors call "ACTOR_ID" -i 'INPUT' --json 2>/dev/null` → returns run metadata with `defaultDatasetId`
 - **Fetch results:** `apify datasets get-items DATASET_ID --format json > /tmp/results.json 2>/dev/null` — save locally, parse from file:
   - Quick extraction: `jq '.[] | "\(.field1) | \(.field2)"' /tmp/results.json`
@@ -50,7 +52,7 @@ Every actor call follows three steps:
 2. **Discover** — verify platform URLs and slugs (e.g. via SERP) as described in the actor's schema section. Do not guess — wrong slugs silently return empty or wrong data.
 3. **Run** — call the actor with verified input.
 
-Alternatively, fetch the live schema: `apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null`
+Alternatively, fetch the live schema: `apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-easy-competitive-intelligence --input --json 2>/dev/null`
 
 | Data Need | Actor | Notes |
 |---|---|---|

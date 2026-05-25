@@ -1,6 +1,8 @@
 ---
 name: apify-financial-news
 description: Discover and extract financial news for tracked portfolio companies across 33 verified Tier 1 sources (Bloomberg, Reuters, FT, WSJ, IntelliNews, ČTK, PAP, BTA, TASR, ING Think, ECB, EC Press Corner, ...) plus broad Google News fallback. Use when the user asks to find news about a company, get press coverage, monitor financial press, run a news scan, or check headlines for a portfolio company. Reads tracked companies from data/companies.json. Do NOT use for marketing/social-listening (use apify/awesome-skills) or for morning-briefing formatting (out of scope).
+author: chocholous
+author_url: https://github.com/chocholous
 ---
 
 # Financial News Intelligence
@@ -106,6 +108,7 @@ Do NOT search all 33 sources. Pick 8–12 based on company region.
 ```bash
 apify call data_xplorer/google-news-scraper-fast \
   --input '{"keywords":["site:bloomberg.com \"InPost SA\" OR \"INPST\""],"maxArticles":10,"timeframe":"7d","region_language":"US:en","decodeUrls":true,"proxyConfiguration":{"useApifyProxy":true,"apifyProxyGroups":["RESIDENTIAL"]}}' \
+  --user-agent apify-awesome-skills/apify-financial-news \
   --output-dataset > discovery_bloomberg.json
 ```
 
@@ -146,6 +149,7 @@ After extraction, run `extract_and_clean.py` on the dataset to strip nav/menus/f
 ```bash
 DATASET_ID=$(apify call apify/rag-web-browser \
   --input '{"query":"<ARTICLE_URL>","maxResults":1,"outputFormats":["html"],"requestTimeoutSecs":40,"proxyConfiguration":{"useApifyProxy":true,"apifyProxyGroups":["RESIDENTIAL"]},"removeCookieWarnings":true}' \
+  --user-agent apify-awesome-skills/apify-financial-news \
   --json | jq -r '.defaultDatasetId')
 
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/apify-financial-news/reference/scripts/extract_and_clean.py "$DATASET_ID"

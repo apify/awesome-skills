@@ -1,6 +1,8 @@
 ---
 name: apify-financial-osint
 description: Social-listening signals for tracked portfolio companies via Apify Actors — Reddit sentiment (fatihtahta), Twitter/X real-time mentions (kaitoeasyapi pay-per-result), Trustpilot service quality (getwally.net). Use when the user asks for sentiment, social media mentions, customer reviews, brand perception, crisis signals, OSINT, social listening, "what are people saying about X". Reads tracked companies from data/companies.json. Do NOT use for news (use apify-financial-news) or registry lookups (use apify-public-registries).
+author: chocholous
+author_url: https://github.com/chocholous
 ---
 
 # Financial OSINT — Social Listening
@@ -79,7 +81,8 @@ Example:
 
 ```bash
 apify call fatihtahta/reddit-scraper-search-fast \
-  --input '{"queries":["InPost FedEx acquisition"],"maxPosts":50,"scrapeComments":true,"maxComments":10,"sort":"relevance","timeframe":"month"}'
+  --input '{"queries":["InPost FedEx acquisition"],"maxPosts":50,"scrapeComments":true,"maxComments":10,"sort":"relevance","timeframe":"month"}' \
+  --user-agent apify-awesome-skills/apify-financial-osint
 ```
 
 #### Twitter/X input (key fields)
@@ -99,7 +102,8 @@ Example:
 
 ```bash
 apify call kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest \
-  --input '{"twitterContent":"InPost FedEx acquisition OR INPST","maxItems":100,"queryType":"Latest","since":"2026-01-01_00:00:00_UTC","filter:news":true}'
+  --input '{"twitterContent":"InPost FedEx acquisition OR INPST","maxItems":100,"queryType":"Latest","since":"2026-01-01_00:00:00_UTC","filter:news":true}' \
+  --user-agent apify-awesome-skills/apify-financial-osint
 ```
 
 #### Trustpilot input (only 2 fields exist!)
@@ -113,7 +117,8 @@ Example:
 
 ```bash
 apify call getwally.net/trustpilot-reviews-scraper \
-  --input '{"startUrls":[{"url":"https://www.trustpilot.com/review/inpost.pl"}],"limit":50}'
+  --input '{"startUrls":[{"url":"https://www.trustpilot.com/review/inpost.pl"}],"limit":50}' \
+  --user-agent apify-awesome-skills/apify-financial-osint
 ```
 
 Older docs reference fields like `maxItems`, `includeStatistics`, `includeCompanyDetails`, `onlyNewerThan` — these **do NOT exist** on this actor.
@@ -139,6 +144,7 @@ Single example pulling Reddit threads + Twitter mentions for InPost (driven by [
 apify call fatihtahta/reddit-scraper-search-fast \
   --input "$(jq -c '.targets[] | select(.company_id=="inpost") | .inputs.reddit' \
     ${CLAUDE_PLUGIN_ROOT}/skills/apify-financial-osint/data/osint-targets.json)" \
+  --user-agent apify-awesome-skills/apify-financial-osint \
   --output-dataset > reddit_inpost.json
 ```
 

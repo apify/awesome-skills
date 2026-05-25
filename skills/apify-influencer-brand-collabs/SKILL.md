@@ -14,6 +14,8 @@ description: |
 
   Works in either direction — brand → creators or creator → brands — and detects direction from the
   data, so don't ask the user to declare it. Requires Apify MCP tools.
+author: Natasha Lekh
+author_url: https://github.com/natashalekh
 ---
 
 # Influencer–Brand Collaborations

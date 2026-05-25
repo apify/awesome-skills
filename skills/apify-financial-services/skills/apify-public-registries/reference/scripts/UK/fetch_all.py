@@ -31,7 +31,7 @@ with open(BASE_DIR / "lookup_targets.json") as f:
     COMPANIES = json.load(f)
 
 ACTOR = "dhrumil/company-house-scraper"
-UA = "User-Agent: apify-agent-skills/apify-mcpc-1.4.1/call_actor"
+UA = "User-Agent: apify-awesome-skills/apify-mcpc-1.4.1/call_actor"
 
 CH_SEARCH_BASE = "https://find-and-update.company-information.service.gov.uk/advanced-search/get-results"
 

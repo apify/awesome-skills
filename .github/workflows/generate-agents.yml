@@ -85,6 +85,9 @@ jobs:
             exit 1
           fi
 
+      - name: Lint telemetry user-agent
+        run: bash scripts/lint_telemetry.sh
+
       - name: Validate skills and marketplace sync
         run: uv run scripts/generate_agents.py
 

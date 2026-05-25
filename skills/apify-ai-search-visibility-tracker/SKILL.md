@@ -1,6 +1,8 @@
 ---
 name: apify-ai-search-visibility-tracker
 description: Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule. Use when user asks to track AI visibility, monitor brand mentions in AI search, track ChatGPT citations, do AI search SEO tracking, GEO tracking (Generative Engine Optimization), AEO tracking (Answer Engine Optimization), monitor Perplexity citations, track AI Overviews mentions, or see if their brand shows up in AI search.
+author: Daniela Ryplová
+author_url: https://github.com/danielarypl
 ---
 
 # AI Search Visibility Tracker

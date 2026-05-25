@@ -1,6 +1,8 @@
 ---
 name: apify-public-registries
 description: Look up official company data from European public registries across 11 countries/regions (CZ, SK, PL, DE, UK, NL, RO, HR, SE + EU-level + ESG). Covers company registration, ownership, financial filings, VAT status, ESG data. Use when the user asks to "look up a company", "check registry", "find company info", "look up IČO/KRS/LEI/CRN", "company due diligence", "check VAT status", "find ownership structure", or needs official data from European registries. Reads tracked companies from data/companies.json. Some lookups use Python scripts (stdlib), some fall back to Apify actors for scraping-based registries.
+author: chocholous
+author_url: https://github.com/chocholous
 ---
 
 # Public Company Registries — 11 Countries
@@ -139,7 +141,8 @@ When no direct API exists, use Apify CLI with a specific actor or `apify/website
 
 ```bash
 apify call apify/website-content-crawler \
-  --input '{"startUrls":[{"url":"https://or.justice.cz/ias/ui/rejstrik-$firma?ico=25099345"}],"maxCrawlPages":1}'
+  --input '{"startUrls":[{"url":"https://or.justice.cz/ias/ui/rejstrik-$firma?ico=25099345"}],"maxCrawlPages":1}' \
+  --user-agent apify-awesome-skills/apify-public-registries
 ```
 
 **Apify-dependent registries:**

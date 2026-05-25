@@ -9,7 +9,7 @@ author_url: https://github.com/samehjarour
 
 Answer natural language questions about ads, ad libraries, and competitor advertising activity by routing to the right Apify Actor and delivering a synthesized answer.
 
-**CLI rules:** Always pass `--user-agent apify-agent-skills/apify-ads-intelligence`, `--json` (or the relevant `--format` flag on `datasets get-items`), and `2>/dev/null`. The `--user-agent` flag is critical for telemetry — never omit it.
+**CLI rules:** Always pass `--user-agent apify-awesome-skills/apify-ads-intelligence`, `--json` (or the relevant `--format` flag on `datasets get-items`), and `2>/dev/null`. The `--user-agent` flag is critical for telemetry — never omit it.
 
 ## Note on platform coverage
 
@@ -31,7 +31,7 @@ That skill has an `ads-intelligence` intent that routes to `apify/facebook-ads-s
   - `APIFY_TOKEN` env variable (e.g. `export APIFY_TOKEN=...` or `.env` file)
   - Token from [Apify Console → Settings → Integrations](https://console.apify.com/settings/integrations)
 
-Verify auth: `apify info --user-agent apify-agent-skills/apify-ads-intelligence` — should show username and userId.
+Verify auth: `apify info --user-agent apify-awesome-skills/apify-ads-intelligence` — should show username and userId.
 
 ## Workflow
 
@@ -99,14 +99,14 @@ Fetch the Actor summary, input schema, and README:
 
 ```bash
 # Summary (title, description, pricing, stats)
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ads-intelligence --json 2>/dev/null
 
 # Input schema (required and optional parameters; schema lives in
 # .taggedBuilds.latest.build.inputSchema as an escaped JSON string)
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ads-intelligence --input --json 2>/dev/null
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ads-intelligence --input --json 2>/dev/null
 
 # README (capabilities, examples, gotchas)
-apify actors info "ACTOR_ID" --user-agent apify-agent-skills/apify-ads-intelligence --readme 2>/dev/null
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ads-intelligence --readme 2>/dev/null
 ```
 
 Replace `ACTOR_ID` with the selected Actor (e.g., `apify/facebook-ads-scraper`).
@@ -141,7 +141,7 @@ Two steps: run the Actor (blocks until done), then fetch dataset items in the re
 
 ```bash
 apify actors call "ACTOR_ID" -i 'JSON_INPUT' \
-  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null
+  --user-agent apify-awesome-skills/apify-ads-intelligence --json 2>/dev/null
 ```
 
 From the output use `.id` (run ID), `.status` (should be `SUCCEEDED`), and `.defaultDatasetId`.
@@ -151,18 +151,18 @@ From the output use `.id` (run ID), `.status` (should be `SUCCEEDED`), and `.def
 ```bash
 # Quick answer: total count + fields + top 5 in chat (no file)
 apify datasets info DATASET_ID --json \
-  --user-agent apify-agent-skills/apify-ads-intelligence 2>/dev/null \
+  --user-agent apify-awesome-skills/apify-ads-intelligence 2>/dev/null \
   | jq '{itemCount, fields, consoleUrl}'
 apify datasets get-items DATASET_ID --limit 5 \
-  --user-agent apify-agent-skills/apify-ads-intelligence --format json 2>/dev/null
+  --user-agent apify-awesome-skills/apify-ads-intelligence --format json 2>/dev/null
 
 # CSV file
 apify datasets get-items DATASET_ID \
-  --user-agent apify-agent-skills/apify-ads-intelligence --format csv 2>/dev/null > YYYY-MM-DD_filename.csv
+  --user-agent apify-awesome-skills/apify-ads-intelligence --format csv 2>/dev/null > YYYY-MM-DD_filename.csv
 
 # JSON file
 apify datasets get-items DATASET_ID \
-  --user-agent apify-agent-skills/apify-ads-intelligence --format json 2>/dev/null > YYYY-MM-DD_filename.json
+  --user-agent apify-awesome-skills/apify-ads-intelligence --format json 2>/dev/null > YYYY-MM-DD_filename.json
 ```
 
 Other `--format` options: `jsonl`, `xlsx`, `xml`, `rss`, `html`. Use `--offset N` to paginate large datasets.
@@ -173,13 +173,13 @@ Other `--format` options: `jsonl`, `xlsx`, `xml`, `rss`, `html`. Use `--offset N
 
 ```bash
 apify actors call "apify/facebook-ads-scraper" -i '<META_INPUT>' \
-  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > meta_run.json &
+  --user-agent apify-awesome-skills/apify-ads-intelligence --json 2>/dev/null > meta_run.json &
 apify actors call "dz_omar/google-ads-scraper" -i '<GOOGLE_INPUT>' \
-  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > google_run.json &
+  --user-agent apify-awesome-skills/apify-ads-intelligence --json 2>/dev/null > google_run.json &
 apify actors call "brilliant_gum/tiktok-ads-library-scraper" -i '<TIKTOK_INPUT>' \
-  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > tiktok_run.json &
+  --user-agent apify-awesome-skills/apify-ads-intelligence --json 2>/dev/null > tiktok_run.json &
 apify actors call "silva95gustavo/linkedin-ad-library-scraper" -i '<LINKEDIN_INPUT>' \
-  --user-agent apify-agent-skills/apify-ads-intelligence --json 2>/dev/null > linkedin_run.json &
+  --user-agent apify-awesome-skills/apify-ads-intelligence --json 2>/dev/null > linkedin_run.json &
 wait
 # Then extract each .defaultDatasetId and fetch items per platform; X workaround runs separately with caveat.
 ```
@@ -192,7 +192,7 @@ Treat `jq` as a complement to `apify datasets get-items`, not a replacement: ser
 # Discover real field names from one sample item (Actor outputs vary —
 # use this before composing further jq queries)
 apify datasets get-items DATASET_ID --limit 1 --format json \
-  --user-agent apify-agent-skills/apify-ads-intelligence 2>/dev/null \
+  --user-agent apify-awesome-skills/apify-ads-intelligence 2>/dev/null \
   | jq '.[0]'
 
 # X heuristic filter on a saved tweets file: keep items with non-empty card

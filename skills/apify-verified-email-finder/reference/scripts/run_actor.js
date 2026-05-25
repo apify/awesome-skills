@@ -14,7 +14,7 @@ import { parseArgs } from 'node:util';
 import { writeFileSync, statSync } from 'node:fs';
 
 // User-Agent for tracking skill usage in Apify analytics
-const USER_AGENT = 'apify-agent-skills/apify-verified-email-finder-1.0.0';
+const USER_AGENT = 'apify-awesome-skills/apify-verified-email-finder-1.0.0';
 
 // Parse command-line arguments
 function parseCliArgs() {

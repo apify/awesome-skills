@@ -37,7 +37,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 with open(BASE_DIR / "lookup_targets.json") as f:
     COMPANIES = json.load(f)
 
-UA = "User-Agent: apify-agent-skills/apify-mcpc-1.4.1/call_actor"
+UA = "User-Agent: apify-awesome-skills/apify-mcpc-1.4.1/call_actor"
 
 
 def all_cuis():

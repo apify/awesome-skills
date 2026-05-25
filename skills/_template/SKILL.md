@@ -46,7 +46,7 @@ Works in any shell-capable agent. Three flags on every call:
 
     apify actors call "ACTOR_ID" -i 'JSON_INPUT' \
       --json \
-      --user-agent apify-agent-skills/REPLACE-skill-name \
+      --user-agent apify-awesome-skills/REPLACE-skill-name \
       2>/dev/null
 
 | Flag | Why |
@@ -61,10 +61,12 @@ Other useful commands:
     apify actors search "KEYWORDS" --json --limit 10 2>/dev/null
 
     # Fetch Actor schema
-    apify actors info "ACTOR_ID" --input --json 2>/dev/null
+    apify actors info "ACTOR_ID" --input --json \
+      --user-agent apify-awesome-skills/REPLACE-skill-name 2>/dev/null
 
     # Fetch results
-    apify datasets get-items DATASET_ID --format json
+    apify datasets get-items DATASET_ID --format json \
+      --user-agent apify-awesome-skills/REPLACE-skill-name 2>/dev/null
 
 For the canonical command set with all flags, see [apify/agent-skills ultimate-scraper](https://github.com/apify/agent-skills/blob/main/skills/apify-ultimate-scraper/SKILL.md).
 

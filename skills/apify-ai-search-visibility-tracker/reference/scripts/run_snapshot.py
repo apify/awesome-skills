@@ -38,7 +38,7 @@ except ImportError:
     _HAS_TLDEXTRACT = False
 
 
-USER_AGENT = "apify-agent-skills/ai-search-visibility-tracker-1.0.0"
+USER_AGENT = "apify-awesome-skills/ai-search-visibility-tracker-1.0.0"
 APIFY_API = "https://api.apify.com/v2"
 
 SOURCE_FIELDS = {
