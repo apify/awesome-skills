@@ -67,7 +67,13 @@ Classify the user's message into an intent, then pick the right Actor.
 
 If multiple intents are detected, ask: *"Do you want [intent A] or [intent B]?"*
 
-**Actor routing table — always try Primary first, switch to Fallback only if it fails or returns 0 results:**
+**Actor routing table — always try Primary first, switch to Fallback only if it fails or returns 0 results.** The Primary actor (`apify/e-commerce-scraping-tool`) handles most intents once you feed the right input mode:
+
+- **Have target URLs** (a listing, profile, or category page) → `detailsUrls` / `listingUrls`.
+- **Have a keyword/marketplace** → `keyword` + `marketplaces` (product-details mode).
+- **Broad discovery (competitor, search-intent, classifieds, automotive, real-estate, website-marketplace, events)** → use `searchEngineKeyword` (search-engine mode) or `keyword`/`detailsUrls` depending on whether you have a query or URLs.
+
+**Exception — skip the Primary and go straight to the Fallback** for intents the Primary genuinely can't do (different data source or specialized analysis): `tech-stack`, `seo-audit`, `store-enrichment`, `product-matching`, `ads-intelligence`, `content-discovery` (Pinterest), and `tiktok-shop`. Routing these to the Primary wastes a run and credits.
 
 | Intent | Platform | Primary Actor | Fallback Actor |
 |--------|----------|---------------|----------------|
@@ -110,6 +116,24 @@ If multiple intents are detected, ask: *"Do you want [intent A] or [intent B]?"*
 | `tiktok-shop` | TikTok Shop | `apify/e-commerce-scraping-tool` | `lemur/tiktok-shop-creators` |
 | `website-marketplace` | Flippa | `apify/e-commerce-scraping-tool` | `scraped/flippa-scraper` |
 
+**Escalation — if both Primary and Fallback fail or return 0 results**, discover a current alternative live instead of guessing an ID:
+
+```bash
+# Find relevant, well-rated, pay-per-event Actors for the platform/intent.
+# Keep the default relevance sort — `--sort-by popularity` surfaces generic
+# big-name scrapers over the platform you actually asked for.
+apify actors search "PLATFORM or INTENT keywords" \
+  --pricing-model PAY_PER_EVENT --limit 10 --json \
+  --user-agent apify-awesome-skills/apify-ecommerce 2>/dev/null \
+  | jq '[.items[]
+      | select(.stats.totalUsers > 100 and .actorReviewRating > 4.5)
+      | {id: (.username + "/" + .name), users: .stats.totalUsers,
+         rating: (.actorReviewRating | (. * 100 | round / 100)),
+         pricing: .currentPricingInfo.pricingModel}]'
+```
+
+Pick the top match. Before running it, confirm it requests only **limited permissions** (check the Actor's Store page / README — prefer Actors that don't require full account access). If the `PAY_PER_EVENT` filter returns nothing, drop the `--pricing-model` flag and re-run, keeping the ≥100-users and ≥4.5-rating bar.
+
 ### Step 2: Fetch Actor Schema
 
 Fetch the Actor summary, input schema, and README:
@@ -118,15 +142,30 @@ Fetch the Actor summary, input schema, and README:
 # Summary (title, description, pricing, stats)
 apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --json 2>/dev/null
 
-# Input schema (required and optional parameters; schema lives in
-# .taggedBuilds.latest.build.inputSchema as an escaped JSON string)
-apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --input --json 2>/dev/null
+# Input schema — use --input WITHOUT --json to get the clean schema directly.
+# (Adding --json returns the full ~250 KB actor object instead, with the schema
+#  buried as an escaped string under .taggedBuilds.latest.build.inputSchema.)
+apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --input 2>/dev/null
 
 # README (capabilities, examples, gotchas)
 apify actors info "ACTOR_ID" --user-agent apify-awesome-skills/apify-ecommerce --readme 2>/dev/null
 ```
 
 Replace `ACTOR_ID` with the selected Actor (e.g., `apify/e-commerce-scraping-tool`).
+
+**Primary actor input cheat-sheet.** `apify/e-commerce-scraping-tool` is mode-driven — pick fields by intent (always set the matching `max…Results` cap):
+
+| Intent | Minimal input |
+|--------|---------------|
+| `pricing` (keyword) | `{"keyword": "wireless earbuds", "marketplaces": ["www.amazon.com"], "maxProductResults": 50}` |
+| `pricing` (specific URLs) | `{"detailsUrls": [{"url": "https://…"}], "maxProductResults": 50}` |
+| `store-scrape` (category) | `{"listingUrls": [{"url": "https://…/category"}], "maxProductResults": 500}` |
+| `reviews` | `{"keywordReviews": "echo dot", "marketplacesReviews": ["www.amazon.com"], "sortReview": "Most recent", "maxReviewResults": 200}` |
+| `sellers` | `{"sellerUrls": [{"url": "https://…"}], "maxSellerResults": 50}` |
+| `pricing` (Google Shopping) | `{"searchEngineKeyword": "ps5", "countryCode": "us", "maxSearchEngineResults": 50}` |
+| `food-delivery` | `{"keywordDelivery": "pizza", "marketplacesDelivery": ["www.doordash.com"], "addressDelivery": "New York, NY", "maxDeliveryResults": 50}` |
+
+For any other actor (or fields not listed), fetch the schema with the `--input` command above.
 
 ### Step 3: Ask User Preferences
 
@@ -147,7 +186,7 @@ Before running, ask:
 | `food-delivery` | 50 restaurants |
 | all others | 20–50 |
 
-**Cost safety**: Always set a sensible result limit in the Actor input (e.g., `maxResults`, `resultsLimit`, `maxCrawledPages`, or equivalent field from the input schema). Default to the per-intent values above unless the user explicitly asks for more. Warn the user before running large scrapes (1000+ results) as they consume more Apify credits.
+**Cost safety**: Always set a sensible result limit in the Actor input. For the Primary actor the cap field is **mode-specific** — `maxProductResults`, `maxReviewResults`, `maxSellerResults`, `maxSearchEngineResults`, or `maxDeliveryResults` (there is no single `maxResults`). For Fallback actors, use whatever the schema exposes (`maxResults`, `resultsLimit`, `maxItems`, `maxCrawledPages`, etc.). Default to the per-intent values above unless the user explicitly asks for more. Warn the user before running large scrapes (1000+ results) as they consume more Apify credits.
 
 ### Step 4: Run the Actor and Fetch Results
 
@@ -219,6 +258,16 @@ After the run completes, deliver a direct synthesized answer — not a data dump
 - `Actor not found` → check Actor ID spelling in the routing table
 - Run status `FAILED` → open the console URL (`.consoleUrl` from run metadata) for logs
 - Timeout / very long run → pass `--timeout <seconds>` to `apify actors call`
-- `No results` → broaden the keyword or switch to a Fallback Actor from the routing table
+- `No results` → broaden the keyword, switch to the Fallback Actor, then use the **Escalation** discovery command (under Step 1) if both fail
 - `proxy is required` → add `"proxy": {"useApifyProxy": true}` to the Actor input
 - `Platform not detected` → default to `apify/e-commerce-scraping-tool` with `generic` intent
+
+## Gotchas
+
+- **`--input --json` is a trap.** It returns the full ~250 KB actor object, not the schema. Use `apify actors info ID --input` (no `--json`) for the clean schema; only dig into `.taggedBuilds.latest.build.inputSchema` if you specifically need it as JSON.
+- **The Primary actor has no `maxResults` field.** Its caps are mode-specific (`maxProductResults`, `maxReviewResults`, `maxSellerResults`, `maxSearchEngineResults`, `maxDeliveryResults`). Setting `maxResults` does nothing and the run scrapes unbounded.
+- **The Primary handles most intents via the right input mode** (URLs → `detailsUrls`/`listingUrls`; query → `keyword` or `searchEngineKeyword`), including competitor, search-intent, classifieds, automotive, real-estate, website-marketplace, and events. It genuinely **can't** do `tech-stack`, `seo-audit`, `store-enrichment`, `product-matching`, `ads-intelligence`, `content-discovery` (Pinterest), or `tiktok-shop` — route those straight to the Fallback.
+- **`apify actors call -i` expects valid JSON on one line.** For inputs with URL arrays or quotes, write a file and pass `-i @input.json` instead of inlining — shell quoting silently corrupts complex inputs.
+- **`datasets get-items` always streams over the network.** Save to a file once (`> file.json`), then run `jq` against the file — don't re-pipe the command into `jq` repeatedly or you re-download every time.
+- **`apify actors search --sort-by popularity` ignores relevance.** It returns the biggest-name scrapers regardless of your query (an "etsy" search surfaces Instagram/Google Maps Actors). For escalation discovery keep the default relevance sort and filter on `stats.totalUsers`/`actorReviewRating` instead.
+- **`marketplaces` values are full domain slugs**, e.g. `["www.amazon.com", "www.ebay.com"]` — not `"amazon"` or display names. Delivery mode is even narrower: `marketplacesDelivery` only accepts `["www.doordash.com", "www.instacart.com"]` (no UberEats — use the `e-commerce/ubereats-reviews-scraper` fallback for that). Always confirm accepted values from the `--input` schema's `enum` before guessing.
