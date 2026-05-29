@@ -1,5 +1,7 @@
 ---
 name: apify-tech-stack-prospecting
+author: Wilbur Suero
+author_url: https://github.com/wilburhimself
 description: >-
   Discover and qualify B2B prospects by their tech stack. Chains Google Search signal queries to find companies using specific technologies, contact-info scraping to extract decision-maker emails and phones, and LinkedIn company enrichment to add firmographic data (size, industry, headcount). Use when user asks to find companies using a specific framework or tool, build a prospect list by technology, identify companies by language or framework, find companies integrating AI into their products, locate devtools customers, qualify engineering leads by stack, or wants a list of companies to reach out to based on what they're built on.
 ---
