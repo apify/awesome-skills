@@ -185,6 +185,46 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-reddit-research",
+      "source": "./skills/apify-reddit-research",
+      "skills": "./",
+      "description": "Research discussions, sentiment, opinions, and trends on Reddit. Use when the user asks what Reddit thinks about a topic/brand/product/company, wants subreddit analysis, needs to find real conversations, monitor brand mentions, analyze customer sentiment, research trends, or gather Reddit data for competitive intelligence and market research.",
+      "keywords": [
+        "reddit",
+        "reddit-research",
+        "reddit-sentiment",
+        "reddit-scraper",
+        "social-listening",
+        "brand-monitoring",
+        "market-research",
+        "customer-sentiment",
+        "subreddit-analysis",
+        "discussion-research"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
+    },
+    {
+      "name": "apify-x-monitoring",
+      "source": "./skills/apify-x-monitoring",
+      "skills": "./",
+      "description": "Monitor brands and competitors on X (Twitter). Track mentions, sentiment, complaints, praise, and activity from specific accounts. Use when the user wants to monitor what people are saying about a brand or competitor on X, detect negative buzz, track competitor posts, or run social listening on X.",
+      "keywords": [
+        "x",
+        "twitter",
+        "x-monitoring",
+        "twitter-monitoring",
+        "brand-monitoring",
+        "competitor-monitoring",
+        "social-listening",
+        "sentiment",
+        "mentions",
+        "x-research"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
