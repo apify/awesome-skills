@@ -185,6 +185,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-tech-stack-prospecting",
+      "source": "./skills/apify-tech-stack-prospecting",
+      "skills": "./",
+      "description": "Discover and qualify B2B prospects by their tech stack. Chains Google Search signal queries to find companies using specific technologies, contact-info scraping to extract decision-maker emails and phones, and LinkedIn company enrichment to add firmographic data (size, industry, headcount).",
+      "keywords": [
+        "b2b",
+        "prospecting",
+        "tech-stack",
+        "lead-generation",
+        "firmographics",
+        "linkedin",
+        "google-search",
+        "contact-scraping",
+        "devtools",
+        "sales-intelligence"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
