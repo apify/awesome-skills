@@ -1,17 +1,22 @@
-# Actor index — REPLACE skill name
+# Actor index — apify-hiring-signals
 
-Comprehensive Actor routing table. The agent reads this after `SKILL.md` to
-pick the right Actor for a specific user intent.
+Comprehensive Actor routing table for converting hiring signals into sales intelligence.
 
-| Platform | User intent | Actor ID | Tier | Notes |
-|----------|-------------|----------|------|-------|
-| REPLACE | REPLACE | `apify/REPLACE` | apify | REPLACE pricing model, key flags |
-| REPLACE | REPLACE | `community/REPLACE` | community | REPLACE |
+| Platform / Data Source | User intent                                  | Actor ID                       | Tier      | Notes                                        |
+| ---------------------- | -------------------------------------------- | ------------------------------ | --------- | -------------------------------------------- |
+| LinkedIn Jobs          | Find companies hiring for a role             | `apify/linkedin-jobs-scraper`  | apify     | Primary signal source. Use `maxResults` ≤ 50 |
+| Google Search          | Enrich companies with funding/news/expansion | `apify/google-search-scraper`  | apify     | Batch queries per company for efficiency     |
+| Company websites       | Extract emails and contacts                  | `vdrmota/contact-info-scraper` | community | Focus on /about, /contact, /team pages       |
 
-## How to extend
+## How the pipeline works
 
-1. Search for candidates: `apify actors search "KEYWORDS" --json --limit 20 2>/dev/null`
-2. Fetch input schema: `apify actors info "ACTOR_ID" --input --json 2>/dev/null`
-3. Add a row above with the user intent that should trigger it.
+1. Use LinkedIn Jobs Scraper to find companies actively hiring
+2. Deduplicate company list
+3. Enrich each company using Google Search Scraper (funding, expansion, product launches)
+4. Extract decision-maker contacts using Contact Info Scraper
 
-For a polished example covering 130+ Actors across 15+ platforms, see [apify/agent-skills ultimate-scraper actor-index](https://github.com/apify/agent-skills/blob/main/skills/apify-ultimate-scraper/references/actor-index.md).
+## Notes
+
+- Always batch Google queries to reduce cost
+- Prefer company-level enrichment over per-job enrichment
+- Skip contact scraping if user only requests company list

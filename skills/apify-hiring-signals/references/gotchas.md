@@ -1,39 +1,60 @@
-# Gotchas — REPLACE skill name
+# Gotchas — apify-hiring-signals
 
-Cost guardrails, error recovery, and common pitfalls. The agent reads this
-on demand when building inputs or when a run fails.
+Cost guardrails, error recovery, and common pitfalls for hiring-signal intelligence workflows.
+
+---
 
 ## Cost guardrails
 
-Apify Actors use one of three pricing models. Before running, check the
-model via `apify actors info "ACTOR_ID" --json 2>/dev/null` (look at
-`pricingInfo`).
+Before running any Actor, estimate cost based on expected scale.
 
-| Model | What to watch for |
-|-------|-------------------|
-| `FREE` | No cost — safe to run. |
-| `PAY_PER_EVENT` | Cost scales with results. Estimate before running. |
-| `FLAT_PRICE_PER_MONTH` | Subscription — runs are unlimited once paid. |
+| Model         | Notes                              |
+| ------------- | ---------------------------------- |
+| FREE          | Safe to run                        |
+| PAY_PER_EVENT | Scales with number of jobs/results |
+| FLAT_PRICE    | Subscription-based                 |
 
-### Confirmation thresholds (suggested)
+### Suggested thresholds
 
-- Estimated cost **>$5** → warn the user.
-- Estimated cost **>$20** → require explicit user confirmation before running.
-- Always present cost as a **rough estimate** ("around $X"), not a guarantee.
+- > $5 estimated cost → warn user
+- > $20 estimated cost → require explicit confirmation
+- Always describe cost as approximate
+
+---
 
 ## Common errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| REPLACE | REPLACE | REPLACE |
-| REPLACE | REPLACE | REPLACE |
+| Error                                        | Cause                    | Fix                                      |
+| -------------------------------------------- | ------------------------ | ---------------------------------------- |
+| `0 results from LinkedIn`                    | Geo-block or rate-limit  | Switch to Google fallback search         |
+| `MAX_RESULTS exceeded`                       | Too large query          | Reduce to ≤ 50 results                   |
+| `EMPTY contacts array`                       | No public emails on site | Try deeper crawl (/about, /team) or skip |
+| `Google scraper returns low quality results` | Too broad query          | Narrow company name + keyword            |
+
+---
 
 ## Actor-specific notes
 
-### `apify/REPLACE-actor-id`
+### `apify/linkedin-jobs-scraper`
 
-- REPLACE: input quirk
-- REPLACE: known limitation
-- REPLACE: rate-limit behavior
+- Some regions may throttle results
+- Use proxy enabled (`useApifyProxy: true`)
+- Company deduplication is required after scraping jobs
 
-For a polished gotchas example with detailed cost tables and error-recovery flows, see [apify/agent-skills ultimate-scraper gotchas](https://github.com/apify/agent-skills/blob/main/skills/apify-ultimate-scraper/references/gotchas.md).
+### `apify/google-search-scraper`
+
+- Best used in batches (multiple queries in one run)
+- Avoid one-request-per-company (too expensive)
+- Focus queries on:
+  - funding
+  - hiring announcements
+  - product launches
+
+### `vdrmota/contact-info-scraper`
+
+- Not all companies expose emails publicly
+- Prioritize:
+  - /contact
+  - /about
+  - /team
+- Ignore generic emails (info@, support@) when possible
