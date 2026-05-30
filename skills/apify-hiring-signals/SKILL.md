@@ -16,7 +16,17 @@ description: >
 # Hiring Signals → Sales Intelligence
 
 Convert LinkedIn job postings into a qualified B2B prospect list enriched with
-growth signals and decision-maker contacts — in a single automated pipeline.
+growth signals and decision-maker contacts.
+
+---
+
+## Non-goals
+
+- This skill does NOT perform general competitive intelligence
+- This skill does NOT replace full market research tools
+- This skill ONLY uses hiring signals to identify potential buyers
+
+---
 
 ## Why Hiring Signals?
 
@@ -112,6 +122,8 @@ Parse company names and URLs from the Google SERP titles and snippets.
 ---
 
 ### Step 3: Enrich with Google News Signals
+
+We batch company enrichment queries to minimize cost and reduce API calls.
 
 For each unique company from Step 2, run **one batched Google Search** to pull
 funding rounds, expansions, product launches, and leadership changes.
