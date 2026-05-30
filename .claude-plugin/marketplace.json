@@ -185,6 +185,27 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-hiring-signals",
+      "source": "./skills/apify-hiring-signals",
+      "skills": "./",
+      "description": "Turn LinkedIn job postings into B2B sales intelligence by combining hiring activity, growth signals, and company contact discovery.",
+      "keywords": [
+        "sales-intelligence",
+        "hiring-signals",
+        "linkedin-jobs",
+        "lead-generation",
+        "prospecting",
+        "b2b-sales",
+        "growth-signals",
+        "funding",
+        "job-postings",
+        "contacts",
+        "outreach"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
