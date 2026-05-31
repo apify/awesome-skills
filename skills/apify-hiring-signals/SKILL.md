@@ -11,6 +11,8 @@ description: >
   "which companies are investing in [department]", "find fast-growing companies
   in [industry]", "sales prospecting from LinkedIn", "map who's building a
   [team type] team", or "find companies that recently posted [job title] jobs".
+author: Khaled Ben Yahya
+author_url: https://github.com/kingmathers92/
 ---
 
 # Hiring Signals → Sales Intelligence

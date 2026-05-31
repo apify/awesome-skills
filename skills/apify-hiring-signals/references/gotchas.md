@@ -2,59 +2,55 @@
 
 Cost guardrails, error recovery, and common pitfalls for hiring-signal intelligence workflows.
 
----
-
 ## Cost guardrails
 
 Before running any Actor, estimate cost based on expected scale.
 
-| Model         | Notes                              |
-| ------------- | ---------------------------------- |
-| FREE          | Safe to run                        |
-| PAY_PER_EVENT | Scales with number of jobs/results |
-| FLAT_PRICE    | Subscription-based                 |
+| Model                | Notes                                      |
+| -------------------- | ------------------------------------------ |
+| FREE                 | Safe to run                                |
+| PAY_PER_EVENT        | Cost scales with number of jobs or results |
+| FLAT_PRICE_PER_MONTH | Subscription-based                         |
 
 ### Suggested thresholds
 
-- > $5 estimated cost → warn user
-- > $20 estimated cost → require explicit confirmation
-- Always describe cost as approximate
-
----
+- Estimated cost > $5 → warn the user
+- Estimated cost > $20 → require explicit user confirmation
+- Always describe costs as estimates, not guarantees
 
 ## Common errors
 
-| Error                                        | Cause                    | Fix                                      |
-| -------------------------------------------- | ------------------------ | ---------------------------------------- |
-| `0 results from LinkedIn`                    | Geo-block or rate-limit  | Switch to Google fallback search         |
-| `MAX_RESULTS exceeded`                       | Too large query          | Reduce to ≤ 50 results                   |
-| `EMPTY contacts array`                       | No public emails on site | Try deeper crawl (/about, /team) or skip |
-| `Google scraper returns low quality results` | Too broad query          | Narrow company name + keyword            |
-
----
+| Error                        | Cause                                   | Fix                                                  |
+| ---------------------------- | --------------------------------------- | ---------------------------------------------------- |
+| `0 results from LinkedIn`    | Geo-blocking or rate limiting           | Use Google Search fallback                           |
+| `MAX_RESULTS exceeded`       | Query size too large                    | Reduce result count                                  |
+| `EMPTY contacts array`       | No public contact information available | Try `/about`, `/team`, or skip contact discovery     |
+| `Low quality Google results` | Query too broad                         | Narrow search using company name and signal keywords |
 
 ## Actor-specific notes
 
 ### `apify/linkedin-jobs-scraper`
 
 - Some regions may throttle results
-- Use proxy enabled (`useApifyProxy: true`)
-- Company deduplication is required after scraping jobs
+- Enable Apify proxy support when available
+- Deduplicate companies after scraping
 
 ### `apify/google-search-scraper`
 
-- Best used in batches (multiple queries in one run)
-- Avoid one-request-per-company (too expensive)
-- Focus queries on:
-  - funding
-  - hiring announcements
+- Batch company queries into a single run whenever possible
+- Avoid one-request-per-company enrichment
+- Focus on:
+  - funding announcements
+  - expansion signals
   - product launches
+  - leadership changes
 
 ### `vdrmota/contact-info-scraper`
 
-- Not all companies expose emails publicly
+- Not every company exposes contact information publicly
 - Prioritize:
-  - /contact
-  - /about
-  - /team
-- Ignore generic emails (info@, support@) when possible
+  - `/contact`
+  - `/about`
+  - `/team`
+
+- Prefer personal or role-based emails over generic addresses such as `info@` or `support@`
