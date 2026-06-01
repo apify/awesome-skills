@@ -10,6 +10,33 @@
   },
   "plugins": [
     {
+      "name": "apify-jobs-data",
+      "source": "./skills/apify-jobs-data",
+      "skills": "./",
+      "description": "Extract clean, de-noised job-posting data from LinkedIn, Indeed, Glassdoor, Google Jobs, and 20+ boards in one Apify run — deduplicated across boards with ghost jobs and reposts removed and fields normalized — then analyze it (hiring demand, in-demand skills, salary distribution), export it (CSV / JSON / Apify dataset) for dashboards and BI, or rank it against a résumé. Every Actor is pay-per-result (no subscriptions): the agentx/all-jobs-scraper aggregator (default, covers LinkedIn/Indeed/Glassdoor/Google cheaply), optional misceres Indeed, and optional memo23 Glassdoor salary benchmark.",
+      "keywords": [
+        "jobs",
+        "job-data",
+        "job-postings",
+        "job-scraping",
+        "hiring-demand",
+        "salary",
+        "skills-in-demand",
+        "market-analysis",
+        "dataset-export",
+        "ghost-jobs",
+        "resume-fit",
+        "linkedin-jobs",
+        "indeed",
+        "glassdoor",
+        "google-jobs",
+        "data-extraction",
+        "apify"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
+    },
+    {
       "name": "apify-easy-competitive-intelligence",
       "source": "./skills/apify-easy-competitive-intelligence",
       "skills": "./",
