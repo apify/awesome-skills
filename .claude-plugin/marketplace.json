@@ -185,6 +185,28 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-app-store-intelligence",
+      "source": "./skills/apify-app-store-intelligence",
+      "skills": "./",
+      "description": "App-store intelligence and ASO research across the Apple App Store, Google Play, and the Shopify App Store: app details, ratings, ratings histograms, customer reviews, and keyword/category rankings, plus competitor comparison. Pure HTTP/JSON Apify Actors, pay-per-event, no per-run start fee.",
+      "keywords": [
+        "app-store",
+        "google-play",
+        "shopify-app-store",
+        "aso",
+        "app-reviews",
+        "ratings",
+        "keyword-rankings",
+        "ios",
+        "android",
+        "competitor-analysis",
+        "review-mining",
+        "apify"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
