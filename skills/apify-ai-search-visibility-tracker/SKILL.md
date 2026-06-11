@@ -1,22 +1,156 @@
 ---
 name: apify-ai-search-visibility-tracker
-description: Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule. Use when user asks to track AI visibility, monitor brand mentions in AI search, track ChatGPT citations, do AI search SEO tracking, GEO tracking (Generative Engine Optimization), AEO tracking (Answer Engine Optimization), monitor Perplexity citations, track AI Overviews mentions, or see if their brand shows up in AI search.
+description: Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule. Use when user asks to track AI visibility, monitor brand mentions in AI search, track ChatGPT citations, do AI search SEO tracking, GEO tracking (Generative Engine Optimization), AEO tracking (Answer Engine Optimization), monitor Perplexity citations, track AI Overviews mentions, see if their brand shows up in AI search, discover which prompts competitors rank for in AI search, find citation opportunities, or audit a website for AI visibility readiness.
 author: Daniela Ryplová
 author_url: https://github.com/danielarypl
 ---
 
 # AI Search Visibility Tracker
 
-Snapshots brand citations and mentions across six AI search surfaces (Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, Google Gemini) on a recurring schedule. Every run appends to a named Apify Dataset, writes the raw item to a named Apify Key-Value Store, and produces a Markdown report comparing today's snapshot to every prior run. Recurrence is driven by the **operating system's own scheduler** -- launchd on macOS, cron on Linux, Task Scheduler on Windows. See `reference/scheduling.md`.
+Four workflows covering the full AI visibility lifecycle: **discover** which prompts matter → **find** citation opportunities → **audit** your site → **track** over time.
 
-## Prerequisites
+All workflows use `apify/google-search-scraper` for AI search. Workflow C also uses `apify/website-content-crawler`.
+
+**Recommended flow:** Run Workflow A to discover prompts → Workflow B to find citation opportunities → Workflow C to audit your site → Workflow D to track everything on a schedule.
+
+---
+
+## Workflow A — Competitor Prompt Discovery
+
+**Goal:** Find which queries surface a competitor in AI search answers, so you know which prompts are worth monitoring.
+
+### Inputs to collect
+
+| # | Input | Notes |
+|---|-------|-------|
+| 1 | Competitor domain(s) | e.g. `brightdata.com`, `scraperapi.com` |
+| 2 | Seed topic keywords | e.g. "web scraping", "data extraction API" |
+| 3 | AI sources | Default: all six (AI Overviews, AI Mode, ChatGPT, Perplexity, Copilot, Gemini) |
+
+### Workflow
+
+1. Generate 15–30 candidate queries from seed keywords using these templates:
+   - `best [topic]`, `[topic] tools`, `how to [topic]`, `[topic] for [use case]`
+   - `[topic] vs [competitor brand]`, `[competitor brand] alternative`
+   - `[topic] API`, `[topic] pricing`, `[topic] tutorial`
+
+2. Run `apify/google-search-scraper` for each candidate query. For each result, extract:
+   - `aiOverview.sources[]`, `aiMode.sources[]`, `chatGptAnswer.sources[]`, `perplexityAnswer.sources[]`, `copilotAnswer.sources[]`, `geminiAnswer.sources[]`
+   - Also check `answer_text` / `aiOverview.text` for competitor brand name mentions (word-boundary match: `\bBrand\b`)
+
+3. For each (query, source) pair where the competitor domain or brand appears: record a hit.
+
+4. Output a prompt-major table sorted by total hit count descending:
+
+```
+| Query | ChatGPT | Perplexity | AI Overviews | AI Mode | Copilot | Gemini | Total |
+|-------|---------|------------|--------------|---------|---------|--------|-------|
+| "best web scraping API" | ✓ | ✓ | — | ✓ | — | ✓ | 4 |
+| "how to scrape Google" | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
+```
+
+5. Deliver the top-N queries (default 10) as a ready-to-paste list for Workflow D's `config.json` prompts.
+
+---
+
+## Workflow B — Citation Opportunity Finder
+
+**Goal:** For a target topic, identify which domains and content types AI engines most often cite — revealing where to publish or pitch content.
+
+### Inputs to collect
+
+| # | Input | Notes |
+|---|-------|-------|
+| 1 | Target topic / industry | e.g. "web scraping", "ecommerce automation" |
+| 2 | Seed queries | 5–20 queries covering the topic space |
+| 3 | AI sources | Default: all six |
+| 4 | Deep-crawl top cited? | Optional: crawl top-3 cited pages with `website-content-crawler` for structure patterns |
+
+### Workflow
+
+1. Run `apify/google-search-scraper` for each seed query across selected AI sources.
+
+2. Collect every URL from `sources[]` across all results. Normalise to registrable domain (`blog.example.com` → `example.com`).
+
+3. Aggregate:
+   - **By domain**: count citations, list which AI sources cite it, list which queries triggered it
+   - **By content type**: infer from URL path patterns (docs → `/docs/`, `/reference/`; blog → `/blog/`; news → known news domains)
+
+4. Rank by total citation count. Output:
+
+```
+Top-cited domains for "web scraping" (42 queries × 6 sources):
+| Domain | Citations | AI Sources | Inferred type |
+|--------|-----------|------------|--------------|
+| docs.apify.com | 38 | ChatGPT, Perplexity, AI Mode | Documentation |
+| scraperapi.com/blog | 21 | AI Overviews, Gemini | Long-form blog |
+```
+
+5. If deep-crawl enabled: run `apify/website-content-crawler` on the top-3 cited URLs per domain. From the markdown output, extract:
+   - First heading that directly answers the query
+   - Presence of code blocks in first 500 words
+   - Word count
+   - Whether an H2/H3 contains the exact query phrase
+
+6. Summarise patterns: "AI engines in this topic prefer [long-form docs / short direct-answer posts]. Typical cited page: [word count range], [has/lacks direct-answer H2], [has/lacks code example above the fold]."
+
+---
+
+## Workflow C — GEO Website Audit
+
+**Goal:** Check whether a specific website's content is structured for AI citation; compare it against what AI engines actually cite for your target prompts.
+
+### Inputs to collect
+
+| # | Input | Notes |
+|---|-------|-------|
+| 1 | Your website URL | e.g. `https://apify.com` |
+| 2 | Target prompts | Use Workflow A output, or supply 5–10 directly |
+| 3 | AI sources | Default: all six |
+
+### Workflow
+
+1. Run `apify/google-search-scraper` for each target prompt. For each (prompt × source) record whether your registrable domain appears in `sources[]`.
+
+2. For prompts where your domain is **not** cited: identify the top-cited competitor URL for that prompt.
+
+3. Run `apify/website-content-crawler` on:
+   - Your most relevant page(s) for each un-cited prompt
+   - The top-cited competitor page for each un-cited prompt
+
+4. For each un-cited prompt, produce a gap card:
+
+```
+Prompt: "how to scrape Google search results"
+Your page: apify.com/blog/scraping-google  →  NOT cited on ChatGPT, Perplexity, AI Mode
+Top-cited: docs.brightdata.com/scraping/google (cited 5/6 sources)
+
+Structural gaps:
+  ✗ Your page: answer buried after 900 words, no direct-answer H2
+  ✓ Competitor: H2 "How to scrape Google in 3 steps" at word 120 + code block at word 180
+
+Recommended actions (priority order):
+  1. Add H2 that mirrors the query phrase within first 300 words
+  2. Move code example above the fold
+  3. Add a "Quick answer" summary box at the top
+```
+
+5. Deliver: per-prompt gap cards + a consolidated action table ranked by expected impact.
+
+---
+
+## Workflow D — Recurring Visibility Tracker
+
+**Goal:** Snapshot brand citations and mentions across all six AI surfaces on a recurring schedule and track changes over time.
+
+### Prerequisites
 (No need to check upfront)
 
 - `APIFY_TOKEN` saved in a `.env` file next to `config.json` (the runner auto-loads it).
 - Python 3.9+ on PATH. `pip3 install requests` (only third-party dependency); `pip3 install tldextract` recommended for accurate registrable-domain matching on multi-part TLDs.
 - For automated daily runs: macOS / Linux with launchd or cron available (the installer handles both). Windows users get printed `schtasks` instructions.
 
-## Workflow
+### Steps
 
 Copy this checklist and track progress:
 
@@ -38,7 +172,7 @@ If `config.json` exists in the user's working directory, load it and skip to Ste
 | 1 | **Brand URL** | Primary domain. Drives registrable-domain citation matching (`blog.apify.com` -> `apify.com`). |
 | 2 | **Brand name(s)** | Surface forms for text-mention matching (e.g., `Apify`, `apify.com`, `@apify`). URL-only matching misses mentions without links. |
 | 3 | **Competitor brands** | Ask explicitly: *"Which competitors do you want tracked alongside your brand?"* Accept `name + domain` pairs. Zero is allowed; the question must still be asked on first run. |
-| 4 | **Prompts to monitor** | One or more search queries. Each runs through every enabled AI source. |
+| 4 | **Prompts to monitor** | One or more search queries. Each runs through every enabled AI source. If you don't know which prompts to use yet, run Workflow A first — it discovers competitor-visible prompts you can paste here. |
 | 5 | **Cadence** | `daily` / `weekly` / `monthly`. Drives the schedule entry that `install_cron.sh` writes. |
 | 6 | **Which AI sources** | Present the six (AI Overviews, AI Mode, ChatGPT, Perplexity, Copilot, Gemini), all enabled by default. Each adds per-result cost -- current pricing on the Actor page (https://apify.com/apify/google-search-scraper). |
 | 7 | **Apify Dataset name** | The named dataset to append to. If absent, created on first run; the name is recorded in `config.json`. |
@@ -72,13 +206,13 @@ echo 'APIFY_TOKEN=your_token_here' > ./.env
 chmod 600 ./.env
 ```
 
-Then install the OS schedule. The installer detects macOS / Linux / Windows and writes the right entry. It validates that `config.json` and `.env` both exist before doing anything, and shows the user the exact schedule entry before applying it:
+Then install the OS schedule:
 
 ```bash
 bash ${CLAUDE_PLUGIN_ROOT}/reference/scripts/install_cron.sh --cadence daily --hour 9
 ```
 
-Cron expression mapping (the installer fills these in):
+Cron expression mapping:
 
 | Cadence | Cron expression | When |
 |---------|-----------------|------|
@@ -86,13 +220,7 @@ Cron expression mapping (the installer fills these in):
 | weekly  | `0 H * * 1`     | every Monday at H:00 |
 | monthly | `0 H 1 * *`     | the 1st of every month at H:00 |
 
-`H` is the user's chosen hour (0-23, default 9).
-
-The schedule entry contains **no credentials**. The runner reads `APIFY_TOKEN` from `.env` at fire time. Rotating the token is `echo 'APIFY_TOKEN=new_value' > .env` -- no reinstall needed. Full mechanics in `reference/scheduling.md`.
-
 ### Step 4: Run a Snapshot Now
-
-Fire one snapshot immediately so the user sees the first report without waiting for tomorrow's schedule:
 
 **macOS:**
 
@@ -116,32 +244,43 @@ Both paths:
 5. Compute the history vs. all prior runs.
 6. Write `reports/snapshot-<ISO-date>.md` next to `config.json`.
 
-The runner reads its input only from `--config` and env vars. **It never prompts on stdin** -- the scheduler has no stdin to give it.
-
-### Output format
-
-Snapshot summaries are **entity-major**: one Markdown table per tracked entity (brand, then competitors), one row per AI source, columns `Source | Cited | Mentioned | SoV% | Matched URLs | History`. Each table is followed by a one-line interpretive note quoting the surface-form context where the entity was mentioned. The runner emits this format; chat summaries should mirror it. Full template in `reference/output-schema.md`.
-
 ### Step 5: Deliver the History Report
 
-Open `reports/snapshot-<ISO-date>.md` and surface the top findings in chat. From the second run onwards the report compares today's snapshot to **every prior run** (unless the user asks for last-run-only). Lead with:
+Open `reports/snapshot-<ISO-date>.md` and surface the top findings in chat. Lead with:
 
 - **First-ever citations / mentions today** -- entity x source combinations crossing the threshold for the first time.
 - **Drops** -- entity was cited in the latest prior run but isn't today.
 - For every cited entity, the **exact matched URL(s)**.
 
-Don't restate the full report -- point the user at the file. Per-source scorecards + per-prompt detail + top-10 most-cited URLs are already in there.
+### Output format
 
-## Actor
+Snapshot summaries are **entity-major**: one Markdown table per tracked entity (brand, then competitors), one row per AI source, columns `Source | Cited | Mentioned | SoV% | Matched URLs | History`.
 
-The skill uses a single Actor -- `apify/google-search-scraper` -- for all six AI surfaces. AI Overviews ride alongside the organic SERP automatically; do **not** set `disableGoogleSearchResults: true`. Input schema and field-name mapping in `reference/apify-actor-usage.md`. Pricing changes; check the Actor's [pricing tab](https://apify.com/apify/google-search-scraper) before quoting numbers.
+---
+
+## Actors
+
+| Actor | Used in | Key input fields |
+|-------|---------|-----------------|
+| `apify/google-search-scraper` | A, B, C, D | `queries[]`, `aiOverview`, `chatGptSearch`, `perplexitySearch`, `googleAiMode`, `bingCopilotSearch`, `googleGeminiSearch` |
+| `apify/website-content-crawler` | B (optional), C | `startUrls[]`, `maxCrawlPages`, `outputMarkdown: true` |
+
+Pricing changes; check the [pricing tab](https://apify.com/apify/google-search-scraper) before quoting numbers. Disable unused AI sources to reduce cost.
+
+**Telemetry.** Workflow D runs through `reference/scripts/run_snapshot.py`, which already sets `User-Agent: apify-awesome-skills/ai-search-visibility-tracker-...` on every Apify API call. When calling these Actors ad-hoc in Workflows A-C, pass the matching flags so usage is attributed: `--user-agent apify-awesome-skills/apify-ai-search-visibility-tracker` and `--json` (use `--format json` for `apify datasets get-items`), and append `2>/dev/null`. Example:
+
+```bash
+apify actors call apify/google-search-scraper \
+  --user-agent apify-awesome-skills/apify-ai-search-visibility-tracker \
+  --json 2>/dev/null
+```
 
 ## Quality Rules
 
 - **Non-interactive.** No stdin reads in `run_snapshot.py` -- launchd / cron has no stdin.
-- **Word-boundary brand matching** (`\bbrand\b`, case-insensitive) so `Apify` doesn't match `Apifying`. See `reference/citation-matching.md`.
+- **Word-boundary brand matching** (`\bbrand\b`, case-insensitive). See `reference/citation-matching.md`.
 - **Registrable-domain citation matching** (`blog.apify.com` counts as `apify.com`). See `reference/citation-matching.md`.
-- **Never skip a row.** If an AI source returns nothing, write a row with `cited: false, mentioned: false, answer_text: "[no answer returned]"`. Continuity is required for the history diff.
+- **Never skip a row.** If an AI source returns nothing, write a row with `cited: false, mentioned: false, answer_text: "[no answer returned]"`.
 - **Every row carries the Apify run ID** so any finding can be reverified.
 
 ## Error Handling
@@ -151,5 +290,6 @@ The skill uses a single Actor -- `apify/google-search-scraper` -- for all six AI
 `Dataset name not set` -- Ask the user for a name; the runner will create the dataset on first append.
 `Actor run FAILED` -- Print the console link from the runner output and ask the user to inspect it.
 `AI source returned no answer` -- The row is still written with `[no answer returned]`. Not an error.
-`Schedule not firing` -- See `reference/scheduling.md` troubleshooting section: macOS `launchctl list | grep ai-visibility`, Linux `crontab -l`, check the log file at `~/Library/Logs/ai-visibility-tracker.log` (macOS) or `~/.ai-visibility-tracker.log` (Linux).
+`website-content-crawler returns no markdown` -- Page may be JS-heavy; try with `useBrowserCrawler: true`.
+`Schedule not firing` -- See `reference/scheduling.md` troubleshooting section.
 `No previous run to diff against` -- First run only. The report renders the snapshot without a history section.
