@@ -185,6 +185,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
-    }
-  ]
+    },
+  {
+    "name": "apify-youtube-creator-research",
+    "source": "./skills/apify-youtube-creator-research",
+    "skills": "./",
+    "description": "Research YouTube channels, videos, Shorts, playlists, search results, comments, and creator positioning using Apify Actors. Use for creator benchmarking, content strategy, keyword/video discovery, audience comment mining, and Shorts analysis.",
+    "keywords": [
+      "youtube",
+      "creator-research",
+      "channel-analysis",
+      "video-research",
+      "comments",
+      "shorts",
+      "content-strategy",
+      "competitor-analysis",
+      "audience-research",
+      "apify"
+    ],
+    "category": "data-extraction",
+    "version": "1.0.0"
+  }
+]
 }
