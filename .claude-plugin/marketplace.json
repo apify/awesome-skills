@@ -185,6 +185,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-social-listening",
+      "source": "./skills/apify-social-listening",
+      "skills": "./",
+      "description": "Monitor what people say about a brand, product, competitor, or topic on Reddit — mentions, sentiment, the communities driving the conversation, and verbatim voice-of-customer quotes — with an optional YouTube channel/video engagement module. Reddit-first, with built-in sentiment scoring in the same run.",
+      "keywords": [
+        "social-listening",
+        "brand-monitoring",
+        "sentiment",
+        "reddit",
+        "voice-of-customer",
+        "mentions",
+        "competitor-monitoring",
+        "youtube",
+        "market-research",
+        "brand-sentiment"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
