@@ -185,6 +185,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-local-agency-prospector",
+      "source": "./skills/apify-local-agency-prospector",
+      "skills": "./",
+      "description": "Find local businesses that need your service — scored by opportunity signal (no website, low rating, few reviews) — each with a verified email and phone. Built for agencies/freelancers selling web design, SEO, ads, reputation, or social to local businesses. Routes a niche + city to Google Maps, scores the gap per prospect, and enriches the best fits with verified contacts in one pipeline.",
+      "keywords": [
+        "lead-generation",
+        "local-business",
+        "agency",
+        "prospecting",
+        "google-maps",
+        "verified-email",
+        "web-design-leads",
+        "seo-leads",
+        "cold-outreach",
+        "b2b-leads"
+      ],
+      "category": "lead-generation",
+      "version": "1.0.0"
     }
   ]
 }
