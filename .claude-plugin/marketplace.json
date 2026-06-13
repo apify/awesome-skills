@@ -185,6 +185,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-job-market-intelligence",
+      "source": "./skills/apify-job-market-intelligence",
+      "skills": "./",
+      "description": "Map a job market from live listings — who is hiring, what they pay, where the roles are, remote vs onsite, and how employers are rated. Routes a role + location to an Indeed scraper (salaries, companies, job types, descriptions), aggregates a market snapshot (salary range, top hirers, remote share, demand by location), and optionally adds Glassdoor employer reputation. For recruiters, comp/HR, job seekers, and sales using hiring as a growth signal.",
+      "keywords": [
+        "job-market",
+        "recruitment",
+        "salary-benchmark",
+        "indeed",
+        "hiring-intelligence",
+        "labor-market",
+        "staffing",
+        "compensation",
+        "glassdoor",
+        "talent"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
