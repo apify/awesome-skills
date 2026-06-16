@@ -185,6 +185,29 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-job-market-intelligence",
+      "source": "./skills/apify-job-market-intelligence",
+      "skills": "./",
+      "description": "Build job-market intelligence from public job boards using Apify Actors. Analyze hiring demand, discover companies hiring for a role, extract required skills from postings, benchmark salary signals, and create ranked job-search pipelines from LinkedIn Jobs, Google Jobs, Indeed, or Glassdoor.",
+      "keywords": [
+        "jobs",
+        "job-search",
+        "hiring",
+        "recruiting",
+        "talent-intelligence",
+        "linkedin-jobs",
+        "google-jobs",
+        "indeed",
+        "glassdoor",
+        "salary",
+        "skills",
+        "career",
+        "market-intelligence"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
