@@ -185,6 +185,28 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-booking-host-leads",
+      "source": "./skills/apify-booking-host-leads",
+      "skills": "./",
+      "description": "Find and enrich B2B leads from Booking.com - hotels, apartments, and vacation rentals - and pull each host's or property manager's real contact details (email, phone, company name, registration number), primarily from the Booking scraper's traderInfo field, with a Google Maps, Google Search, and website-scraper fallback. Use when the user says get emails from Booking.com, Booking.com lead generation, find tour operator / property manager / host contacts, scrape accommodation owner emails, or build a list of Booking hosts.",
+      "keywords": [
+        "booking",
+        "booking.com",
+        "lead-generation",
+        "leads",
+        "email-finder",
+        "hosts",
+        "property-managers",
+        "tour-operators",
+        "hospitality",
+        "traderinfo",
+        "contact-enrichment",
+        "b2b"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
