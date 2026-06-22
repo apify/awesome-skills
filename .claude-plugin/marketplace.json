@@ -207,6 +207,28 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-mobile-app-review-intelligence",
+      "source": "./skills/apify-mobile-app-review-intelligence",
+      "skills": "./",
+      "description": "Turn App Store and Google Play reviews into product-roadmap intelligence by chaining Apify Actors for iOS reviews, Android reviews, SERP-based app discovery, and website or help-center crawling. Use when the user asks to analyze mobile app reviews, compare app competitors, find bugs or feature requests in reviews, prioritize a mobile roadmap, monitor release feedback, audit ASO sentiment, or explain why an app's ratings changed across iOS and Android.",
+      "keywords": [
+        "mobile-apps",
+        "app-store",
+        "google-play",
+        "reviews",
+        "sentiment",
+        "roadmap",
+        "feature-requests",
+        "bug-triage",
+        "release-monitoring",
+        "competitor-analysis",
+        "aso",
+        "product-management"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
