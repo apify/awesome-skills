@@ -207,6 +207,28 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-actor-devkit",
+      "source": "./skills/apify-actor-devkit",
+      "skills": "./",
+      "description": "Validate, test, compare, and monitor your own Apify Actors across the build-to-production lifecycle: preflight input validation, multi-Actor pipeline validation, A/B comparison for a production switch, post-run output validation, deploy-gate regression detection, fleet-wide quality scoring, PII/GDPR/ToS pre-publish risk triage, and fleet profit analytics. Each Actor returns a routable decision enum that CI gates and AI agents branch on without parsing prose.",
+      "keywords": [
+        "developer-tools",
+        "actor-testing",
+        "ab-testing",
+        "input-validation",
+        "pipeline-validation",
+        "regression-detection",
+        "ci-gate",
+        "quality-monitoring",
+        "compliance",
+        "gdpr",
+        "fleet-analytics",
+        "apify-developers"
+      ],
+      "category": "developer-tools",
+      "version": "1.0.0"
     }
   ]
 }
