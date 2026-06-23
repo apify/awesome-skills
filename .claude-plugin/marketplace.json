@@ -207,6 +207,31 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-market-monitor",
+      "source": "./skills/apify-market-monitor",
+      "skills": "./",
+      "description": "Monitor competitors, markets, prices, listings, creators, and hiring over time across TikTok, Instagram, YouTube, Reddit, Amazon, Airbnb, Booking.com, Zillow, LinkedIn, Indeed, and Google Maps. Organized around one task, not a platform list: monitoring change over time. Where the Actor supports it, runs are compared against prior runs to surface what changed (price and rank moves, breakouts, supply and rate shifts, hiring momentum, rating trajectory) instead of raw rows. Use to watch a competitor, track a price or rank trajectory, detect breakout content, follow hiring signals, monitor review reputation, or get a recurring what-changed feed.",
+      "keywords": [
+        "monitoring",
+        "competitor-tracking",
+        "market-intelligence",
+        "price-tracking",
+        "change-detection",
+        "tiktok",
+        "instagram",
+        "amazon",
+        "airbnb",
+        "zillow",
+        "linkedin",
+        "google-maps",
+        "trends",
+        "watchlist",
+        "scheduling"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
