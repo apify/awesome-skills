@@ -207,6 +207,31 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-academic-research",
+      "source": "./skills/apify-academic-research",
+      "skills": "./",
+      "description": "Find and analyze scholarly research across the major open academic databases — search and rank papers by field-normalized impact, run a literature review, trace citation graphs, find similar / foundational / breakout papers, map a field's institutions and funders, compare institutions, build a citation-safe RAG corpus, check whether a preprint is safe to cite, mine biomedical entities and datasets, grade clinical evidence, and look up or disambiguate researchers. Via OpenAlex, Semantic Scholar, arXiv, Crossref, PubMed, Europe PMC, CORE, DBLP, and ORCID. Use for academic papers, peer-reviewed studies, literature or systematic reviews, most-cited or seminal papers, research trends, funding or institution landscapes, and researcher profiles.",
+      "keywords": [
+        "academic-research",
+        "scholarly-papers",
+        "literature-review",
+        "systematic-review",
+        "citations",
+        "peer-reviewed",
+        "openalex",
+        "semantic-scholar",
+        "arxiv",
+        "pubmed",
+        "crossref",
+        "orcid",
+        "research-trends",
+        "rag-corpus",
+        "researcher-profiles"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
