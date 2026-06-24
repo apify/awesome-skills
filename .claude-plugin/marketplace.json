@@ -207,6 +207,32 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-doesaiknow-seo-suite",
+      "source": "./skills/apify-doesaiknow-seo-suite",
+      "skills": "./",
+      "description": "SEO and AI-search data with the doesaiknow Apify Actors: keyword volume + CPC (Google & Bing), keyword clustering / topical maps, competitor ranked keywords + gap, backlinks & referring domains, AI brand visibility (ChatGPT/Perplexity/Gemini), and Amazon keyword + reverse-ASIN.",
+      "keywords": [
+        "seo",
+        "keyword research",
+        "search volume",
+        "cpc",
+        "keyword clustering",
+        "topical map",
+        "competitor keywords",
+        "keyword gap",
+        "backlinks",
+        "referring domains",
+        "ai visibility",
+        "aeo",
+        "geo",
+        "amazon keywords",
+        "reverse asin",
+        "ahrefs alternative",
+        "semrush alternative",
+        "helium 10 alternative"
+      ]
     }
   ]
 }
