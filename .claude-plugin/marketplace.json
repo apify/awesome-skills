@@ -207,6 +207,28 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-x402-agentic-wallet",
+      "source": "./skills/apify-x402-agentic-wallet",
+      "skills": "./",
+      "description": "Discover, pay for, and run any Apify Actor by paying USDC on Base over the x402 protocol with a Coinbase Agentic Wallet (awal) — no Apify account or API key. Buy one small, spend-capped prepaid Apify token, then run as many Actors as the request needs. Use when the user wants to use Apify tools without signing up, pay per use with crypto / USDC, set up an agentic wallet, or mentions x402, awal, agentic wallet, or paying on-chain per use.",
+      "keywords": [
+        "x402",
+        "awal",
+        "agentic-wallet",
+        "coinbase",
+        "usdc",
+        "base",
+        "crypto",
+        "pay-per-use",
+        "prepaid-token",
+        "no-api-key",
+        "micropayments",
+        "web-data"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
