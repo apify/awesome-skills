@@ -2,7 +2,7 @@
 
 ## Branch on the decision field, never the prose
 
-- Every Actor here returns a stable enum: `decision` (`act_now` / `monitor` / `ignore`) or A/B Tester's `decisionPosture` (`switch_now` / `canary_recommended` / `monitor_only` / `no_call`).
+- Every Actor here returns a stable routable field. Most use `decision` (`act_now` / `monitor` / `ignore`). Pipeline Preflight uses `decisionPosture` (`ship_pipeline` / `canary` / `monitor` / `block`) + `reliabilityScore`; A/B Tester uses `decisionPosture` (`switch_now` / `canary_recommended` / `monitor_only` / `no_call`) + `safeToSwitch`; Deploy Guard's headline is `releaseAction` (`deploy` / `halt` / `review` / `misconfigured`). The fleet-wide Actors return a scorecard (`qualityGates`, `fixSequence[]`) or an action queue (`nextBestAction`) rather than a single enum.
 - Branch automation on that field only. `verdictHuman`, `summary`, `explanation`, `oneLine` are for display — their wording is not contract-stable and will break parsers.
 - Read `warnings[]` first. Any warning with `severity: blocking` forbids an actionable verdict regardless of how good the numbers look.
 
