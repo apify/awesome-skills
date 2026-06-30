@@ -207,6 +207,30 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-linkedin-intelligence",
+      "source": "./skills/apify-linkedin-intelligence",
+      "skills": "./",
+      "description": "Turn LinkedIn into a B2B go-to-market data source with Apify Actors across the three data pillars — company firmographics, people profiles, and job postings. Powers four workflows: TAM sizing, prospect/lead list building, headcount benchmarking, and hiring-signal selling. Use when the user says size my TAM, build a prospect list of <title> at <companies>, find decision makers, how many employees does <company> have, benchmark headcount vs competitors, who is hiring for <role>, hiring signals for sales, LinkedIn company/people/jobs scraper, or enrich these LinkedIn URLs. Chains firmographics + people + jobs instead of relying on a single scraper, and confirms input schemas before running because LinkedIn Actor inputs drift.",
+      "keywords": [
+        "linkedin",
+        "b2b",
+        "lead-generation",
+        "prospecting",
+        "tam-sizing",
+        "firmographics",
+        "headcount",
+        "hiring-signals",
+        "sales-intelligence",
+        "people-profiles",
+        "job-postings",
+        "icp",
+        "go-to-market",
+        "apollo-alternative"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
