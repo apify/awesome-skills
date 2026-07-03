@@ -62,7 +62,7 @@
       "name": "apify-ads-intelligence",
       "source": "./skills/apify-ads-intelligence",
       "skills": "./",
-      "description": "Research, spy on, and analyze ads across Meta (Facebook & Instagram), Google (Ads Transparency Center + paid search results), TikTok (Ads Library + Creative Center), LinkedIn Ad Library, and X (Twitter — promoted tweets, best-effort) using Apify Actors. Use when user asks about competitor ads, ad library research, winning creatives, ad copy analysis, landing page audits from ads, cross-platform ad audits, brand transparency checks, or any task involving paid ad creatives, advertiser data, or ad targeting from public ad libraries.",
+      "description": "Research, spy on, and analyze ads across Meta (Facebook & Instagram), Google (Ads Transparency Center + paid search results), TikTok (Ads Library + Creative Center), LinkedIn Ad Library, and X (Twitter \u2014 promoted tweets, best-effort) using Apify Actors. Use when user asks about competitor ads, ad library research, winning creatives, ad copy analysis, landing page audits from ads, cross-platform ad audits, brand transparency checks, or any task involving paid ad creatives, advertiser data, or ad targeting from public ad libraries.",
       "keywords": [
         "ads",
         "advertising",
@@ -88,7 +88,7 @@
       "skills": [
         "./skills"
       ],
-      "description": "Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
+      "description": "Financial company intelligence \u2014 news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
       "keywords": [
         "finance",
         "news",
@@ -130,7 +130,7 @@
       "name": "apify-verified-email-finder",
       "source": "./skills/apify-verified-email-finder",
       "skills": "./",
-      "description": "Build a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed.",
+      "description": "Build a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run \u2014 no third-party verifier needed.",
       "keywords": [
         "email",
         "verification",
@@ -171,7 +171,7 @@
       "name": "apify-influencer-brand-collabs",
       "source": "./skills/apify-influencer-brand-collabs",
       "skills": "./",
-      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors against Meta's Ad Library. Audit influencer branded-content history, scope a brand's sponsorship roster, and surface paid collaborations in either direction",
+      "description": "Discover Instagram brand\u2013creator partnerships by chaining Apify Actors against Meta's Ad Library. Audit influencer branded-content history, scope a brand's sponsorship roster, and surface paid collaborations in either direction",
       "keywords": [
         "influencer",
         "brand",
@@ -204,6 +204,34 @@
         "traderinfo",
         "contact-enrichment",
         "b2b"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
+    },
+    {
+      "name": "apify-apac-company-financial-data",
+      "source": "./skills/apify-apac-company-financial-data",
+      "skills": "./",
+      "description": "Extract APAC company, exchange, and financial-disclosure data via Apify Actors across Korea, Japan, Taiwan, China, Hong Kong, Singapore, India, and SE Asia \u2014 company registries (Singapore ACRA, Japan corporate number, India MCA/OGD), listed-company disclosures (Japan TDnet, Taiwan MOPS, HKEX, SGX, India SEBI), insider/large-shareholder filings (Japan EDINET, HKEX, China A-share), stock screeners (KOSPI, TSE, TWSE, SGX, NSE/BSE, Eastmoney, plus Vietnam/Indonesia/Thailand/Philippines/Malaysia), IPO calendars (HKEX, Korea, pan-APAC), and Asian regulator enforcement (Singapore MAS, HK SFC). Factual public data for research \u2014 not investment advice.",
+      "keywords": [
+        "apac",
+        "asia",
+        "company-registry",
+        "korea",
+        "japan",
+        "taiwan",
+        "china",
+        "hong-kong",
+        "singapore",
+        "india",
+        "stock-screener",
+        "ipo",
+        "disclosures",
+        "insider-trading",
+        "edinet",
+        "sgx",
+        "hkex",
+        "enforcement"
       ],
       "category": "data-extraction",
       "version": "1.0.0"
