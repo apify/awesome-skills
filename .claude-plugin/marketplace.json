@@ -207,6 +207,24 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-threads-search",
+      "source": "./skills/apify-threads-search",
+      "skills": "./",
+      "description": "Search public Meta Threads posts, collect posts from known accounts, or discover public profile matches with run, dataset, and output verification",
+      "keywords": [
+        "threads",
+        "meta-threads",
+        "threads-search",
+        "posts",
+        "profiles",
+        "keyword-search",
+        "public-data",
+        "dataset-verification"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
