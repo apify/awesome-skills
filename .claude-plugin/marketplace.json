@@ -207,6 +207,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-linkedin-posts-scraper",
+      "source": "./skills/apify-linkedin-posts-scraper",
+      "skills": "./",
+      "description": "Scrape public LinkedIn posts into clean, structured JSON with the Apify LinkedIn Posts API. Discover a profile's recent posts or fetch specific post URLs, one row per post: text, hashtags, media, author, reactions, comments, and shares. Use to scrape LinkedIn posts, export posts to JSON or CSV, or build a LinkedIn posts dataset.",
+      "keywords": [
+        "apify",
+        "linkedin",
+        "linkedin-posts",
+        "posts",
+        "scraper",
+        "json",
+        "social-media",
+        "content",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
