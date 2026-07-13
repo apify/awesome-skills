@@ -207,6 +207,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-linkedin-post-engagement",
+      "source": "./skills/apify-linkedin-post-engagement",
+      "skills": "./",
+      "description": "Analyze LinkedIn post engagement with the Apify LinkedIn Posts API. Collect a profile's posts, then measure reactions, comments, and shares against author reach to rank top-performing posts and compute engagement rate. Use to analyze LinkedIn post engagement, benchmark competitors, or build an engagement report.",
+      "keywords": [
+        "apify",
+        "linkedin",
+        "linkedin-posts",
+        "engagement",
+        "analytics",
+        "social-media",
+        "reactions",
+        "comments",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
