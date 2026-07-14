@@ -207,6 +207,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-kick-scraper",
+      "source": "./skills/apify-kick-scraper",
+      "skills": "./",
+      "description": "Research Kick.com creators, channels, categories, and live streams with the AI Tools Max Kick Data Scraper Actor on Apify. Discover known streamers, search by keyword, map categories, filter live channels by language or tag, and export current channel snapshots with provenance.",
+      "keywords": [
+        "kick",
+        "kick.com",
+        "streamers",
+        "creators",
+        "creator-discovery",
+        "market-research",
+        "live-streams",
+        "influencer-research",
+        "category-analysis",
+        "apify"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
