@@ -1,0 +1,6 @@
+interface:
+  display_name: "Apify Kick Scraper"
+  short_description: "Research Kick creators and live channels"
+  default_prompt: "Use $apify-kick-scraper to research Kick.com creators, categories, and live channels for my question."
+policy:
+  allow_implicit_invocation: true
