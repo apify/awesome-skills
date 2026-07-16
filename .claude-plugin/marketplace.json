@@ -207,6 +207,24 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-yandex-image-search-api",
+      "source": "./skills/apify-yandex-image-search-api",
+      "skills": "./",
+      "description": "Search the Yandex Images vertical and get full-size image URLs as structured JSON with the Apify Yandex Search Scraper. Filter by image type, color, orientation, file type, exact size, site, and recency. Use as a yandex image search api, for image dataset collection, or for sourcing images from Russian-language sites.",
+      "keywords": [
+        "apify",
+        "yandex",
+        "image-search",
+        "images-api",
+        "image-dataset",
+        "json",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
