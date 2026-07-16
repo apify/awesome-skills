@@ -207,6 +207,25 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-scrape-google-jobs",
+      "source": "./skills/apify-scrape-google-jobs",
+      "skills": "./",
+      "description": "Scrape Google Jobs listings into structured JSON with the Apify Google Jobs Scraper. Query by role and location; one row per listing with title, company, source platform, description, highlights, posting age, and direct apply links. Use to scrape google jobs, export results to JSON or CSV, or build a job listings dataset.",
+      "keywords": [
+        "apify",
+        "google-jobs",
+        "jobs",
+        "job-scraper",
+        "job-scraping",
+        "recruiting",
+        "json",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
