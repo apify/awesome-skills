@@ -207,6 +207,25 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-job-search-api",
+      "source": "./skills/apify-job-search-api",
+      "skills": "./",
+      "description": "Turn Google Jobs into a job search API for apps, AI agents, and alert pipelines with the Apify Google Jobs Scraper. Bounded polled feeds by role and location return fresh listings with direct apply links, ready to dedupe by job_id. Use for a job search api, a job postings feed, or programmatic job board refreshes.",
+      "keywords": [
+        "apify",
+        "job-search",
+        "jobs-api",
+        "job-feed",
+        "google-jobs",
+        "recruiting",
+        "json",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
