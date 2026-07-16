@@ -207,6 +207,25 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-yandex-search-api",
+      "source": "./skills/apify-yandex-search-api",
+      "skills": "./",
+      "description": "Get structured Yandex search results without an official API key using the Apify Yandex Search Scraper. One query returns the full SERP as JSON: organic positions and snippets, plus optional ads, knowledge graph, and inline media by domain, language, and region. Use as a yandex search api or yandex serp api, or for SEO research in Russian-speaking markets.",
+      "keywords": [
+        "apify",
+        "yandex",
+        "yandex-search",
+        "serp",
+        "search-api",
+        "seo",
+        "json",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
