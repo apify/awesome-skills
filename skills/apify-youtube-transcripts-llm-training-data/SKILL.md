@@ -43,6 +43,7 @@ Batch corpus run, English preferred, metadata on for provenance:
 ```bash
 apify actors call "johnvc/YoutubeTranscripts" -i '{"youtube_url":["https://www.youtube.com/watch?v=jNQXAC9IVRw","https://www.youtube.com/watch?v=dQw4w9WgXcQ"],"languages":["en"],"include_metadata":true}' \
   --json \
+  --output-dataset \
   --user-agent apify-awesome-skills/apify-youtube-transcripts-llm-training-data \
   2>/dev/null
 ```
@@ -52,11 +53,12 @@ Mixed-language sources normalized into a Spanish corpus:
 ```bash
 apify actors call "johnvc/YoutubeTranscripts" -i '{"youtube_url":["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],"translate_to":"es"}' \
   --json \
+  --output-dataset \
   --user-agent apify-awesome-skills/apify-youtube-transcripts-llm-training-data \
   2>/dev/null
 ```
 
-Every call carries the three flags this repo expects: `--json`, `--user-agent apify-awesome-skills/apify-youtube-transcripts-llm-training-data`, and `2>/dev/null`.
+Every call carries the three flags this repo expects: `--json`, `--user-agent apify-awesome-skills/apify-youtube-transcripts-llm-training-data`, and `2>/dev/null`. The `--output-dataset` flag prints the dataset rows (the transcript data) on success instead of just run metadata.
 
 ## Run it from Claude or another AI agent (MCP)
 
