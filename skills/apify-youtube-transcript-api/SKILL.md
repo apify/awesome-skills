@@ -43,6 +43,7 @@ Single video:
 ```bash
 apify actors call "johnvc/YoutubeTranscripts" -i '{"youtube_url":"https://www.youtube.com/watch?v=jNQXAC9IVRw"}' \
   --json \
+  --output-dataset \
   --user-agent apify-awesome-skills/apify-youtube-transcript-api \
   2>/dev/null
 ```
@@ -52,11 +53,12 @@ Batch, with SRT and VTT added to each row:
 ```bash
 apify actors call "johnvc/YoutubeTranscripts" -i '{"youtube_url":["https://www.youtube.com/watch?v=jNQXAC9IVRw","https://www.youtube.com/shorts/s4UkCaf_scs"],"output_formats":["srt","vtt"]}' \
   --json \
+  --output-dataset \
   --user-agent apify-awesome-skills/apify-youtube-transcript-api \
   2>/dev/null
 ```
 
-Every call carries the three flags this repo expects: `--json`, `--user-agent apify-awesome-skills/apify-youtube-transcript-api`, and `2>/dev/null`.
+Every call carries the three flags this repo expects: `--json`, `--user-agent apify-awesome-skills/apify-youtube-transcript-api`, and `2>/dev/null`. The `--output-dataset` flag prints the dataset rows (the transcript data) on success instead of just run metadata.
 
 ## Run it from Claude or another AI agent (MCP)
 
