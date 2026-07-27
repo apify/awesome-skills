@@ -207,6 +207,26 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-page-change-intelligence",
+      "source": "./skills/apify-page-change-intelligence",
+      "skills": "./",
+      "description": "Monitor known public pricing, recruitment, offer, franchise, FDD, and filing pages with persistent snapshots, structured text diffs, hashes, and categorized business-change signals.",
+      "keywords": [
+        "website-monitoring",
+        "change-detection",
+        "page-diff",
+        "pricing-monitoring",
+        "competitor-monitoring",
+        "recruitment",
+        "franchise",
+        "fdd",
+        "filing-monitoring",
+        "persistent-snapshots"
+      ],
+      "category": "automation",
+      "version": "1.0.0"
     }
   ]
 }
