@@ -207,6 +207,31 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-zillow-real-estate-leads",
+      "source": "./skills/apify-zillow-real-estate-leads",
+      "skills": "./",
+      "description": "Build real-estate agent and listing lead lists from Zillow — property details plus the listing agent's email, cell phone, brokerage and license — using a cost-ordered waterfall that starts from what the listing row already returned (phone 100%, email ~81% measured across 75 listings in three markets) and pays for web enrichment only on the remainder. Covers ZIP / search-URL / property-ID modes, the filters-are-ZIP-mode-only trap, and the per-ZIP cost cap.",
+      "keywords": [
+        "zillow",
+        "real-estate",
+        "realtor",
+        "listing-agent",
+        "agent-email",
+        "property",
+        "leads",
+        "lead-generation",
+        "zip-code",
+        "zestimate",
+        "comps",
+        "for-sale",
+        "rental",
+        "brokerage",
+        "contact-enrichment"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
