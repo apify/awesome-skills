@@ -59,11 +59,11 @@ Every email in that sample carried `agentEmailSource: agent_profile_direct`.
 
 **Filters apply in ZIP mode only.** Passing `beds_min`, `price_max` or `status_type` alongside a `zillowUrl` does nothing — in URL mode the filtering already happened in the browser and lives inside the URL. In `zpid` mode filters are ignored too; you asked for specific properties.
 
-## Two things that surprise people
+## Two things worth knowing
 
-**A ZIP is searched as its city.** The upstream search resolves place names, not raw ZIP digits, so `78704` is searched as `Austin, TX` and the results span the metro. In the sample above, a 25-row run on `78704` returned listings across 15 different Austin ZIPs — **1 row was in 78704 itself**; `33139` returned 9 of 25 in-ZIP, `60614` 3 of 25. If the user asked for one ZIP, request a larger cap and **filter the output on the `zipcode` field**. If they asked for "the Austin market", you already have it.
+**The cap is per ZIP, so cost scales with the ZIP list.** `maxPropertiesPerZip` applies to each ZIP separately: 10 ZIPs at a cap of 5 returns up to 50 rows, and every row is billed. Multiply before you run, and confirm with the user before sweeping a long ZIP list.
 
-**The property cap covers a batch of ZIPs, not each ZIP.** ZIPs are searched in batches of up to five, and `maxPropertiesPerZip` bounds the batch. Three ZIPs with a cap of 10 returns 10 rows total — and the last city in the batch may return nothing at all. **To get N properties per ZIP, run one ZIP per call.**
+**A few ZIPs cannot be searched directly, and the run says so.** PO-box and business-district ZIPs — 3 of the 50 most-requested ones — are not searchable as regions on Zillow's side. For those the actor searches the surrounding city and keeps only listings inside the requested ZIP, dropping the rest before they are billed. Which ZIPs those were is in `RUN_SUMMARY.zipScope` and in the `USER_MESSAGE` record. In a dense metro that fallback often finds nothing, which is a real answer about the ZIP, not a failure to retry.
 
 ## Mapping (property row → lead row)
 
@@ -126,7 +126,6 @@ You can also call these Actors through the [Apify MCP connector](https://mcp.api
 
 - **Zero rows.** Read the run's `USER_MESSAGE` key-value record first — it names the cause for that specific run. In order of frequency: the search matched nothing (a PO-box or business-district ZIP has no residential listings by design, or `status_type` is wrong — asking for `ForSale` in a rentals area); the URL shape was not recognised in `url` mode; or the zpids were delisted. A ZIP that always returns data, for isolating the problem: `90210`, no filters.
 - **Emails come back like `j***@e***.com`.** That is the free plan masking them. Do not report masked strings as contacts — say the plan is the constraint.
-- **Rows are outside the ZIP the user asked for.** Expected; see *Two things that surprise people*. Filter on `zipcode`.
 - **Filters seem ignored.** Check the mode. Filters are ZIP-mode only.
-- **Fewer rows than the cap.** The cap covers a batch of up to five ZIPs, not each one. Run one ZIP per call.
+- **Fewer rows than the cap for one ZIP.** That ZIP has fewer matching listings than the cap — `RUN_SUMMARY` says whether a cap clipped the result or the search returned everything that matched.
 - **Cost control.** Every property enriched is billed, whether or not it carries an email, so cap the run before it starts rather than filtering afterwards. Confirm with the user before running an uncapped sweep across many ZIPs.

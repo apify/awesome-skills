@@ -212,7 +212,7 @@
       "name": "apify-zillow-real-estate-leads",
       "source": "./skills/apify-zillow-real-estate-leads",
       "skills": "./",
-      "description": "Build real-estate agent and listing lead lists from Zillow — property details plus the listing agent's email, cell phone, brokerage and license — using a cost-ordered waterfall that starts from what the listing row already returned (phone 100%, email ~81% measured across 75 listings in three markets) and pays for web enrichment only on the remainder. Covers ZIP / search-URL / property-ID modes, the filters-are-ZIP-mode-only trap, and why a ZIP is searched as its city.",
+      "description": "Build real-estate agent and listing lead lists from Zillow — property details plus the listing agent's email, cell phone, brokerage and license — using a cost-ordered waterfall that starts from what the listing row already returned (phone 100%, email ~81% measured across 75 listings in three markets) and pays for web enrichment only on the remainder. Covers ZIP / search-URL / property-ID modes, the filters-are-ZIP-mode-only trap, and the per-ZIP cost cap.",
       "keywords": [
         "zillow",
         "real-estate",
