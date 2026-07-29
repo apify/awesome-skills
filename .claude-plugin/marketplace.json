@@ -207,6 +207,31 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-orchestrator-actor-development",
+      "source": "./skills/apify-orchestrator-actor-development",
+      "skills": "./",
+      "description": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Interactive scaffolding flow: elicit the sub-Actor chain, fetch each Actor's input/output schema via Apify MCP (fetch-actor-details), design data flow between steps, elicit per-step cost budgets, optionally add an OpenRouter LLM step, then scaffold src/main.ts with the running-budget pattern (maxTotalChargeUsd caps per sub-Actor call, usageTotalUsd polling for cumulative cost tracking).",
+      "keywords": [
+        "orchestrator",
+        "orchestration",
+        "apify-orchestrator",
+        "typescript",
+        "actor-development",
+        "sub-actors",
+        "workflow",
+        "pipeline",
+        "chain",
+        "parent-actor",
+        "openrouter",
+        "llm",
+        "mcp",
+        "cost-tracking",
+        "maxtotalchargeusd"
+      ],
+      "category": "development",
+      "version": "1.0.0"
     }
   ]
 }
