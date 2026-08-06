@@ -1,0 +1,11 @@
+{
+  "name": "apify-lead-scoring-enrichment-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Helper scripts for the apify-lead-scoring-enrichment skill",
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "csv-stringify": "^6.5.1"
+  }
+}

@@ -278,6 +278,29 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-lead-scoring-enrichment",
+      "source": "./skills/apify-lead-scoring-enrichment",
+      "skills": "./",
+      "description": "Score and enrich a CSV of B2B leads. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech), Website Content Crawler (content), and Contact Info Scraper (company metadata) for scoring; enriches with department contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper -> AI Web Scraper -> Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column. Use when user asks to score leads, enrich lead lists, detect tech stack for outreach, find marketing/sales/engineering contacts, hunt blog copywriters for guest posts, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.",
+      "keywords": [
+        "lead-scoring",
+        "lead-enrichment",
+        "outreach",
+        "cold-email",
+        "personalization",
+        "tech-stack",
+        "builtwith",
+        "email-finder",
+        "copywriter-discovery",
+        "guest-post",
+        "prospecting",
+        "b2b",
+        "csv-workflow"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
