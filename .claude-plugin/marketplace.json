@@ -207,6 +207,23 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-company-website-metadata",
+      "source": "./skills/apify-company-website-metadata",
+      "skills": "./",
+      "description": "Extract source-backed company name, description, and industry candidates from one public company website domain with provenance and explicit CRM review gates. Excludes registry, financial, contact, email, people, credit, and compliance data.",
+      "keywords": [
+        "company-enrichment",
+        "website-metadata",
+        "company-domain",
+        "crm",
+        "provenance",
+        "data-quality",
+        "apify"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
