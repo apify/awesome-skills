@@ -229,6 +229,28 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-buying-signal-detection",
+      "source": "./skills/apify-buying-signal-detection",
+      "skills": "./",
+      "description": "Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings, fundraising events, and LinkedIn content — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture: Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says find companies with buying signals, detect intent signals for outbound, set up a weekly lead pipeline, monitor hiring signals for lead gen, track startup funding leads, find LinkedIn buying signals, schedule Apify Actors for prospecting, build a signals-based lead list, or set up buying-intent monitoring.",
+      "keywords": [
+        "buying-signals",
+        "intent-data",
+        "lead-generation",
+        "outbound",
+        "prospecting",
+        "hiring-signals",
+        "funding-signals",
+        "linkedin-signals",
+        "sales-triggers",
+        "icp",
+        "scheduled-pipeline",
+        "b2b"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
