@@ -251,6 +251,33 @@
       ],
       "category": "data-extraction",
       "version": "1.0.0"
+    },
+    {
+      "name": "apify-google-maps-leads",
+      "source": "./skills/apify-google-maps-leads",
+      "skills": "./",
+      "description": "Build a local-business lead database from Google Maps in one Apify pipeline. Interviews target audience + geography + optional review-based lead scoring, calls compass/crawler-google-places with company contacts enrichment (from website), business leads enrichment, and Instagram + Facebook profile scraping, filters by review count and rating when scoring is on, escalates to apify/ai-web-scraper to pull owner/decision-maker names from business websites when Google Maps enrichment came back without named contacts, then backfills missing phones via scalelist/phone-finder and missing emails via scalelist/email-finder. Delivers a deduplicated CSV.",
+      "keywords": [
+        "google-maps",
+        "leads",
+        "lead-generation",
+        "local-business",
+        "b2b",
+        "prospecting",
+        "google-places",
+        "lead-scoring",
+        "reviews",
+        "instagram-enrichment",
+        "facebook-enrichment",
+        "ai-web-scraper",
+        "name-discovery",
+        "scalelist",
+        "phone-finder",
+        "email-finder",
+        "contact-enrichment"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
