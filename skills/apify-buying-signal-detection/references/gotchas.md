@@ -18,6 +18,15 @@ weekly run so it doesn't cost more than expected.
 - **Enrichment Actor** (`tech_gear/company-funding-details`) charges per company
   looked up. Don't call it on every row — only when the user asks for
   round-detail enrichment on a specific lead.
+- **LinkedIn profile enrichment adds a per-author cost.**
+  `aggregate.py` calls `harvestapi/linkedin-profile-scraper` (~$8 per 1000
+  profiles, roughly 4× the post scraper) to resolve `author → current company
+  domain` so LinkedIn rows can be blacklisted and deduped. Cost is bounded
+  because the aggregator (a) deduplicates author profile URLs before the call
+  (N posts by the same author = 1 lookup) and (b) only calls when at least
+  one LinkedIn row is missing a domain. If profile lookups dominate your bill,
+  narrow the LinkedIn search terms first — a broader post search means more
+  distinct authors, which is where the cost lives.
 
 ## Signal-quality traps
 
@@ -27,6 +36,19 @@ weekly run so it doesn't cost more than expected.
   contains `founder`, `consultant`, `agency`, `advisor` AND the author's
   `followers` > 5000, downgrade the row (drop in aggregator, or flag in
   `notes`).
+- **LinkedIn post scraper rarely returns a company domain.** The primary
+  scraper returns the author's *label* current company but not its website.
+  Consequence: without a domain, blacklist and dedup can't act on the row.
+  `aggregate.py::enrich_linkedin_domains` closes this with a second call to
+  `harvestapi/linkedin-profile-scraper` (see [`actors.md#linkedin-content-signals`](./actors.md#linkedin-content-signals)).
+  When neither scraper resolves a domain, the row is dropped with the
+  `linkedin_no_domain` audit bucket — the alternative (letting them through)
+  would silently bypass the blacklist.
+- **Profiles with no current employer** (freelancers between gigs,
+  retired founders posting for fun) return an empty
+  `currentCompanyWebsite` from the profile scraper — they land in the
+  `linkedin_no_domain` bucket even after enrichment. This is correct; there
+  is no company to blacklist or dedup against.
 - **Reposts inflate reaction counts.** LinkedIn's API doesn't cleanly separate
   original posts from reposts of the same text. `harvestapi` returns one row
   per repost URL — dedup on the post's *canonical* URL (strip

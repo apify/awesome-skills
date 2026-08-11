@@ -96,12 +96,40 @@ not a qualified lead. Filter aggressively via `min_reactions` and human review.
 | `harvestapi/linkedin-post-search` | PPE, $2/1k posts | **Primary** — no cookies, well-adopted | No |
 | `harvestapi/linkedin-post-comments` | PPE | Deep engagement — pull comment threads on a specific post URL | No |
 | `harvestapi/linkedin-post-reactions` | PPE | Deep engagement — pull who reacted to a specific post URL | No |
+| `harvestapi/linkedin-profile-scraper` | PPE, ~$8/1k profiles | **On-demand enrichment** — called from `aggregate.py` when a post row has no company domain. Not scheduled as a Task. | No |
 
 ### PICK — LinkedIn content
 
 ```
 Always include:  harvestapi/linkedin-post-search
+Called on-demand by aggregate.py (not a scheduled Task):
+                 harvestapi/linkedin-profile-scraper
 ```
+
+### Why the profile scraper is on-demand, not scheduled
+
+`harvestapi/linkedin-post-search` returns author identity but rarely returns
+the author's current-company website. Without a domain, the aggregator cannot
+check the blacklist or dedup against existing leads for the `linkedin_content`
+signal. `aggregate.py::enrich_linkedin_domains` closes this gap: after the
+post-scraper items are read, it collects the deduped set of author profile
+URLs that came back without a domain and calls the profile scraper
+synchronously via `run-sync-get-dataset-items`.
+
+Input shape used:
+
+```json
+{
+  "profileScraperMode": "Full",
+  "queries": ["https://www.linkedin.com/in/example", ...]
+}
+```
+
+The mapper joins the returned `currentCompanyWebsite` / `currentCompany.url`
+(with a fallback to the most-recent `experience` entry lacking an `endDate`)
+back onto the row. A LinkedIn row that survives both scrapers without a
+domain is dropped with the `linkedin_no_domain` audit bucket — the
+alternative is silently letting blacklisted companies leak in.
 
 For deeper engagement analysis (mining reply chains for buying-intent quotes,
 identifying who engaged with a competitor's post), chain
@@ -132,7 +160,7 @@ table:
 | CSV column | Job Actors | Funding Actors | LinkedIn content Actors |
 |---|---|---|---|
 | `company` | `companyName` / `company` / `company.name` | `companyName` / `startupName` | Post author's `authorName` (or nested `author.name`) when it's a company page; else the author's employer |
-| `domain` | `companyDomain` / `companyWebsite` when present | `companyDomain` / `companyUrl` / `companyWebsite` | `authorCompanyDomain` / `author.company.domain` — often empty for personal posts |
+| `domain` | `companyDomain` / `companyWebsite` when present | `companyDomain` / `companyUrl` / `companyWebsite` | `authorCompanyDomain` / `author.company.domain` from post scraper — usually empty; **backfilled by `harvestapi/linkedin-profile-scraper` on the author's profile URL** (`currentCompanyWebsite` / `currentCompany.url` / current `experience` entry) |
 | `signal_type` | `"jobs"` | `"funding"` | `"linkedin_content"` |
 | `signal_detail` | `f"Job: {title}"` | `f"Raised {amount} {stage} led by {lead_investor}"` | `f"Post: '{first_120_chars}'"` |
 | `signal_source_actor` | Actor ID that produced the row | ditto | ditto |

@@ -34,7 +34,12 @@ try:
     import requests  # type: ignore
 
     def _get(url: str, params: dict[str, Any] | None = None, timeout: int = 30) -> dict | list:
-        r = requests.get(url, params=params, timeout=timeout)
+        r = requests.get(url, params=params, timeout=timeout, headers={"User-Agent": USER_AGENT})
+        r.raise_for_status()
+        return r.json()
+
+    def _post(url: str, params: dict[str, Any] | None, body: dict, timeout: int = 300) -> dict | list:
+        r = requests.post(url, params=params, json=body, timeout=timeout, headers={"User-Agent": USER_AGENT})
         r.raise_for_status()
         return r.json()
 except ImportError:  # pragma: no cover
@@ -44,12 +49,26 @@ except ImportError:  # pragma: no cover
     def _get(url: str, params: dict[str, Any] | None = None, timeout: int = 30) -> dict | list:
         if params:
             url = f"{url}?{urllib.parse.urlencode(params)}"
-        with urllib.request.urlopen(url, timeout=timeout) as resp:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+
+    def _post(url: str, params: dict[str, Any] | None, body: dict, timeout: int = 300) -> dict | list:
+        if params:
+            url = f"{url}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Content-Type": "application/json", "User-Agent": USER_AGENT},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
 
 APIFY_API = "https://api.apify.com/v2"
 USER_AGENT = "apify-awesome-skills/apify-buying-signal-detection"
+LINKEDIN_PROFILE_ACTOR = "harvestapi/linkedin-profile-scraper"
 
 CSV_COLUMNS = [
     "detected_at",
@@ -186,6 +205,19 @@ def apify_task_last_dataset_items(task_id: str, token: str) -> list[dict]:
     return items if isinstance(items, list) else []
 
 
+def apify_run_actor_sync(actor_id: str, input_body: dict, token: str, timeout: int = 600) -> list[dict]:
+    """Run an Actor synchronously and return its default dataset items.
+
+    Uses Apify's `run-sync-get-dataset-items` endpoint. Caller controls the
+    input shape — no assumptions about task registry. Returns [] on any
+    non-list response (including empty runs and API errors surfaced as JSON).
+    """
+    actor_slug = actor_id.replace("/", "~")
+    url = f"{APIFY_API}/acts/{actor_slug}/run-sync-get-dataset-items"
+    items = _post(url, params={"token": token, "format": "json", "clean": "true"}, body=input_body, timeout=timeout)
+    return items if isinstance(items, list) else []
+
+
 # ------------------------------ signal mappers ------------------------------
 
 def _first(d: dict, *keys: str, default: str = "") -> str:
@@ -288,6 +320,12 @@ def map_linkedin_content_row(item: dict, actor_id: str) -> dict[str, str] | None
     url = strip_tracking(_first(item, "postUrl", "linkedinUrl", "url", "link"))
     reactions = _first(item, "reactionsCount", "likes", "numLikes") or _nested(item, "reactions.count")
     posted_at = _first(item, "postedAt", "postDate", "date") or _nested(item, "postedAt.date")
+    author_profile_url = strip_tracking(
+        _first(item, "authorProfileUrl", "authorUrl", "authorLinkedinUrl")
+        or _nested(item, "author.profileUrl")
+        or _nested(item, "author.linkedinUrl")
+        or _nested(item, "author.url")
+    )
     if not (author_name and url):
         return None
     is_probable_agency = any(t in author_headline for t in ("consultant", "agency", "advisor", "founder"))
@@ -308,6 +346,9 @@ def map_linkedin_content_row(item: dict, actor_id: str) -> dict[str, str] | None
         "evidence_url": url,
         "geo": _first(item, "authorCountry", "country") or _nested(item, "author.location.country"),
         "notes": "; ".join(notes_bits),
+        # Private field consumed by enrich_linkedin_domains — not written to CSV
+        # (LeadsCsv.append_atomic filters to CSV_COLUMNS).
+        "_author_profile_url": author_profile_url,
     }
 
 
@@ -316,6 +357,102 @@ SIGNAL_MAPPERS = {
     "funding": map_funding_row,
     "linkedin_content": map_linkedin_content_row,
 }
+
+
+# ---------- LinkedIn author-profile → company-domain enrichment ----------
+#
+# harvestapi/linkedin-post-search returns author identity + post text, but the
+# author's current-company website is only present ~10% of the time. Without a
+# domain, the aggregator cannot check the blacklist or dedup against existing
+# leads for this signal — which the user flagged as a leak.
+#
+# We resolve it by calling harvestapi/linkedin-profile-scraper on the deduped
+# set of author profile URLs that surfaced without a domain, then joining the
+# discovered current-company domain back onto the rows.
+#
+# Cost note: profile scraping is $8/1k profiles at time of writing — ~4× more
+# than post scraping. We dedupe on profile URL first (many posts per author)
+# and skip the call entirely when no LinkedIn row is missing a domain.
+
+def _extract_current_company_domain(profile: dict) -> str:
+    """Best-effort pull of the profile's current employer domain."""
+    for key in ("currentCompanyWebsite", "currentCompanyUrl", "companyWebsite", "companyUrl"):
+        v = profile.get(key)
+        if v:
+            return normalize_domain(str(v))
+    for path in (
+        "currentCompany.website",
+        "currentCompany.url",
+        "currentCompany.domain",
+        "company.website",
+        "company.domain",
+    ):
+        v = _nested(profile, path)
+        if v:
+            return normalize_domain(v)
+    experience = profile.get("experience") or profile.get("experiences") or []
+    if isinstance(experience, list):
+        for exp in experience:
+            if not isinstance(exp, dict):
+                continue
+            is_current = exp.get("current") or exp.get("isCurrent") or not exp.get("endDate")
+            if not is_current:
+                continue
+            for key in ("companyWebsite", "companyUrl", "website", "url"):
+                v = exp.get(key)
+                if v:
+                    return normalize_domain(str(v))
+    return ""
+
+
+def enrich_linkedin_domains(rows: list[dict], token: str, audit: dict) -> None:
+    """Fill row['domain'] for linkedin_content rows via profile scraping.
+
+    Mutates `rows` in place. Deduplicates author profile URLs before the call
+    so N posts by the same author cost one lookup. Rows without a resolvable
+    profile URL are left with empty domain (they'll be dropped in the
+    blacklist/dedup pass with the `linkedin_no_domain` audit bucket).
+    """
+    to_enrich = [
+        r for r in rows
+        if r.get("signal_type") == "linkedin_content"
+        and not r.get("domain")
+        and r.get("_author_profile_url")
+    ]
+    if not to_enrich:
+        return
+    unique_urls = sorted({r["_author_profile_url"] for r in to_enrich})
+    audit["linkedin_profile_lookups"] = len(unique_urls)
+    try:
+        profiles = apify_run_actor_sync(
+            LINKEDIN_PROFILE_ACTOR,
+            {"profileScraperMode": "Full", "queries": unique_urls},
+            token,
+        )
+    except Exception as e:
+        print(f"warn: LinkedIn profile enrichment failed ({e}); leaving domains empty", file=sys.stderr)
+        audit["linkedin_profile_error"] = str(e)
+        return
+
+    domain_by_profile: dict[str, str] = {}
+    for p in profiles:
+        if not isinstance(p, dict):
+            continue
+        profile_url = strip_tracking(
+            _first(p, "profileUrl", "url", "linkedinUrl", "publicUrl")
+            or _nested(p, "profile.url")
+        )
+        if not profile_url:
+            continue
+        domain = _extract_current_company_domain(p)
+        if domain:
+            domain_by_profile[profile_url] = domain
+
+    audit["linkedin_profile_resolved"] = len(domain_by_profile)
+    for r in to_enrich:
+        resolved = domain_by_profile.get(r["_author_profile_url"])
+        if resolved:
+            r["domain"] = resolved
 
 
 # ------------------------------ post-filters ------------------------------
@@ -443,8 +580,20 @@ def main() -> int:
         return 2
 
     all_new_rows: list[dict[str, str]] = []
-    audit = {"fetched_by_signal": {}, "dropped": {"blacklist": 0, "dup_domain": 0, "dup_url": 0, "post_filter": 0, "unmappable": 0}}
+    audit = {
+        "fetched_by_signal": {},
+        "dropped": {
+            "blacklist": 0,
+            "dup_domain": 0,
+            "dup_url": 0,
+            "post_filter": 0,
+            "unmappable": 0,
+            "linkedin_no_domain": 0,
+        },
+    }
 
+    # ---- Pass 1: fetch + map all items across every task
+    candidate_rows: list[dict[str, str]] = []
     for task in tasks:
         signal = task["signal_type"]
         mapper = SIGNAL_MAPPERS.get(signal)
@@ -458,30 +607,44 @@ def main() -> int:
             if not row:
                 audit["dropped"]["unmappable"] += 1
                 continue
+            candidate_rows.append(row)
 
-            if row["domain"] and row["domain"] in bl_domains:
-                audit["dropped"]["blacklist"] += 1
-                continue
-            if normalize_company(row["company"]) in bl_companies:
-                audit["dropped"]["blacklist"] += 1
-                continue
+    # ---- Pass 2: enrich LinkedIn rows with missing company domain so that
+    # blacklist and domain-dedup can actually see them.
+    enrich_linkedin_domains(candidate_rows, token, audit)
 
-            keep, reason = apply_post_filters(row, icp)
-            if not keep:
-                audit["dropped"]["post_filter"] += 1
-                continue
+    # ---- Pass 3: filter (blacklist → post-filter → dedup) and collect new rows
+    for row in candidate_rows:
+        # LinkedIn rows that still have no domain after enrichment are
+        # unblacklistable and unmergeable — drop with a dedicated bucket so
+        # the user can spot when the profile scraper is missing data.
+        if row.get("signal_type") == "linkedin_content" and not row.get("domain"):
+            audit["dropped"]["linkedin_no_domain"] += 1
+            continue
 
-            if row["domain"] and row["domain"] in seen_domains:
-                audit["dropped"]["dup_domain"] += 1
-                continue
-            if row["evidence_url"] in seen_urls:
-                audit["dropped"]["dup_url"] += 1
-                continue
+        if row["domain"] and row["domain"] in bl_domains:
+            audit["dropped"]["blacklist"] += 1
+            continue
+        if normalize_company(row["company"]) in bl_companies:
+            audit["dropped"]["blacklist"] += 1
+            continue
 
-            all_new_rows.append(row)
-            seen_urls.add(row["evidence_url"])
-            if row["domain"]:
-                seen_domains.add(row["domain"])
+        keep, reason = apply_post_filters(row, icp)
+        if not keep:
+            audit["dropped"]["post_filter"] += 1
+            continue
+
+        if row["domain"] and row["domain"] in seen_domains:
+            audit["dropped"]["dup_domain"] += 1
+            continue
+        if row["evidence_url"] in seen_urls:
+            audit["dropped"]["dup_url"] += 1
+            continue
+
+        all_new_rows.append(row)
+        seen_urls.add(row["evidence_url"])
+        if row["domain"]:
+            seen_domains.add(row["domain"])
 
     print(json.dumps({"summary": {"appended": len(all_new_rows), **audit}}, indent=2))
 

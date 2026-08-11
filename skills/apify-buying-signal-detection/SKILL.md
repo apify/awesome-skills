@@ -166,11 +166,18 @@ Expected output shape:
   "summary": {
     "appended": 47,
     "fetched_by_signal": {"jobs": 320, "funding": 88, "linkedin_content": 210},
-    "dropped": {"blacklist": 2, "dup_domain": 156, "dup_url": 401, "post_filter": 12, "unmappable": 0}
+    "dropped": {"blacklist": 2, "dup_domain": 156, "dup_url": 401, "post_filter": 12, "unmappable": 0, "linkedin_no_domain": 8},
+    "linkedin_profile_lookups": 142,
+    "linkedin_profile_resolved": 134
   }
 }
 wrote 47 new rows to /abs/path/to/leads.csv
 ```
+
+The `linkedin_profile_lookups` / `linkedin_profile_resolved` counters report the
+LinkedIn author-domain enrichment pass (see below). `linkedin_no_domain` is the
+number of LinkedIn rows dropped because neither the post nor the profile scraper
+resolved a company domain — those rows cannot be blacklisted or deduped safely.
 
 If `fetched_by_signal` is all zeros, either the Apify tasks haven't run yet (check the Console) or the sidecar task registry is missing. Wait for the first Apify run to complete, then rerun.
 
@@ -185,8 +192,21 @@ The full catalog with per-signal PICK rules lives in [`references/actors.md`](re
 | Jobs | `bebity/linkedin-jobs-scraper`, `johnvc/google-jobs-scraper` | Indeed (US/GB/IN/CA), Stepstone (DE/AT/BE), Seek (AU/NZ), France Travail (FR) |
 | Funding | `nexgendata/startup-funding-tracker`, `memo23/crunchbase-scraper`, `complex_intricate_networks/fundraising-and-startup-funding-scraper`, `signalbase/signalbase-api` | Maddyness (FR) |
 | LinkedIn content | `harvestapi/linkedin-post-search` (no cookies, $2/1k posts) | Deep-scrape fallback: `curious_coder/linkedin-post-search-scraper` (cookie required) |
+| LinkedIn author → company domain (enrichment, called on-demand from `aggregate.py`) | `harvestapi/linkedin-profile-scraper` ($8/1k profiles) | none — profile URL is the primary key |
 
 The routing logic in `setup_apify_tasks.py::pick_actors` mirrors this table — if you edit one, edit the other.
+
+### Why the LinkedIn profile-scraper is called on-demand, not scheduled
+
+`harvestapi/linkedin-post-search` returns the author's name and (sometimes) their current employer as a text label, but rarely returns the employer's website. Without a domain, the aggregator cannot check the blacklist or dedup against previously seen companies for this signal — meaning blacklisted competitors could slip in via LinkedIn posts.
+
+To fix this, `aggregate.py` runs a second Actor call after the post pull: `harvestapi/linkedin-profile-scraper` is fed the deduplicated set of author profile URLs whose post rows came back without a domain. The returned current-company website is normalized to a domain and joined back onto the row before blacklist and dedup run.
+
+This is the only place the aggregator calls an Actor synchronously (all other data comes from pre-scheduled Task runs). It's the deliberate exception because the profile enrichment input (a list of author profile URLs) can only be known *after* the post scraper's dataset is read.
+
+**Cost.** Profile scraping is roughly 4× more expensive per row than post scraping ($8/1k vs $2/1k). Two knobs to keep it bounded:
+- Deduplication on author profile URL — N posts by the same author cost one lookup
+- The pass is skipped entirely when every LinkedIn row already has a domain
 
 ## Calling Actors — choose your interface
 
