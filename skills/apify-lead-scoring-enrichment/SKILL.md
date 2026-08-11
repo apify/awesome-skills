@@ -229,11 +229,11 @@ enrichment** add-on enabled (`maximumLeadsEnrichmentRecords` +
 `leadsEnrichmentDepartments`) so the Actor returns actual people
 per domain — name, title, work email, LinkedIn. For any lead that comes
 back without a resolved email, the script calls
-`scalelist/bulk-email-finder-dep` on the `(firstName, lastName, domain)`
+`scalelist/email-finder` on the `(firstName, lastName, domain)`
 triple as a fallback. Path B chains
 `apify/google-search-scraper` → `apify/ai-web-scraper` (with the
 [`get-author-name-from-blog-post`](https://apify.com/apify/ai-web-scraper/examples/get-author-name-from-blog-post)
-example input) → `scalelist/bulk-email-finder-dep`.
+example input) → `scalelist/email-finder`.
 
 ### Step 7: Merge
 
@@ -271,7 +271,7 @@ readability), `emails` (semicolon-separated), and `authors` (Path B).
 | Dept-specific leads (Path A enrichment) | [`vdrmota/contact-info-scraper`](https://apify.com/vdrmota/contact-info-scraper) | community | Add-on **ON** via `maximumLeadsEnrichmentRecords` + `leadsEnrichmentDepartments` (enum). Returns actual people: name, title, work email, LinkedIn. |
 | Blog discovery | [`apify/google-search-scraper`](https://apify.com/apify/google-search-scraper) | apify | Query `site:{domain} blog`, `resultsPerPage: 5`. |
 | Blog author extraction | [`apify/ai-web-scraper`](https://apify.com/apify/ai-web-scraper) | apify | Use example `get-author-name-from-blog-post`. |
-| Email finder fallback | [`scalelist/bulk-email-finder-dep`](https://apify.com/scalelist/bulk-email-finder-dep) | community | Input: `{ "leads": [{ "first_name", "last_name", "company_domain" }] }`. Called only for leads with a name but no email. |
+| Email finder fallback | [`scalelist/email-finder`](https://apify.com/scalelist/email-finder) | community | Input: `{ "leads": [{ "first_name", "last_name", "company_domain" }] }`. Called only for leads with a name but no email. |
 
 Full input schemas and quirks: [references/actor-index.md](references/actor-index.md).
 
@@ -317,6 +317,6 @@ logic yourself and produce the final CSV.
 - **`fetch failed` on Node <20.6** — `--env-file` requires 20.6+. Check `node --version`. Upgrade or export `APIFY_TOKEN` manually in the shell.
 - **BuiltWith returned empty for a URL** — the domain is unreachable, WAF-blocked, or new (no historical detections). Feed the bare domain (`acme.com`) not the full URL, and retry the failed rows only.
 - **Contact Info Scraper returned 0 leads for a domain** — the domain is filtered out by the Actor's built-in exclusion list (large chains, social platforms, retail giants, food-delivery services), or the site has no discoverable employees in the requested department. Try broader departments (e.g. add `c_suite` alongside `marketing`) or fall back to the copywriter path for that segment.
-- **Lead has a name but no email** — the Business-Leads add-on couldn't resolve one. Path A auto-falls-back to `scalelist/bulk-email-finder-dep` on `(firstName, lastName, domain)`. If the fallback also returns nothing, the person's email is genuinely not in Scalelist's index — try LinkedIn Sales Navigator manually or drop the row.
+- **Lead has a name but no email** — the Business-Leads add-on couldn't resolve one. Path A auto-falls-back to `scalelist/email-finder` on `(firstName, lastName, domain)`. If the fallback also returns nothing, the person's email is genuinely not in Scalelist's index — try LinkedIn Sales Navigator manually or drop the row.
 - **Copywriter path returns 0 authors for a domain** — the domain has no blog, or blog posts don't expose an author byline. Skip the row; guest-post outreach isn't the right play for that domain.
 - **Ran out of Apify credits mid-run** — no partial recovery in `run_scoring.js` v1. Re-run against a smaller CSV slice. See [references/gotchas.md](references/gotchas.md) for cost estimates per Actor.

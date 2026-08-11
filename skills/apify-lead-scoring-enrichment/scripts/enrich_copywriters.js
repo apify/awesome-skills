@@ -3,7 +3,7 @@
 //   1. Google-search site:{domain} blog → apify/google-search-scraper
 //   2. Extract author names from top blog posts → apify/ai-web-scraper
 //      (with the get-author-name-from-blog-post example input)
-//   3. Deduplicate authors, then resolve emails → scalelist/bulk-email-finder-dep
+//   3. Deduplicate authors, then resolve emails → scalelist/email-finder
 //
 // Usage:
 //   node --env-file=.env scripts/enrich_copywriters.js \
@@ -154,11 +154,11 @@ if (!finderPairs.length) {
 }
 
 // ---- Step 3: email finder on (first_name, last_name, company_domain) triples.
-console.error(`→ Running scalelist/bulk-email-finder-dep for ${finderPairs.length} authors…`);
+console.error(`→ Running scalelist/email-finder for ${finderPairs.length} authors…`);
 let finderItems = [];
 try {
     finderItems = await runActorAndGetItems(
-        'scalelist/bulk-email-finder-dep',
+        'scalelist/email-finder',
         {
             leads: finderPairs.map(({ firstName, lastName, domain }) => ({
                 first_name: firstName,
@@ -169,7 +169,7 @@ try {
         { sourceTag: 'copywriters_email', timeoutSec: 1200 },
     );
 } catch (e) {
-    console.error(`  bulk-email-finder-dep failed: ${e.message}. Continuing with no emails.`);
+    console.error(`  email-finder failed: ${e.message}. Continuing with no emails.`);
 }
 console.error(`  email-finder: ${finderItems.length} items back.`);
 

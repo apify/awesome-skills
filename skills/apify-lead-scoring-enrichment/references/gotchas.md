@@ -13,7 +13,7 @@ with all three scoring Actors + Path A enrichment:
 | `apify/website-content-crawler` (depth 0) | $0.20 – $1 | Homepage-only. Higher depth multiplies. |
 | `vdrmota/contact-info-scraper` (scoring, add-on OFF) | $2 – $5 | Fetches multiple pages per domain. |
 | `vdrmota/contact-info-scraper` (Path A, add-on ON) | **`max_leads × domains × ~$0.03–$0.10`** | Multiplier. 5 leads × 100 domains ≈ $15–$50, charged only for leads actually found. |
-| `scalelist/bulk-email-finder-dep` | $1 – $4 (fallback only) | Only invoked for leads with a name but no email. |
+| `scalelist/email-finder` | $1 – $4 (fallback only) | Only invoked for leads with a name but no email. |
 | `apify/google-search-scraper` | $0.30 – $1 | 5 results × 100 domains. |
 | `apify/ai-web-scraper` | $2 – $8 | LLM cost dominates; scales with blog-post count. |
 
@@ -73,14 +73,14 @@ The Actor scrapes visible page text; it doesn't crack:
 - Contact forms with no fallback mailto.
 - Emails hidden behind "click to reveal" buttons.
 
-Path A's fallback to `scalelist/bulk-email-finder-dep` covers most of
+Path A's fallback to `scalelist/email-finder` covers most of
 these. If a domain still returns 0 emails after fallback, the company is
 probably filtering all inbound — mark the lead as "phone-only" or "form
 submission required" in your outreach plan.
 
 ## Bulk Email Finder input shape
 
-`scalelist/bulk-email-finder-dep` takes a single required key `leads`
+`scalelist/email-finder` takes a single required key `leads`
 holding an array of snake_case objects:
 
 ```json
@@ -95,7 +95,7 @@ Common wrong shapes (all reject):
 If a call 400s, re-fetch the schema before guessing:
 
 ```bash
-apify actors info scalelist/bulk-email-finder-dep --input \
+apify actors info scalelist/email-finder --input \
   --user-agent apify-awesome-skills/apify-lead-scoring-enrichment \
   --json 2>/dev/null
 ```

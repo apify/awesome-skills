@@ -2,7 +2,7 @@
 // Calls vdrmota/contact-info-scraper with its "Business leads enrichment"
 // add-on enabled (maximumLeadsEnrichmentRecords + leadsEnrichmentDepartments)
 // to return actual people per domain. For any lead that comes back without a
-// resolved email, falls back to scalelist/bulk-email-finder-dep on the
+// resolved email, falls back to scalelist/email-finder on the
 // (firstName, lastName, domain) triple.
 //
 // Usage:
@@ -131,7 +131,7 @@ for (const canon of Object.keys(sidecar)) {
     sidecar[canon].emails = [...new Set(sidecar[canon].emails)];
 }
 
-// ---- Fallback: leads with a first+last name but no email → bulk-email-finder-dep.
+// ---- Fallback: leads with a first+last name but no email → email-finder.
 const noEmailLeads = [];
 for (const [canon, entry] of Object.entries(sidecar)) {
     for (const lead of entry.leads) {
@@ -142,11 +142,11 @@ for (const [canon, entry] of Object.entries(sidecar)) {
 }
 
 if (noEmailLeads.length) {
-    console.error(`→ Fallback: ${noEmailLeads.length} leads have no email → scalelist/bulk-email-finder-dep…`);
+    console.error(`→ Fallback: ${noEmailLeads.length} leads have no email → scalelist/email-finder…`);
     let finderItems = [];
     try {
         finderItems = await runActorAndGetItems(
-            'scalelist/bulk-email-finder-dep',
+            'scalelist/email-finder',
             {
                 leads: noEmailLeads.map(({ lead, domain }) => ({
                     first_name: lead.firstName,
@@ -157,7 +157,7 @@ if (noEmailLeads.length) {
             { sourceTag: 'departments_fallback', timeoutSec: 900 },
         );
     } catch (e) {
-        console.error(`  bulk-email-finder-dep failed: ${e.message}. Continuing without fallback data.`);
+        console.error(`  email-finder failed: ${e.message}. Continuing without fallback data.`);
     }
     console.error(`  email-finder: ${finderItems.length} items back.`);
 
@@ -173,7 +173,7 @@ if (noEmailLeads.length) {
             && lead.lastName.toLowerCase() === last);
         if (!match) continue;
         match.lead.email = email;
-        match.lead.source = 'bulk-email-finder-dep';
+        match.lead.source = 'email-finder';
         sidecar[match.canon].emails.push(email);
     }
 

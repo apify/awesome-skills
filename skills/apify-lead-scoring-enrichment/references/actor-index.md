@@ -121,7 +121,7 @@ field-name variants defensively.
 
 ## Enrichment Actors
 
-### `scalelist/bulk-email-finder-dep` (community)
+### `scalelist/email-finder` (community)
 
 **Intent:** Given a first name, last name, and company domain, return a
 verified business email. This skill uses it **only as a fallback** — when
