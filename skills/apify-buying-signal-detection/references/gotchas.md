@@ -18,15 +18,19 @@ weekly run so it doesn't cost more than expected.
 - **Enrichment Actor** (`tech_gear/company-funding-details`) charges per company
   looked up. Don't call it on every row — only when the user asks for
   round-detail enrichment on a specific lead.
-- **LinkedIn profile enrichment adds a per-author cost.**
-  `aggregate.py` calls `harvestapi/linkedin-profile-scraper` (~$8 per 1000
-  profiles, roughly 4× the post scraper) to resolve `author → current company
-  domain` so LinkedIn rows can be blacklisted and deduped. Cost is bounded
-  because the aggregator (a) deduplicates author profile URLs before the call
-  (N posts by the same author = 1 lookup) and (b) only calls when at least
-  one LinkedIn row is missing a domain. If profile lookups dominate your bill,
-  narrow the LinkedIn search terms first — a broader post search means more
-  distinct authors, which is where the cost lives.
+- **LinkedIn domain resolution is a two-hop enrichment chain.**
+  `aggregate.py` calls `harvestapi/linkedin-profile-scraper` ($4 per 1k
+  profiles in `"Profile details no email ($4 per 1k)"` mode) to resolve
+  author → `currentPosition[0].companyLinkedinUrl`, then
+  `harvestapi/linkedin-company` on the deduped set of company URLs to pull
+  `website`. Without both hops, the aggregator has no domain for
+  `linkedin_content` rows and cannot blacklist or dedup them. Cost is bounded
+  by three knobs: (a) canonical author-URL dedup at hop 1 (`?miniProfileUrn=…`
+  stripped so N samples of the same author = 1 lookup), (b) company-URL dedup
+  at hop 2 (N authors at the same company = 1 company lookup), (c) the whole
+  chain is skipped when every LinkedIn row already has a domain. If enrichment
+  dominates your bill, narrow the LinkedIn search terms first — a broader post
+  search means more distinct authors, which is where the cost lives.
 
 ## Signal-quality traps
 

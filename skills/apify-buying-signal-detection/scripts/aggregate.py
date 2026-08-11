@@ -69,6 +69,11 @@ except ImportError:  # pragma: no cover
 APIFY_API = "https://api.apify.com/v2"
 USER_AGENT = "apify-awesome-skills/apify-buying-signal-detection"
 LINKEDIN_PROFILE_ACTOR = "harvestapi/linkedin-profile-scraper"
+LINKEDIN_COMPANY_ACTOR = "harvestapi/linkedin-company"
+# harvestapi/linkedin-profile-scraper enum literal — validated against Actor
+# input schema. The "no email" variant is $4/1k profiles, the email variant is
+# $10/1k. Domain resolution doesn't need emails so we take the cheap tier.
+LINKEDIN_PROFILE_MODE = "Profile details no email ($4 per 1k)"
 
 CSV_COLUMNS = [
     "detected_at",
@@ -114,7 +119,26 @@ def normalize_domain(raw: str) -> str:
 def strip_tracking(url: str) -> str:
     if not url:
         return ""
-    return re.sub(r"[?&](trackingId|utm_[a-z_]+|si|ref)=[^&]+", "", url).rstrip("?&")
+    return re.sub(r"[?&](trackingId|utm_[a-z_]+|si|ref|miniProfileUrn|rcm|dashCommentUrn|commentUrn)=[^&]+", "", url).rstrip("?&")
+
+
+def canonical_linkedin_profile_url(raw: str, public_identifier: str = "") -> str:
+    """Return `https://www.linkedin.com/in/{slug}` — stable across post samples.
+
+    harvestapi post output puts the profile URL with a `?miniProfileUrn=…` tail
+    that varies per-sample, so N posts by the same author look like N distinct
+    profile URLs. Prefer the `publicIdentifier` when the post scraper hands it
+    over; fall back to the URL slug.
+    """
+    if public_identifier:
+        return f"https://www.linkedin.com/in/{public_identifier}"
+    if not raw:
+        return ""
+    stripped = strip_tracking(raw)
+    m = re.match(r"https?://[^/]*linkedin\.com/in/([^/?#]+)", stripped, re.I)
+    if m:
+        return f"https://www.linkedin.com/in/{m.group(1)}"
+    return stripped
 
 
 def iso_now() -> str:
@@ -294,38 +318,57 @@ def map_funding_row(item: dict, actor_id: str) -> dict[str, str] | None:
 
 
 def map_linkedin_content_row(item: dict, actor_id: str) -> dict[str, str] | None:
-    # harvestapi returns nested `author.name`, `content`, `linkedinUrl`, `postedAt`, `reactions.count` etc.
+    # harvestapi/linkedin-post-search output shape (verified against live Actor
+    # response 2026-08): top-level `linkedinUrl` = post URL, `content` = text,
+    # `postedAt.date` = ISO date, `engagement.likes` = int, `author.name`,
+    # `author.info` = headline, `author.linkedinUrl` = profile URL (with a
+    # `?miniProfileUrn=…` query that varies per sample), `author.publicIdentifier`
+    # = the /in/<slug> segment. Keep older field names in the fallback chain in
+    # case harvestapi evolves the schema.
     author_name = (
-        _first(item, "authorName", "author", "posterName")
-        or _nested(item, "author.name")
+        _nested(item, "author.name")
+        or _first(item, "authorName", "author", "posterName")
         or _nested(item, "author.fullName")
     )
     author_headline = (
-        _first(item, "authorHeadline", "authorTitle")
+        _nested(item, "author.info")
+        or _first(item, "authorHeadline", "authorTitle")
         or _nested(item, "author.headline")
         or _nested(item, "author.title")
     ).lower()
+    # harvestapi doesn't return the current employer on the post row — only on
+    # the profile scraper. `company` starts as the author's own name and gets
+    # replaced during enrich_linkedin_domains when the profile lookup succeeds.
     company = (
         _first(item, "authorCompany", "companyName")
         or _nested(item, "author.company.name")
         or _nested(item, "author.currentCompany")
         or author_name
     )
+    # Post scraper virtually never returns the company website — this stays
+    # empty and is filled in by enrich_linkedin_domains via the profile +
+    # company Actor chain.
     domain = normalize_domain(
         _first(item, "authorCompanyDomain", "companyDomain")
         or _nested(item, "author.company.domain")
         or _nested(item, "author.company.website")
     )
-    text = _first(item, "text", "postText", "content", "postContent", "commentary")
-    url = strip_tracking(_first(item, "postUrl", "linkedinUrl", "url", "link"))
-    reactions = _first(item, "reactionsCount", "likes", "numLikes") or _nested(item, "reactions.count")
-    posted_at = _first(item, "postedAt", "postDate", "date") or _nested(item, "postedAt.date")
-    author_profile_url = strip_tracking(
-        _first(item, "authorProfileUrl", "authorUrl", "authorLinkedinUrl")
+    text = _first(item, "content", "text", "postText", "postContent", "commentary")
+    url = strip_tracking(_first(item, "linkedinUrl", "postUrl", "url", "link"))
+    reactions = (
+        _nested(item, "engagement.likes")
+        or _first(item, "reactionsCount", "likes", "numLikes")
+        or _nested(item, "reactions.count")
+    )
+    posted_at = _nested(item, "postedAt.date") or _first(item, "postedAt", "postDate", "date")
+    public_identifier = _nested(item, "author.publicIdentifier") or _first(item, "authorPublicIdentifier")
+    raw_profile_url = (
+        _nested(item, "author.linkedinUrl")
+        or _first(item, "authorProfileUrl", "authorUrl", "authorLinkedinUrl")
         or _nested(item, "author.profileUrl")
-        or _nested(item, "author.linkedinUrl")
         or _nested(item, "author.url")
     )
+    author_profile_url = canonical_linkedin_profile_url(raw_profile_url, public_identifier)
     if not (author_name and url):
         return None
     is_probable_agency = any(t in author_headline for t in ("consultant", "agency", "advisor", "founder"))
@@ -359,59 +402,67 @@ SIGNAL_MAPPERS = {
 }
 
 
-# ---------- LinkedIn author-profile → company-domain enrichment ----------
+# ---------- LinkedIn author → company-domain enrichment ----------
 #
 # harvestapi/linkedin-post-search returns author identity + post text, but the
-# author's current-company website is only present ~10% of the time. Without a
-# domain, the aggregator cannot check the blacklist or dedup against existing
+# author's current-company website is virtually never on the post row. Without
+# a domain, the aggregator cannot check the blacklist or dedup against existing
 # leads for this signal — which the user flagged as a leak.
 #
-# We resolve it by calling harvestapi/linkedin-profile-scraper on the deduped
-# set of author profile URLs that surfaced without a domain, then joining the
-# discovered current-company domain back onto the rows.
+# Verified against live Actor output (2026-08), resolving domain takes THREE
+# steps, not two:
+#   1. post-search   → author profile URL (already on the row from mapping)
+#   2. profile-scraper → currentPosition[0].companyLinkedinUrl + companyName
+#   3. company scraper → website  ← the actual domain source
 #
-# Cost note: profile scraping is $8/1k profiles at time of writing — ~4× more
-# than post scraping. We dedupe on profile URL first (many posts per author)
-# and skip the call entirely when no LinkedIn row is missing a domain.
+# The profile scraper alone returns the current company as a LinkedIn URL and
+# a display name, not a website. Only the company scraper closes the last hop.
+# Both hops are batched and deduplicated: N posts by the same author cost one
+# profile lookup; N authors at the same company cost one company lookup.
 
-def _extract_current_company_domain(profile: dict) -> str:
-    """Best-effort pull of the profile's current employer domain."""
-    for key in ("currentCompanyWebsite", "currentCompanyUrl", "companyWebsite", "companyUrl"):
-        v = profile.get(key)
-        if v:
-            return normalize_domain(str(v))
-    for path in (
-        "currentCompany.website",
-        "currentCompany.url",
-        "currentCompany.domain",
-        "company.website",
-        "company.domain",
-    ):
-        v = _nested(profile, path)
-        if v:
-            return normalize_domain(v)
+def _extract_company_linkedin_url_from_profile(profile: dict) -> tuple[str, str]:
+    """Return (companyLinkedinUrl, companyName) from a profile scraper item.
+
+    Prefers `currentPosition[0]` since harvestapi puts the active role there.
+    Falls back to `experience[]` first entry lacking `endDate.text != "Present"`.
+    Returns ("", "") when the profile has no current employer (freelancers,
+    retirees).
+    """
+    current = profile.get("currentPosition") or []
+    if isinstance(current, list) and current:
+        first = current[0]
+        if isinstance(first, dict):
+            url = str(first.get("companyLinkedinUrl") or "")
+            name = str(first.get("companyName") or "")
+            if url or name:
+                return url, name
     experience = profile.get("experience") or profile.get("experiences") or []
     if isinstance(experience, list):
         for exp in experience:
             if not isinstance(exp, dict):
                 continue
-            is_current = exp.get("current") or exp.get("isCurrent") or not exp.get("endDate")
+            end_text = _nested(exp, "endDate.text").lower()
+            is_current = (not exp.get("endDate")) or end_text in ("", "present")
             if not is_current:
                 continue
-            for key in ("companyWebsite", "companyUrl", "website", "url"):
-                v = exp.get(key)
-                if v:
-                    return normalize_domain(str(v))
-    return ""
+            url = str(exp.get("companyLinkedinUrl") or exp.get("companyUrl") or "")
+            name = str(exp.get("companyName") or exp.get("company") or "")
+            if url or name:
+                return url, name
+    return "", ""
 
 
 def enrich_linkedin_domains(rows: list[dict], token: str, audit: dict) -> None:
-    """Fill row['domain'] for linkedin_content rows via profile scraping.
+    """Fill row['domain'] for linkedin_content rows via a two-Actor chain.
 
-    Mutates `rows` in place. Deduplicates author profile URLs before the call
-    so N posts by the same author cost one lookup. Rows without a resolvable
-    profile URL are left with empty domain (they'll be dropped in the
-    blacklist/dedup pass with the `linkedin_no_domain` audit bucket).
+    Mutates `rows` in place. Deduplicates at both hops:
+      - unique author profile URLs → one profile-scraper call each
+      - unique companyLinkedinUrls across all resolved profiles → one
+        company-scraper call each
+
+    Rows still lacking a domain after both hops (profile has no current
+    employer, or the company page has no website) fall through to the
+    filter loop and get dropped into the `linkedin_no_domain` bucket.
     """
     to_enrich = [
         r for r in rows
@@ -421,12 +472,14 @@ def enrich_linkedin_domains(rows: list[dict], token: str, audit: dict) -> None:
     ]
     if not to_enrich:
         return
-    unique_urls = sorted({r["_author_profile_url"] for r in to_enrich})
-    audit["linkedin_profile_lookups"] = len(unique_urls)
+
+    # ---- Hop 1: profile scraper on unique author profile URLs
+    unique_profile_urls = sorted({r["_author_profile_url"] for r in to_enrich})
+    audit["linkedin_profile_lookups"] = len(unique_profile_urls)
     try:
         profiles = apify_run_actor_sync(
             LINKEDIN_PROFILE_ACTOR,
-            {"profileScraperMode": "Full", "queries": unique_urls},
+            {"profileScraperMode": LINKEDIN_PROFILE_MODE, "urls": unique_profile_urls},
             token,
         )
     except Exception as e:
@@ -434,25 +487,72 @@ def enrich_linkedin_domains(rows: list[dict], token: str, audit: dict) -> None:
         audit["linkedin_profile_error"] = str(e)
         return
 
-    domain_by_profile: dict[str, str] = {}
+    # Map: profile URL → (companyLinkedinUrl, companyName). Also index by
+    # publicIdentifier so we can join back on either key.
+    profile_to_company: dict[str, tuple[str, str]] = {}
     for p in profiles:
         if not isinstance(p, dict):
             continue
-        profile_url = strip_tracking(
-            _first(p, "profileUrl", "url", "linkedinUrl", "publicUrl")
-            or _nested(p, "profile.url")
-        )
-        if not profile_url:
+        company_url, company_name = _extract_company_linkedin_url_from_profile(p)
+        if not (company_url or company_name):
             continue
-        domain = _extract_current_company_domain(p)
-        if domain:
-            domain_by_profile[profile_url] = domain
+        key_candidates = set()
+        raw_url = _first(p, "linkedinUrl", "url", "publicUrl", "profileUrl") or _nested(p, "profile.url")
+        canon = canonical_linkedin_profile_url(raw_url, _first(p, "publicIdentifier"))
+        if canon:
+            key_candidates.add(canon)
+        pub_id = _first(p, "publicIdentifier")
+        if pub_id:
+            key_candidates.add(f"https://www.linkedin.com/in/{pub_id}")
+        for key in key_candidates:
+            profile_to_company[key] = (company_url, company_name)
 
-    audit["linkedin_profile_resolved"] = len(domain_by_profile)
+    audit["linkedin_profile_resolved"] = len(profile_to_company)
+
+    # ---- Hop 2: company scraper on unique companyLinkedinUrls
+    company_urls_needed = sorted({url for url, _ in profile_to_company.values() if url})
+    company_to_domain: dict[str, str] = {}
+    if company_urls_needed:
+        audit["linkedin_company_lookups"] = len(company_urls_needed)
+        try:
+            companies = apify_run_actor_sync(
+                LINKEDIN_COMPANY_ACTOR,
+                {"companies": company_urls_needed},
+                token,
+            )
+        except Exception as e:
+            print(f"warn: LinkedIn company enrichment failed ({e}); leaving domains empty", file=sys.stderr)
+            audit["linkedin_company_error"] = str(e)
+            companies = []
+        for c in companies:
+            if not isinstance(c, dict):
+                continue
+            company_url = str(c.get("linkedinUrl") or "")
+            website = str(c.get("website") or "")
+            if company_url and website:
+                company_to_domain[company_url.rstrip("/")] = normalize_domain(website)
+        audit["linkedin_company_resolved"] = len(company_to_domain)
+    else:
+        audit["linkedin_company_lookups"] = 0
+        audit["linkedin_company_resolved"] = 0
+
+    # ---- Join: profile URL → company URL → domain (and overwrite row.company
+    # with the resolved company name if we found one).
+    resolved_domains = 0
     for r in to_enrich:
-        resolved = domain_by_profile.get(r["_author_profile_url"])
-        if resolved:
-            r["domain"] = resolved
+        entry = profile_to_company.get(r["_author_profile_url"])
+        if not entry:
+            continue
+        company_url, company_name = entry
+        if company_name:
+            r["company"] = company_name
+        if not company_url:
+            continue
+        domain = company_to_domain.get(company_url.rstrip("/"))
+        if domain:
+            r["domain"] = domain
+            resolved_domains += 1
+    audit["linkedin_domain_resolved"] = resolved_domains
 
 
 # ------------------------------ post-filters ------------------------------

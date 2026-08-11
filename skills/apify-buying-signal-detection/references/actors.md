@@ -96,40 +96,53 @@ not a qualified lead. Filter aggressively via `min_reactions` and human review.
 | `harvestapi/linkedin-post-search` | PPE, $2/1k posts | **Primary** — no cookies, well-adopted | No |
 | `harvestapi/linkedin-post-comments` | PPE | Deep engagement — pull comment threads on a specific post URL | No |
 | `harvestapi/linkedin-post-reactions` | PPE | Deep engagement — pull who reacted to a specific post URL | No |
-| `harvestapi/linkedin-profile-scraper` | PPE, ~$8/1k profiles | **On-demand enrichment** — called from `aggregate.py` when a post row has no company domain. Not scheduled as a Task. | No |
+| `harvestapi/linkedin-profile-scraper` | PPE, $4/1k profiles ("no email" mode) | **On-demand enrichment hop 1** — called from `aggregate.py` to resolve author → `currentPosition[0].companyLinkedinUrl`. Not scheduled as a Task. | No |
+| `harvestapi/linkedin-company` | PPE | **On-demand enrichment hop 2** — called from `aggregate.py` on the company LinkedIn URLs returned by hop 1 to pull `website`. Not scheduled as a Task. | No |
 
 ### PICK — LinkedIn content
 
 ```
 Always include:  harvestapi/linkedin-post-search
 Called on-demand by aggregate.py (not a scheduled Task):
-                 harvestapi/linkedin-profile-scraper
+                 harvestapi/linkedin-profile-scraper  (hop 1 — author → companyLinkedinUrl)
+                 harvestapi/linkedin-company          (hop 2 — companyLinkedinUrl → website)
 ```
 
-### Why the profile scraper is on-demand, not scheduled
+### Why the enrichment chain is on-demand, and why it's TWO hops
 
-`harvestapi/linkedin-post-search` returns author identity but rarely returns
-the author's current-company website. Without a domain, the aggregator cannot
-check the blacklist or dedup against existing leads for the `linkedin_content`
-signal. `aggregate.py::enrich_linkedin_domains` closes this gap: after the
-post-scraper items are read, it collects the deduped set of author profile
-URLs that came back without a domain and calls the profile scraper
-synchronously via `run-sync-get-dataset-items`.
+`harvestapi/linkedin-post-search` returns author identity but not the author's
+current-company website. Without a domain, the aggregator cannot check the
+blacklist or dedup against existing leads for the `linkedin_content` signal.
 
-Input shape used:
+`aggregate.py::enrich_linkedin_domains` closes this gap with a two-hop chain
+verified against live Actor output (2026-08):
+
+**Hop 1 — `harvestapi/linkedin-profile-scraper`.** Input:
 
 ```json
 {
-  "profileScraperMode": "Full",
-  "queries": ["https://www.linkedin.com/in/example", ...]
+  "profileScraperMode": "Profile details no email ($4 per 1k)",
+  "urls": ["https://www.linkedin.com/in/example", "..."]
 }
 ```
 
-The mapper joins the returned `currentCompanyWebsite` / `currentCompany.url`
-(with a fallback to the most-recent `experience` entry lacking an `endDate`)
-back onto the row. A LinkedIn row that survives both scrapers without a
-domain is dropped with the `linkedin_no_domain` audit bucket — the
-alternative is silently letting blacklisted companies leak in.
+`profileScraperMode` is an *enum literal* — the exact string `"Profile details no email ($4 per 1k)"` is required; guesses like `"Full"` or `"Short"` return a 400. The scraper returns `currentPosition[0].companyLinkedinUrl` + `companyName` but **not** a company website — that's why hop 2 is needed.
+
+Deduplicate profile URLs before the call: harvestapi's post output puts the profile URL with a `?miniProfileUrn=…` query that varies per sample, so `canonical_linkedin_profile_url()` strips it and prefers `author.publicIdentifier` when present, collapsing N samples of the same author into a single lookup key.
+
+**Hop 2 — `harvestapi/linkedin-company`.** Input:
+
+```json
+{ "companies": ["https://www.linkedin.com/company/example/", "..."] }
+```
+
+Returns `website` (and firmographic data we don't use here). Deduplicate on the LinkedIn company URL — N authors at the same company cost one company lookup.
+
+The final mapper joins the row's `_author_profile_url` → `companyLinkedinUrl` (hop 1) → `website` (hop 2) → `normalize_domain(website)`, then writes back into `row.domain` before blacklist/dedup run.
+
+A LinkedIn row that survives the chain without a domain is dropped into the
+`linkedin_no_domain` audit bucket — the alternative is silently letting
+blacklisted companies leak in.
 
 For deeper engagement analysis (mining reply chains for buying-intent quotes,
 identifying who engaged with a competitor's post), chain
@@ -160,7 +173,7 @@ table:
 | CSV column | Job Actors | Funding Actors | LinkedIn content Actors |
 |---|---|---|---|
 | `company` | `companyName` / `company` / `company.name` | `companyName` / `startupName` | Post author's `authorName` (or nested `author.name`) when it's a company page; else the author's employer |
-| `domain` | `companyDomain` / `companyWebsite` when present | `companyDomain` / `companyUrl` / `companyWebsite` | `authorCompanyDomain` / `author.company.domain` from post scraper — usually empty; **backfilled by `harvestapi/linkedin-profile-scraper` on the author's profile URL** (`currentCompanyWebsite` / `currentCompany.url` / current `experience` entry) |
+| `domain` | `companyDomain` / `companyWebsite` when present | `companyDomain` / `companyUrl` / `companyWebsite` | Post scraper doesn't return one. **Two-hop backfill**: (1) `harvestapi/linkedin-profile-scraper` on the author URL → `currentPosition[0].companyLinkedinUrl`, then (2) `harvestapi/linkedin-company` on that URL → `website`. See [enrichment chain](#why-the-enrichment-chain-is-on-demand-and-why-its-two-hops). |
 | `signal_type` | `"jobs"` | `"funding"` | `"linkedin_content"` |
 | `signal_detail` | `f"Job: {title}"` | `f"Raised {amount} {stage} led by {lead_investor}"` | `f"Post: '{first_120_chars}'"` |
 | `signal_source_actor` | Actor ID that produced the row | ditto | ditto |
