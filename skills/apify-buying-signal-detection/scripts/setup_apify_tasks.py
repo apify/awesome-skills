@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -93,18 +94,28 @@ def pick_actors(icp: dict) -> list[dict]:
                 "totalRows": 200,
             },
         })
-        # johnvc/Google-Jobs-Scraper wants lowercase ISO codes with `uk` (not `gb`).
+        # johnvc/Google-Jobs-Scraper wants lowercase ISO codes with `uk` (not `gb`),
+        # and rejects anything outside its own enum — an ICP targeting BE/NL/PL
+        # would otherwise fail task creation with `invalid-input`. Pick the first
+        # geo the Actor actually supports; if none match, omit `country` and let
+        # Google aggregate globally (the field is optional).
         _gjs_geo = {"GB": "uk"}
-        gjs_country = _gjs_geo.get(sorted(geo)[0], sorted(geo)[0].lower()) if geo else "us"
+        _gjs_supported = {"us", "ca", "uk", "de", "fr", "au", "jp", "in", "br", "mx"}
+        gjs_country = next(
+            (c for c in (_gjs_geo.get(g, g.lower()) for g in sorted(geo)) if c in _gjs_supported),
+            None,
+        )
+        gjs_input = {
+            "query": titles[0] if titles else "",
+            "location": ", ".join(sorted(geo)) if geo else "",
+            "num_results": 200,
+        }
+        if gjs_country:
+            gjs_input["country"] = gjs_country
         picks.append({
             "actor_id": "johnvc/Google-Jobs-Scraper",
             "signal_type": "jobs",
-            "input": {
-                "query": titles[0] if titles else "",
-                "location": ", ".join(sorted(geo)) if geo else "",
-                "country": gjs_country,
-                "num_results": 200,
-            },
+            "input": gjs_input,
         })
         if geo & {"US", "GB", "IN", "CA"}:
             # borderline/indeed-scraper: lowercase codes, `uk` (not `gb`).
@@ -211,14 +222,17 @@ def find_task_by_name(token: str, name: str) -> dict | None:
 def _task_name(campaign: str, actor_id: str) -> str:
     """Build an Apify-valid task name (max 63 chars, no trailing dash).
 
-    Format: `{campaign}-{slug}` truncated to 63 chars. If the slug alone would
-    push us over the limit, we keep as much of the slug as fits and strip any
-    trailing dash so the name stays URL-safe.
+    Apify only accepts `a-z`, `0-9` and hyphens, and hyphens may not sit at
+    either end. Store usernames routinely break both rules — underscores
+    (`complex_intricate_networks`) and capitals (`johnvc/Google-Jobs-Scraper`)
+    are common — so every disallowed character is folded to a hyphen before
+    the length cap is applied.
+
+    Format: `{campaign}-{slug}` truncated to 63 chars.
     """
     slug = actor_id.replace("/", "-")
-    name = f"{campaign}-{slug}"
-    if len(name) <= 63:
-        return name
+    name = re.sub(r"[^a-z0-9-]+", "-", f"{campaign}-{slug}".lower())
+    name = re.sub(r"-{2,}", "-", name).strip("-")
     return name[:63].rstrip("-")
 
 

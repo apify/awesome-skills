@@ -7,7 +7,7 @@ cells are `""`, never `null`. The file is a plain CSV with a header row.
 |---|---|---|
 | `detected_at` | ISO 8601 UTC timestamp | When `aggregate.py` wrote this row. Also the idempotency key — the aggregator checks the max `detected_at` and skips if within the current ISO week. |
 | `company` | string | Company name as returned by the Actor. Lightly normalized (trailing `Inc`/`Ltd` kept, whitespace collapsed). |
-| `domain` | string (lowercased) | Primary dedup key. Sourced from Actor output; falls back to the company website URL if the Actor returns a URL instead of a bare domain. Empty when the Actor returned no domain (rare — always for LinkedIn posts by a person, not a company page). |
+| `domain` | string (lowercased) | Primary dedup key, and only ever the company's *own* domain. Sourced from Actor output; falls back to the company website URL if the Actor returns a URL instead of a bare domain. Job boards and social networks (`linkedin.com`, `indeed.com`, `stepstone.de`, `crunchbase.com`, …) are rejected rather than stored — see `NON_COMPANY_HOSTS` in `aggregate.py`. Empty is therefore common, not rare: the LinkedIn jobs Actors only return a `linkedin.com/company/<slug>` URL, so every row from that signal is domainless and dedupes on the company name instead. |
 | `signal_type` | enum | One of `jobs`, `funding`, `linkedin_content`. |
 | `signal_detail` | string | One-line human-readable signal summary. Examples: `"Hiring 3x Account Executive - EMEA"`, `"Raised $12M Series A led by Accel"`, `"Post: 'outbound is broken'"`. Free-form; the aggregator generates it per signal type. |
 | `signal_source_actor` | string | Apify Actor ID that produced this row (e.g. `bebity/linkedin-jobs-scraper`). Lets you trace back to the source dataset. |
@@ -26,7 +26,11 @@ Order of precedence when a new row collides with an existing row:
 2. **Identical normalized `company`, different `domain`**: both rows kept. Different
    domains for the same brand name are almost always different entities (subsidiaries,
    regional offices, or unrelated companies that happen to share a name).
-3. **Identical `evidence_url`**: dropped as a re-scrape of the same source. Guards
+3. **Identical normalized `company`, both rows domainless**: existing row wins, and the
+   incoming one is counted under `dropped.dup_company`. This is the working key for the
+   jobs signal, where no Actor returns an employer domain — three postings from one
+   company become one lead.
+4. **Identical `evidence_url`**: dropped as a re-scrape of the same source. Guards
    against the same Actor run being aggregated twice.
 
 Normalization for company-name comparison: lowercase, strip punctuation, collapse

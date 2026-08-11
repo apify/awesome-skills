@@ -105,6 +105,30 @@ def normalize_company(name: str) -> str:
     return " ".join(tokens)
 
 
+# Hosts that are never a company's own domain. The job boards and social
+# networks the signal Actors scrape return their own URLs in company fields —
+# `lntb/linkedin-jobs-scraper` for instance only ever returns `companyUrl:
+# https://de.linkedin.com/company/<slug>`. Normalizing that to `de.linkedin.com`
+# would make every LinkedIn-sourced lead share one dedup key, so distinct
+# companies collapse into the first one seen. Treat these as "no domain" and let
+# the company-name key do the deduping instead.
+NON_COMPANY_HOSTS = (
+    "linkedin.com",
+    "indeed.com",
+    "glassdoor.com",
+    "stepstone.de",
+    "seek.com.au",
+    "francetravail.fr",
+    "pole-emploi.fr",
+    "crunchbase.com",
+    "maddyness.com",
+    "google.com",
+    "facebook.com",
+    "twitter.com",
+    "x.com",
+)
+
+
 def normalize_domain(raw: str) -> str:
     if not raw:
         return ""
@@ -113,6 +137,8 @@ def normalize_domain(raw: str) -> str:
     d = re.sub(r"^www\.", "", d)
     d = d.split("/")[0]
     d = d.split("?")[0]
+    if d == "" or any(d == h or d.endswith("." + h) for h in NON_COMPANY_HOSTS):
+        return ""
     return d
 
 
@@ -187,6 +213,10 @@ class LeadsCsv:
     def existing_urls(self) -> set[str]:
         return {strip_tracking(r["evidence_url"]) for r in self.rows if r.get("evidence_url")}
 
+    def existing_companies(self) -> set[str]:
+        """Normalized company names already in the CSV, for domainless dedup."""
+        return {normalize_company(r["company"]) for r in self.rows if r.get("company")}
+
     def append_atomic(self, new_rows: list[dict[str, str]]) -> None:
         if not new_rows:
             return
@@ -215,9 +245,23 @@ def load_blacklist(path: Path | None) -> tuple[set[str], set[str]]:
 # ------------------------------ Apify API ------------------------------
 
 def apify_task_last_dataset_items(task_id: str, token: str) -> list[dict]:
-    """Fetch items from the last successful run's default dataset of a task."""
+    """Fetch items from the last successful run's default dataset of a task.
+
+    A task that has never produced a successful run returns 404 from
+    `/runs/last`. That is the normal state on the first aggregation — the
+    Apify-side cron may not have fired yet, and the Claude-side schedule is
+    designed to run more often than it. Treat it as "nothing to aggregate
+    from this task yet" rather than letting the HTTP error abort the whole run
+    and lose the signals every other task did return.
+    """
     url = f"{APIFY_API}/actor-tasks/{task_id}/runs/last"
-    data = _get(url, params={"token": token, "status": "SUCCEEDED"})
+    try:
+        data = _get(url, params={"token": token, "status": "SUCCEEDED"})
+    except Exception as exc:  # noqa: BLE001 — requests.HTTPError or urllib.error.HTTPError
+        if "404" in str(exc):
+            print(f"  note: task {task_id} has no successful run yet — skipping", file=sys.stderr)
+            return []
+        raise
     if not isinstance(data, dict) or "data" not in data:
         return []
     run = data["data"]
@@ -669,6 +713,7 @@ def main() -> int:
     bl_domains, bl_companies = load_blacklist(blacklist_path)
     seen_domains = leads.existing_domains()
     seen_urls = leads.existing_urls()
+    seen_companies = leads.existing_companies()
 
     tasks = load_task_registry(icp["campaign_name"], campaign_dir)
     if not tasks:
@@ -685,6 +730,7 @@ def main() -> int:
         "dropped": {
             "blacklist": 0,
             "dup_domain": 0,
+            "dup_company": 0,
             "dup_url": 0,
             "post_filter": 0,
             "unmappable": 0,
@@ -737,6 +783,13 @@ def main() -> int:
         if row["domain"] and row["domain"] in seen_domains:
             audit["dropped"]["dup_domain"] += 1
             continue
+        # Job boards never hand back the employer's own domain, so those rows
+        # arrive domainless and fall through to the company-name key. Without
+        # this, two postings from one company become two leads.
+        company_key = normalize_company(row["company"])
+        if not row["domain"] and company_key and company_key in seen_companies:
+            audit["dropped"]["dup_company"] += 1
+            continue
         if row["evidence_url"] in seen_urls:
             audit["dropped"]["dup_url"] += 1
             continue
@@ -745,6 +798,8 @@ def main() -> int:
         seen_urls.add(row["evidence_url"])
         if row["domain"]:
             seen_domains.add(row["domain"])
+        if company_key:
+            seen_companies.add(company_key)
 
     print(json.dumps({"summary": {"appended": len(all_new_rows), **audit}}, indent=2))
 
