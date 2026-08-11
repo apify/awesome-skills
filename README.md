@@ -13,8 +13,7 @@
 <p align="center">
   <a href="https://apify.com"><img src="https://img.shields.io/badge/Powered%20by-Apify-20A34E?style=for-the-badge" alt="Powered by Apify"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-555555?style=for-the-badge" alt="Apache 2.0"></a>
-  <a href="#bounty"><img src="https://img.shields.io/badge/Bounty-%24100%2FPR-F86606?style=for-the-badge" alt="$100/PR bounty open"></a>
-  <a href="#available-skills"><img src="https://img.shields.io/badge/Skills-8-246DFF?style=for-the-badge" alt="8 Skills"></a>
+  <a href="#available-skills"><img src="https://img.shields.io/badge/Skills-13-246DFF?style=for-the-badge" alt="13 Skills"></a>
   <a href="https://apify.com/store"><img src="https://img.shields.io/badge/Actors-30%2C000%2B-F86606?style=for-the-badge" alt="30,000+ Actors"></a>
   <a href="https://github.com/apify/awesome-skills/stargazers"><img src="https://img.shields.io/github/stars/apify/awesome-skills?style=for-the-badge&color=9D97F4&label=Stars" alt="GitHub stars"></a>
 </p>
@@ -23,25 +22,11 @@
   <a href="#install">Quick start</a> &bull;
   <a href="#available-skills">Skills</a> &bull;
   <a href="#contribute">Contribute</a> &bull;
-  <a href="#bounty">Bounty</a> &bull;
   <a href="#for-ai-agents">For AI agents</a> &bull;
   <a href="#support">Support</a>
 </p>
 
 Companion to [apify/agent-skills](https://github.com/apify/agent-skills), the home of official Apify-maintained skills. This repo collects community contributions that follow the same [agentskills.io](https://agentskills.io/specification) open standard.
-
-<a id="bounty"></a>
-
-> [!IMPORTANT]
-> ### 🎁 Community bounty open
->
-> Get **$100 in Apify credits** for every merged PR that adds a new creative skill to this repo.
->
-> - One per contributor
-> - First 10 merged PRs only
-> - Closes **June 30, 2026** or after the 10th merge, whichever comes first
->
-> [How to submit →](CONTRIBUTING.md)
 
 ## What's a skill?
 
@@ -77,7 +62,7 @@ Works with Claude Code, Codex, Cursor, Gemini CLI, Windsurf, OpenCode, and [50+ 
 
 ## Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) — 1-minute setup. Eligible PRs qualify for the [community bounty](#bounty).
+See [CONTRIBUTING.md](CONTRIBUTING.md) — 1-minute setup.
 
 ## For AI agents
 
