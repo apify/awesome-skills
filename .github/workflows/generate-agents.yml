@@ -71,7 +71,7 @@ jobs:
           # The repo layout as a whole — nothing outside it, label or not.
           # Only files that actually exist in the repo are listed; a path is
           # added here when the file is added, not in advance.
-          ALLOWED='^(skills/apify-[^/]+/|skills/_template/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|REVIEWING\.md$|\.gitignore$|\.github/|scripts/|agents/)'
+          ALLOWED='^(skills/apify-[^/]+/|skills/_template/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|REVIEWING\.md$|SECURITY\.md$|\.gitignore$|\.github/|scripts/|agents/)'
           OUT_OF_BOUNDS=$(echo "$CHANGED" | grep -vE "$ALLOWED" || true)
 
           # README is generated only between the skills-table markers; edits to
