@@ -3,6 +3,10 @@
 # Do NOT add real values here; this file is a starting point, not an installable skill.
 name: ""
 description: ""
+# metadata.keywords is required — comma-separated search terms for the catalog.
+metadata:
+  category: data-extraction
+  keywords: ""
 ---
 
 # REPLACE: Skill Title

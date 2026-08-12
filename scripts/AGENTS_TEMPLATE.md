@@ -35,29 +35,21 @@ A contributor asked you to add a new skill to this repo. Follow these steps.
    - `description: ...` (≤ 1024 characters; include trigger phrases the user would say)
    - `author: ...` (optional)
    - `author_url: https://...` (optional)
+   - `metadata:` block with:
+     - `keywords: "keyword-one, keyword-two, ..."` (comma-separated string; required)
+     - `category: data-extraction` (optional; defaults to `data-extraction`)
 2. **`skills/apify-<name>/references/actor-index.md`** and **`references/gotchas.md`** — copy the templates from `skills/_template/references/` and fill them in. Optional but recommended.
 
 ## Marketplace entry
 
-Add one entry to `.claude-plugin/marketplace.json` in the `plugins` array:
-
-```json
-{
-  "name": "apify-<name>",
-  "source": "./skills/apify-<name>",
-  "skills": "./",
-  "description": "Brief description",
-  "keywords": ["apify", "..."],
-  "category": "data-extraction",
-  "version": "1.0.0"
-}
-```
+There is nothing to add manually. `.claude-plugin/marketplace.json` is generated
+from SKILL.md frontmatter after your PR merges — do **not** edit it in your PR.
 
 ## Rules
 
 - **One skill per PR.** CI rejects PRs that touch multiple skills (unless a maintainer adds the `maintainer` label).
-- **No unnecessary changes.** Edit only files inside `skills/apify-<name>/` and `.claude-plugin/marketplace.json`.
-- **Do not edit** `agents/AGENTS.md` or the skills table in `README.md` — both are regenerated from frontmatter after merge.
+- **No unnecessary changes.** Edit only files inside `skills/apify-<name>/`.
+- **Do not edit** `.claude-plugin/marketplace.json`, `agents/AGENTS.md` or the skills table in `README.md` — all three are regenerated from frontmatter after merge.
 - **Use Apify Actors only** — they must be publicly available on the [Apify Store](https://apify.com/store).
 
 ## Calling Actors — your choice
@@ -78,4 +70,4 @@ Run locally before opening the PR:
 uv run scripts/generate_agents.py
 ```
 
-This checks marketplace ↔ SKILL.md sync, validates `name`/`description`/`author_url` formats, and regenerates `agents/AGENTS.md` + the README skills table. CI runs the same script on the PR.
+This validates `name`/`description`/`author_url`/`metadata.keywords` and regenerates `.claude-plugin/marketplace.json`, `agents/AGENTS.md` and the README skills table from frontmatter. CI runs the same script on the PR (don't commit the regenerated files — the bot pushes them after merge).
