@@ -27,13 +27,27 @@ Add your Apify skill to this list in under a minute.
 
 ## Quality (recommended, not required)
 
-The `skills/_template/` shows the recommended structure with three optional pieces:
+The `skills/_template/` shows the recommended structure with these optional pieces:
 
 - **Apify CLI pattern** with three standard flags (`--json`, `--user-agent`, `2>/dev/null`)
 - **`references/actor-index.md`** — full Actor routing table
 - **`references/gotchas.md`** — cost guardrails and error recovery
+- **`author` + `author_url`** in the frontmatter — you get credit in the catalog
+- **Example prompts** — one to three real prompts the skill handles, and one it
+  deliberately does not (the boundary). Reviewers use these as the input for a live test.
 
 For a polished reference implementation, see [apify/agent-skills ultimate-scraper](https://github.com/apify/agent-skills/blob/main/skills/apify-ultimate-scraper/SKILL.md).
+
+## After you open a PR
+
+CI runs every check in one pass, so you see all problems at once instead of iterating.
+A maintainer then reviews per [REVIEWING.md](REVIEWING.md) — expect one of: a merge
+(small fixes are applied for you, with credit), a specific list of changes in the form
+`path: problem — fix`, or a consolidation suggestion if the skill overlaps an existing
+one.
+
+Updating an existing skill works the same way as adding one: one skill per PR, edit only
+that skill's directory.
 
 ## FAQ
 
@@ -48,7 +62,7 @@ Yes. After editing, run `uv run scripts/generate_agents.py` to validate. To prev
 
 ## Telemetry on CLI commands
 
-Every `apify` CLI invocation inside a `SKILL.md` file must follow three rules. CI will fail the PR if any of them are missing.
+Every `apify` CLI invocation inside a `SKILL.md` file must follow three rules. CI will fail the PR if any of them are missing. Checked surfaces: fenced code blocks, indented code blocks, and inline code spans that carry flags (a span like `` `apify actors call X --json ...` `` is a command an agent will copy verbatim; a bare `` `apify actors call` `` mention in prose is fine).
 
 ### Rule 1 — `--user-agent` flag
 

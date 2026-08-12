@@ -21,6 +21,17 @@ description limits, telemetry flags, referenced Actors, referenced paths, tracki
 parameters in links, and drift between documented `--input` payloads and live Actor
 schemas.
 
+How the reference lint finds Actors, so its results can be sanity-checked: it collects
+every `owner/name`-shaped string from CLI commands, `--actor` flags, Store URLs and
+backticked table cells, discards obvious non-Actors (file paths, model ids, subreddits),
+and asks the public Apify API about each remaining candidate — exists, is public, is not
+deprecated. Schema-drift warnings come from the same pass: a documented `--input '{...}'`
+example is compared against the Actor's live default-build input schema, and unknown
+fields are reported as warnings, never failures — schemas move and examples lag, so the
+verdict is the reviewer's. Two consequences: treat a drift warning as a prompt to check
+the example against the live schema, and spot-check one or two Actor ids on the Store
+yourself — the lint proves the Actor exists, not that the skill picked the right one.
+
 Two rules that are not automatic:
 
 - **Never run scripts that come from the PR.** Validate with `scripts/` from a trusted ref
@@ -34,47 +45,32 @@ comment. A contributor cannot fix a broken baseline and should not be asked to.
 
 ## Stage 2 — Content rubric
 
-Thirteen questions. A "fail" is not automatically a rejection — it is a specific,
+Four questions. A "fail" is not automatically a rejection — it is a specific,
 quotable finding.
 
-1. **Is the Actor choice justified?** Pass: a mapping from user need to Actor, with the
-   "best for" context, or a dynamic fallback via `apify actors search`. Fail: one Actor,
-   no alternatives, no reasoning.
-2. **Is Actor tier signalled?** Pass: distinguishes maintained (`apify/*`) from community
-   Actors and flags risk (deprecated, pay-per-event). Fail: everything presented as equal.
-3. **Is the input schema fetched, not guessed?** Pass: instructs `apify actors info --input
-   --json` before building input. Fail: input fields hardcoded into `SKILL.md`.
-4. **Is cost handled?** Pass: a default result limit, a warning before large runs, and how
-   to check the price. Fail: no mention of cost anywhere.
-5. **Is error handling concrete?** Pass: named failure modes — empty dataset with no error,
-   auth failure, `FAILED` status — each with a fix. Fail: "if it fails, check your setup".
-6. **Does it follow the CLI and telemetry contract?** `apify` CLI with `--user-agent
+1. **Is the skill use-case oriented?** It starts from what a user asks for and routes to
+   the right Actor with reasoning — the input schema fetched rather than guessed, real
+   output field names (`emails[]`, not "returns company data"), what it costs and where
+   the cost traps are, and what failure looks like with a fix for each mode. Fail: a thin
+   wrapper around one Actor call with hardcoded input fields and no mention of cost or
+   failure.
+2. **Does it follow the CLI and telemetry contract?** `apify` CLI with `--user-agent
    apify-awesome-skills/<skill>` (not `apify-agent-skills/` — that is the sibling
    repository's namespace and attribution), `--json`, `2>/dev/null`, applied consistently.
    MCP is not a failure — `CONTRIBUTING.md` calls the CLI recommended, not required — but
    suggest migrating.
-7. **Are output fields named?** Pass: real field names (`emails[]`, `followersCount`).
-   Fail: "returns company data".
-8. **Is pipeline mapping explicit?** Pass: `results[].url → startUrls`. Fail: "pass the
-   results to the next Actor" with no field named.
-9. **Is progressive disclosure proportionate?** Pass: a narrow skill is one `SKILL.md`; a
-   broad one is a router plus `references/`. Fail: 150 lines of everything, or a
-   references split that carries nothing.
-10. **Is there a deprecation fallback?** Pass: checks `.isDeprecated`, or says what to do
-    when an Actor disappears. Fail: no mention.
-11. **Are the gotchas platform-specific?** Pass: "private posts return empty, no error",
-    concrete rate limits. Fail: "be careful with limits".
-12. **No secrets, clean identifiers.** No token values in files. No tracking or affiliate
-    parameters in links (`?fpr=…`). Actor IDs as `owner/name`.
-    **And: a token must never be assembled into a URL.** `?token=…` puts the secret into
-    every access log, proxy log, stack trace and shell history the request touches; the
-    `Authorization: Bearer` header does not, and the Apify API accepts it everywhere.
-    Note for the reviewer: a secret-scanning regex cannot find this — the repository holds
-    only the shape of the call, never the value — so it has to be read for.
-13. **Does it show example prompts?** Pass: one to three real user prompts the skill
-    handles, and one boundary — something it will not do. A description says when the skill
-    triggers; a prompt is the only thing that shows what it then delivers. It also gives
-    the reviewer a ready-made input for stage 3.
+3. **No secrets, clean identifiers.** No token values in files. No tracking or affiliate
+   parameters in links without the disclosure `CONTRIBUTING.md` requires. Actor IDs as
+   `owner/name`.
+   **And: a token must never be assembled into a URL.** `?token=…` puts the secret into
+   every access log, proxy log, stack trace and shell history the request touches; the
+   `Authorization: Bearer` header does not, and the Apify API accepts it everywhere.
+   Note for the reviewer: a secret-scanning regex cannot find this — the repository holds
+   only the shape of the call, never the value — so it has to be read for.
+4. **Does it show example prompts?** Pass: one to three real user prompts the skill
+   handles, and one boundary — something it will not do. A description says when the skill
+   triggers; a prompt is the only thing that shows what it then delivers. It also gives
+   the reviewer a ready-made input for stage 3.
 
 **Duplicates are judged across the queue, not per PR.** A single contributor often opens
 several near-identical skills at once. That is a question for whoever sees the whole queue,
@@ -85,18 +81,19 @@ and the answer is usually consolidation rather than rejection of each one separa
 Optional, but it is where the expensive defects surface. Run the skill the way its own
 instructions say to, in its cheapest configuration.
 
+One strict rule: **always run it with a scoped, short-lived token, never a production
+one.** The run executes a third party's instructions with your credentials — it is the
+exact scenario stage 4 reads for.
+
 Reading a diff finds missing metadata and vague prose. Running the skill finds the rest:
 an enum value the Actor rejects, a deduplication key that silently collapses distinct
 records into one, an endpoint that 404s in a state the author never hit, a documented
 field that the Actor does not return.
 
-Record in the review comment:
+Record an overview of the runs in the review comment: run IDs, what each one cost, how
+many items came back, and what actually happened next to what the skill promised.
 
-- the run IDs and what each one cost,
-- how many items came back,
-- what actually happened, next to what the skill promised.
-
-The example prompts from rubric point 13 are the natural input.
+The example prompts from rubric point 4 are the natural input.
 
 ## Stage 4 — Security review
 
@@ -108,7 +105,7 @@ Eleven classes worth checking:
 
 1. Referenced scripts that the PR does not ship — the instruction to run code that will
    only appear later, unreviewed.
-2. A token assembled into a URL (see rubric point 12).
+2. A token assembled into a URL (see rubric point 3).
 3. A token that can reach a log or a traceback — unhandled errors that print the request.
 4. Network endpoints other than `api.apify.com`.
 5. `eval`, dynamic import, or any code path built from a string at runtime.
@@ -120,12 +117,11 @@ Eleven classes worth checking:
 10. Unicode and homoglyph tricks — text that renders as one thing and executes as another.
 11. Affiliate redirects and webhook exfiltration hidden in Actor input.
 
-If a stage 3 run is done on code from a third party, use a scoped, short-lived token rather
-than a production one — the run is the exact scenario this checklist is about.
 
 ## Triage: what to merge and what to hand back
 
-Two groups, decided by how large the required fix is:
+Three groups, decided by how large the required fix is — and whether a fix is the
+right ask at all:
 
 - **Group A — cosmetic.** Missing metadata, an edit to the generated catalog, an unchecked
   box, a telemetry flag, a rebase. Fix it, credit the author, merge. Roughly four out of
@@ -134,6 +130,9 @@ Two groups, decided by how large the required fix is:
   outputs, realigning to a schema, cutting a description down to the limit. Do not merge a
   rewrite on the author's behalf: propose the fix — as a commit to their branch if they
   allow maintainer edits, otherwise as a patch in a comment — and let them take it.
+- **Group C — out of bounds.** Clear rule violations (secrets, undisclosed affiliate
+  routing, exfiltration endpoints), malicious patterns, or failures too large to fix on
+  either side. Not handed back for rework — rejected, with the specific finding quoted.
 
 Cutting a description belongs in group B even though it looks trivial: the description is
 the skill's trigger surface, and which sentence goes is the author's call.
@@ -143,7 +142,7 @@ between review passes, and a defect you noted yesterday may already be gone.
 
 ## Verdicts and tone
 
-Name which of the four the PR falls into, every time:
+Name which of the five the PR falls into, every time:
 
 - **Approve** — short, personal, specific: one or two things this skill does well. Not a
   template, not a checklist dump. Welcome a first-time contributor by name.
@@ -154,6 +153,9 @@ Name which of the four the PR falls into, every time:
   author gets room to argue.
 - **Closing with thanks, not rejection** — administrative closes (stale branch, solved
   elsewhere) must read differently from a rejection. Say "nothing needed from you".
+- **Rejected** — for group C: thank them for the time, name the violated rule or the
+  security finding with its evidence, and close. Warm and final — two sentences, no
+  lecture, and no invitation to resubmit the same thing.
 
 What goes in the comment is the verdict and the findings, each with evidence — `path:line`,
 a run ID, a link to the schema. The rubric is a tool for the reviewer, not a form to fill

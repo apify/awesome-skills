@@ -59,30 +59,6 @@ MARKETPLACE_METADATA = {
 }
 DEFAULT_CATEGORY = "data-extraction"
 
-# Nested-plugin entries have no parent SKILL.md, so they can't be derived from
-# frontmatter — they live here and get injected into the generated catalog.
-NESTED_PLUGINS = [
-    {
-        "name": "apify-financial-services",
-        "source": "./skills/apify-financial-services",
-        "skills": [
-            "./skills"
-        ],
-        "description": "Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
-        "keywords": [
-            "finance",
-            "news",
-            "osint",
-            "sentiment",
-            "registry",
-            "due-diligence",
-            "apify"
-        ],
-        "category": "data-extraction",
-    },
-]
-
-
 def _strip_quotes(value: str) -> str:
     if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
         return value[1:-1]
@@ -144,9 +120,9 @@ def parse_frontmatter(text: str) -> dict:
 def collect_skills() -> list[dict]:
     """Discover all SKILL.md files under skills/ (excluding _template, etc.).
 
-    Nested bundles (directories without a top-level SKILL.md, e.g.
-    apify-financial-services) are not discovered here — their marketplace
-    entries come from NESTED_PLUGINS.
+    Directories without a top-level SKILL.md are not silently skipped — they
+    fail layout_errors(). There are no special cases: a directory that does
+    not fit the model is resolved by a maintainer in the PR that carries it.
     """
     skills: list[dict] = []
     for skill_md in SKILLS_DIR.glob("*/SKILL.md"):
@@ -171,6 +147,27 @@ def collect_skills() -> list[dict]:
     return sorted(skills, key=lambda s: s["name"].lower())
 
 
+def layout_errors() -> list[str]:
+    """Every directory under skills/ must carry a top-level SKILL.md.
+
+    The catalog is generated from that frontmatter; a directory without it
+    (e.g. a nested plugin bundle) cannot be derived and fails the build
+    loudly instead of being special-cased in code.
+    """
+    errors: list[str] = []
+    for entry in sorted(SKILLS_DIR.iterdir()):
+        if not entry.is_dir() or entry.name in EXCLUDED_DIRS:
+            continue
+        if not (entry / "SKILL.md").is_file():
+            errors.append(
+                f"skills/{entry.name}/: no top-level SKILL.md — every skill "
+                "directory must carry one (the catalog is generated from its "
+                "frontmatter). Nested plugin bundles are not supported: add a "
+                "SKILL.md, restructure into flat skills, or remove the directory."
+            )
+    return errors
+
+
 def build_marketplace(skills: list[dict]) -> dict:
     """Build the marketplace.json document from SKILL.md frontmatter."""
     plugins: list[dict] = []
@@ -191,7 +188,6 @@ def build_marketplace(skills: list[dict]) -> dict:
                 "category": metadata.get("category") or DEFAULT_CATEGORY,
             }
         )
-    plugins.extend(json.loads(json.dumps(NESTED_PLUGINS)))
     plugins.sort(key=lambda p: p["name"].lower())
     return {
         "name": MARKETPLACE_NAME,
@@ -224,26 +220,14 @@ def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
         source = plugin.get("source", "")
         source_rel = source.lstrip("./")
         source_dir = ROOT / source_rel
-        skills_field = plugin.get("skills", "./")
 
-        is_nested = isinstance(skills_field, list)
-
-        description = ""
-        author = ""
-        author_url = ""
-        if is_nested:
-            # Nested plugin: no parent SKILL.md. Use the marketplace description.
-            # Link to the source directory so users can browse the nested layout.
-            description = plugin.get("description", "")
-            path_link = f"{source_rel}/"
-        else:
-            # Flat plugin: read the SKILL.md frontmatter for the richer
-            # description + author attribution.
-            meta = _read_frontmatter_file(source_dir / "SKILL.md")
-            description = meta.get("description") or plugin.get("description", "")
-            author = meta.get("author", "")
-            author_url = meta.get("author_url", "")
-            path_link = f"{source_rel}/SKILL.md"
+        # Read the SKILL.md frontmatter for the richer description + author
+        # attribution (layout_errors() guarantees the file exists).
+        meta = _read_frontmatter_file(source_dir / "SKILL.md")
+        description = meta.get("description") or plugin.get("description", "")
+        author = meta.get("author", "")
+        author_url = meta.get("author_url", "")
+        path_link = f"{source_rel}/SKILL.md"
 
         rows.append(
             {
@@ -386,7 +370,7 @@ def validate_skills(skills: list[dict]) -> list[str]:
                 'a comma-separated string, e.g. keywords: "kw-one, kw-two"'
             )
 
-    seen: dict[str, str] = {p["name"]: f"NESTED_PLUGINS entry '{p['name']}'" for p in NESTED_PLUGINS}
+    seen: dict[str, str] = {}
     for skill in skills:
         name = skill["name"]
         if not name:
@@ -407,7 +391,7 @@ def main() -> int:
     template = TEMPLATE_PATH.read_text(encoding="utf-8")
     skills = collect_skills()
 
-    errors = validate_skills(skills)
+    errors = layout_errors() + validate_skills(skills)
     if errors:
         print("Validation failed:", file=sys.stderr)
         for err in errors:
@@ -421,9 +405,7 @@ def main() -> int:
         MARKETPLACE_PATH.write_text(marketplace_json, encoding="utf-8")
         print(f"Wrote {MARKETPLACE_PATH.relative_to(ROOT)} ({len(marketplace['plugins'])} plugins).")
 
-    # Docs are driven by the generated plugins list — one row per plugin entry,
-    # so nested-plugin layouts (e.g. apify-financial-services) appear as a
-    # single parent row rather than being skipped by the filesystem walk.
+    # Docs are driven by the generated plugins list — one row per plugin entry.
     rows = plugins_to_rows(marketplace["plugins"])
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

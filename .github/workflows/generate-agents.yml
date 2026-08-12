@@ -126,7 +126,7 @@ jobs:
 
             STRAY=$(echo "$CHANGED" | grep -vE "$SKILL_PATHS" | grep -vE "$GENERATED_PATHS" || true)
             if [ -n "$STRAY" ]; then
-              echo "::error::a skill PR may only change files inside skills/apify-<name>/ — split these out into their own PR (a maintainer adds the 'maintainer' label to it):"
+              echo "::error::a skill PR may only change files inside skills/apify-<name>/ — these files belong in a separate infra PR (doc-only changes need no label; CI, scripts/ and template changes are for maintainers, who add the 'maintainer' label):"
               echo "$STRAY" | sed 's/^/  - /'
               FAIL=1
             fi
@@ -211,40 +211,40 @@ jobs:
             echo "No skill directories changed — skipping reference lint."
             exit 0
           fi
-          if [ "$N_SKILLS" -eq 1 ]; then
-            # Single-skill PR: offline checks + online actor existence check.
-            uv run scripts/lint_references.py ${{ steps.changed.outputs.skill_dirs }} --check-actors ${{ steps.changed.outputs.skill_dirs }}
-          else
-            uv run scripts/lint_references.py ${{ steps.changed.outputs.skill_dirs }}
-          fi
+          # Offline checks + online actor existence check for every changed
+          # skill (multi-skill PRs are maintainer-labeled and rare, so the
+          # extra API calls are cheap).
+          uv run scripts/lint_references.py ${{ steps.changed.outputs.skill_dirs }} --check-actors ${{ steps.changed.outputs.skill_dirs }}
 
       - name: Validate skills and run a trial generation
         id: generator
         continue-on-error: true
         run: uv run scripts/generate_agents.py
 
-      # Informational only: when a PR changes the lint rules themselves, show
-      # what those new rules do across the WHOLE catalog (not just the PR's
-      # changed skills). Pre-existing findings on main are kept as exhibits
+      # Informational only: when a PR changes anything outside skill
+      # directories (CI, scripts, docs, template), show what the lints say
+      # across the WHOLE catalog — infra changes can shift what validates,
+      # and the author should see the blast radius before merge.
+      # Pre-existing findings on main are kept as exhibits
       # (decision D2, see the comment above "Determine changed skill dirs"),
       # so this must never gate the PR — it just gives the rule author (and
       # reviewers) visibility into blast radius before merge.
-      - name: Full lint audit (rule change)
+      - name: Full lint audit (infra change)
         id: audit
         continue-on-error: true
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           CHANGED=$(git diff --name-only --diff-filter=ACMRT "origin/$BASE_REF...HEAD")
-          RULE_FILES=$(echo "$CHANGED" | grep -xE 'scripts/lint_telemetry\.sh|scripts/lint_references\.py|scripts/generate_agents\.py' || true)
+          NON_SKILL=$(echo "$CHANGED" | grep -vE '^skills/apify-[^/]+/' || true)
 
-          if [ -z "$RULE_FILES" ]; then
-            echo "No lint-rule files changed — skipping full-catalog audit."
+          if [ -z "$NON_SKILL" ]; then
+            echo "PR changes skill directories only — skipping full-catalog audit."
             exit 0
           fi
 
-          echo "Lint rule files changed in this PR:"
-          echo "$RULE_FILES" | sed 's/^/  - /'
+          echo "Files outside skill directories changed in this PR:"
+          echo "$NON_SKILL" | sed 's/^/  - /'
           echo
 
           echo "=== bash scripts/lint_telemetry.sh (full catalog) ==="
@@ -253,7 +253,7 @@ jobs:
           echo "=== uv run scripts/lint_references.py (full catalog, offline) ==="
           uv run scripts/lint_references.py || true
 
-          echo "::notice::rule change — full-catalog audit above shows the impact of the new rules (informational, not gating)"
+          echo "::notice::infra change — full-catalog audit above shows the current state of the whole catalog under these rules (informational, not gating)"
           exit 0
 
       # All checks run to completion (continue-on-error) so a contributor sees
@@ -325,6 +325,9 @@ jobs:
               echo "Catalog already at fixed point — nothing to push."
               exit 0
             fi
+            # Gate the push on a strict manifest validation — an invalid
+            # catalog must never land on main. (~2 s warm, exit 1 on invalid.)
+            npx --yes @anthropic-ai/claude-code plugin validate --strict .
             git commit -am "chore: regenerate marketplace.json, AGENTS.md and README [bot]"
             if git push; then
               exit 0
@@ -335,7 +338,3 @@ jobs:
           done
           echo "::error::regenerate: could not push after 3 attempts — main is moving too fast; re-run this job."
           exit 1
-
-      - name: Validate marketplace manifest (strict)
-        # Verified locally: ~2 s warm, exit 1 on an invalid manifest.
-        run: npx --yes @anthropic-ai/claude-code plugin validate --strict .
