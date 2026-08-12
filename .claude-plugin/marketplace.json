@@ -10,6 +10,27 @@
   },
   "plugins": [
     {
+      "name": "apify-bounty-radar",
+      "source": "./skills/apify-bounty-radar",
+      "skills": "./",
+      "description": "Find, screen, and prioritize public GitHub bounty opportunities with Apify Actors. Captures payout terms, claim rules, competition, assignment state, and skip risks before starting work.",
+      "keywords": [
+        "bounty",
+        "github",
+        "algora",
+        "polar",
+        "open-source",
+        "issue-triage",
+        "paid-work",
+        "contribution",
+        "search",
+        "crawler",
+        "claimability"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
+    },
+    {
       "name": "apify-easy-competitive-intelligence",
       "source": "./skills/apify-easy-competitive-intelligence",
       "skills": "./",
