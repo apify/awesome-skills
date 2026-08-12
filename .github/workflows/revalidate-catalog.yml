@@ -1,0 +1,139 @@
+name: Revalidate catalog
+
+# L5 of the governance chain: PR-time lints keep a *new* skill honest, this job
+# keeps the *merged* catalog honest. Once a week it re-checks every skill
+# against the live world (actors deprecated/removed/unpublished, dead author
+# pages, dead links) and reports into a single tracking issue.
+#
+# Advisory by construction: the script always exits 0, nothing here can block a
+# merge or rewrite the catalog. A healthy catalog produces no issue at all.
+
+on:
+  schedule:
+    # Mondays 06:17 UTC — start of the week, and off the top of the hour where
+    # GitHub's scheduler is most congested (a delayed weekly sweep is harmless,
+    # but a run that gets dropped is not).
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      mention_authors:
+        description: "Ping skill authors with @mentions in the issue (default: handles in backticks only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: revalidate-catalog
+  cancel-in-progress: false
+
+jobs:
+  revalidate:
+    # Forks inherit the schedule; they must not open issues of their own.
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Revalidate the whole catalog
+        id: revalidate
+        env:
+          MENTION_AUTHORS: ${{ inputs.mention_authors }}
+        run: |
+          MENTION_FLAG=""
+          if [ "$MENTION_AUTHORS" = "true" ]; then
+            MENTION_FLAG="--mention-authors"
+            echo "::notice::mention_authors=true — the issue will @-mention skill authors"
+          fi
+
+          uv run scripts/revalidate_catalog.py \
+            --json-out report.json \
+            --markdown-out report.md \
+            $MENTION_FLAG
+
+          FINDINGS=$(jq '.counts.findings' report.json)
+          NOTES=$(jq '.counts.notes' report.json)
+          echo "findings=$FINDINGS" >> "$GITHUB_OUTPUT"
+          echo "notes=$NOTES" >> "$GITHUB_OUTPUT"
+          echo "Findings: $FINDINGS, unverifiable: $NOTES"
+
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-revalidation-report
+          path: |
+            report.json
+            report.md
+
+      # One tracking issue, reused forever: the label is the primary handle and
+      # the marker in the body is the fallback (labels can be removed by hand).
+      # Zero findings closes the open issue instead of opening a new one.
+      - name: Open, update or close the tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          FINDINGS: ${{ steps.revalidate.outputs.findings }}
+          NOTES: ${{ steps.revalidate.outputs.notes }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          LABEL="catalog-revalidation"
+          MARKER="<!-- revalidate-catalog-report -->"
+          # GitHub caps an issue body at 65536 characters.
+          BODY_LIMIT=60000
+
+          EXISTING=$(gh issue list --state open --label "$LABEL" \
+            --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            EXISTING=$(gh issue list --state open --limit 100 --json number,body \
+              --jq "[.[] | select(.body // \"\" | contains(\"$MARKER\"))] | .[0].number // empty")
+          fi
+
+          # The issue list can lag a close by a second or two; a stale hit here
+          # would silently swallow the next report instead of opening a fresh
+          # issue, so confirm the state before trusting it.
+          if [ -n "$EXISTING" ] && \
+             [ "$(gh issue view "$EXISTING" --json state --jq '.state')" != "OPEN" ]; then
+            echo "Issue #$EXISTING is already closed (stale list result) — ignoring it."
+            EXISTING=""
+          fi
+
+          if [ "$FINDINGS" -eq 0 ]; then
+            if [ -n "$EXISTING" ]; then
+              gh issue close "$EXISTING" \
+                --comment "Catalog revalidation found nothing this run ($RUN_URL) — closing. A future run will reopen a fresh issue if something breaks."
+              echo "Closed #$EXISTING — catalog is clean."
+            else
+              echo "No findings and no open tracking issue — nothing to do."
+            fi
+            exit 0
+          fi
+
+          if [ "$(wc -c < report.md)" -gt "$BODY_LIMIT" ]; then
+            head -c "$BODY_LIMIT" report.md > body.md
+            printf '\n\n_Report truncated — full report in the run artifacts: %s_\n' "$RUN_URL" >> body.md
+          else
+            cp report.md body.md
+          fi
+
+          TITLE="Catalog revalidation: $FINDINGS finding(s) as of $(date -u +%Y-%m-%d)"
+
+          if [ -n "$EXISTING" ]; then
+            gh issue edit "$EXISTING" --title "$TITLE" --body-file body.md --add-label "$LABEL"
+            gh issue comment "$EXISTING" \
+              --body "Refreshed by the weekly sweep ($RUN_URL): **$FINDINGS finding(s)**, $NOTES unverifiable. The issue body above is the current state."
+            echo "Updated #$EXISTING."
+          else
+            gh label create "$LABEL" --color "0e8a16" \
+              --description "Weekly catalog revalidation report (scripts/revalidate_catalog.py)" \
+              || echo "Label '$LABEL' already exists — reusing it."
+            gh issue create --title "$TITLE" --body-file body.md --label "$LABEL"
+            echo "Opened a new tracking issue."
+          fi
