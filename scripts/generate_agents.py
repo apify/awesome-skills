@@ -207,12 +207,10 @@ def _read_frontmatter_file(path: Path) -> dict:
 def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
     """Convert marketplace plugin entries to renderable row dicts.
 
-    One row per plugin entry, regardless of flat vs nested layout. This is the
+    One row per plugin entry. This is the
     single source of truth for both agents/AGENTS.md and the README skills
-    table. Description and author info prefer the SKILL.md frontmatter when
-    available (richer, includes trigger phrases), falling back to the
-    marketplace `description` for nested plugins where there's no parent-level
-    SKILL.md.
+    table. Description and author info come from the SKILL.md frontmatter
+    (layout_errors() guarantees every entry has one).
     """
     rows: list[dict[str, str]] = []
     for plugin in plugins:
@@ -236,7 +234,6 @@ def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
                 "author": author,
                 "author_url": author_url,
                 "path_link": path_link,
-                "nested": "1" if is_nested else "",
             }
         )
 

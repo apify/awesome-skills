@@ -51,15 +51,14 @@ jobs:
           SKILL_DIRS=$(echo "$CHANGED" | grep -oE '^skills/apify-[^/]+' | sort -u)
           N_SKILLS=$(echo "$SKILL_DIRS" | grep -c . || true)
 
-          # A PR is a *skill PR* the moment it touches one skills/apify-<name>/
-          # directory, and an *infra PR* otherwise. The two get different
-          # allowlists:
-          #   - skill PR:  skills/apify-<name>/ only. The catalog is generated,
-          #                and a skill submission has no business editing CI,
-          #                the linters or the template.
-          #   - infra PR:  root meta docs on their own. CI, scripts/, agents/,
-          #                .claude-plugin/ and skills/_template/ need the
-          #                'maintainer' label — later steps run scripts/ out of
+          # Exactly two kinds of PR exist here:
+          #   - skill PR:  touches skills/apify-<name>/ and nothing else.
+          #                The catalog is generated, and a skill submission has
+          #                no business editing CI, the linters or the docs.
+          #   - infra PR:  everything else — CI, scripts/, docs, template.
+          #                Maintainers only: without the 'maintainer' label it
+          #                never passes (CODEOWNERS review is the target state
+          #                once handles exist). Later steps run scripts/ out of
           #                the PR checkout, so an unlabeled PR must not be able
           #                to change what validates it. (GitHub resolves the
           #                workflow file itself from the PR too; that one is on
@@ -67,7 +66,6 @@ jobs:
           #                REVIEWING.md, not on this check.)
           SKILL_PATHS='^skills/apify-[^/]+/'
           GENERATED_PATHS='^(\.claude-plugin/marketplace\.json|agents/AGENTS\.md)$'
-          INFRA_PATHS='^(\.github/|scripts/|agents/|\.claude-plugin/|skills/_template/)'
           # The repo layout as a whole — nothing outside it, label or not.
           # Only files that actually exist in the repo are listed; a path is
           # added here when the file is added, not in advance.
@@ -126,7 +124,7 @@ jobs:
 
             STRAY=$(echo "$CHANGED" | grep -vE "$SKILL_PATHS" | grep -vE "$GENERATED_PATHS" || true)
             if [ -n "$STRAY" ]; then
-              echo "::error::a skill PR may only change files inside skills/apify-<name>/ — these files belong in a separate infra PR (doc-only changes need no label; CI, scripts/ and template changes are for maintainers, who add the 'maintainer' label):"
+              echo "::error::a skill PR may only change files inside skills/apify-<name>/ — everything else is an infra PR, which is maintainer territory (the 'maintainer' label):"
               echo "$STRAY" | sed 's/^/  - /'
               FAIL=1
             fi
@@ -143,12 +141,11 @@ jobs:
               FAIL=1
             fi
 
-            INFRA_TOUCHED=$(echo "$CHANGED" | grep -E "$INFRA_PATHS" || true)
-            if [ -n "$INFRA_TOUCHED" ]; then
-              echo "::error::changing CI, scripts/, the generated catalog or skills/_template/ needs a maintainer to add the 'maintainer' label — these files decide how every PR is validated:"
-              echo "$INFRA_TOUCHED" | sed 's/^/  - /'
-              FAIL=1
-            fi
+            # No allowlist here: an infra PR is maintainer territory as a
+            # whole. Without the label it never passes — docs included.
+            echo "::error::this PR touches no skill directory, which makes it an infra PR — infra PRs are for maintainers and need the 'maintainer' label to pass:"
+            echo "$CHANGED" | sed 's/^/  - /'
+            FAIL=1
           fi
 
           if [ "$FAIL" -eq 1 ]; then

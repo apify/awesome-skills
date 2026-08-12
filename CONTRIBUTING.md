@@ -18,7 +18,7 @@ Add your Apify skill to this list in under a minute.
 
 - **One skill per PR.** CI enforces this. Exception: maintainers can add a `maintainer` label.
 - **No unnecessary changes.** Edit only files inside your skill dir. Don't touch `.claude-plugin/marketplace.json`, `agents/AGENTS.md` or the skills table in `README.md` — all three are regenerated automatically after merge.
-- **A skill PR is not an infra PR.** A PR that adds or edits a skill may change files inside `skills/apify-<name>/` and nothing else. Changes to `.github/`, `scripts/`, `agents/` or `skills/_template/` go in a separate PR that a maintainer labels `maintainer` — CI runs those files out of the PR checkout, so they decide how every submission is validated. Doc-only PRs (README prose, this file, `LICENSE`) need no label.
+- **Two kinds of PR exist: skill and infra.** A skill PR changes files inside `skills/apify-<name>/` and nothing else. Everything else — CI, `scripts/`, docs, the template — is an infra PR, and infra is maintainer territory: without the `maintainer` label it never passes CI. If you spot a typo or want to improve the tooling, open the PR anyway and say so — a maintainer reviews it and adds the label.
 - **Use Apify Actors only** — publicly available on the [Apify Store](https://apify.com/store).
 - **Disclose financial interest.** Affiliate/referral parameters on links (e.g. `?fpr=…`)
   and routing to paid Actors you own are allowed, but the skill must say so — add a short
