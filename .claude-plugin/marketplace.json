@@ -10,55 +10,6 @@
   },
   "plugins": [
     {
-      "name": "apify-easy-competitive-intelligence",
-      "source": "./skills/apify-easy-competitive-intelligence",
-      "skills": "./",
-      "description": "Full-stack competitive intelligence with 7 analysis modules: Competitor Snapshot, Pricing Intelligence, Pricing Deep Dive (Nagle decomposition), Review Intelligence, Hiring Signals, Content & SEO, and Market Landscape. 20+ verified Apify actor schemas, multi-module orchestration via subagents, and pre-delivery verification with confidence labeling. Uses Apify CLI (preferred) or MCP. Covers SaaS CI sources: G2, Capterra, Glassdoor, LinkedIn Jobs, Crunchbase, SimilarWeb, Google News, Wayback Machine.",
-      "keywords": [
-        "competitive-intelligence",
-        "battlecard",
-        "pricing",
-        "reviews",
-        "hiring",
-        "seo",
-        "market-landscape",
-        "g2",
-        "capterra",
-        "glassdoor",
-        "linkedin",
-        "crunchbase",
-        "similarweb",
-        "swot",
-        "competitor",
-        "analysis"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-ecommerce",
-      "source": "./skills/apify-ecommerce",
-      "skills": "./",
-      "description": "Scrape e-commerce data for pricing intelligence, customer sentiment, product research, quality analysis, and supply chain monitoring across Amazon, Walmart, eBay, IKEA, and 50+ marketplaces",
-      "keywords": [
-        "ecommerce",
-        "pricing",
-        "reviews",
-        "sentiment",
-        "products",
-        "sellers",
-        "amazon",
-        "walmart",
-        "ebay",
-        "MAP",
-        "competitor",
-        "research",
-        "supply-chain"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
       "name": "apify-ads-intelligence",
       "source": "./skills/apify-ads-intelligence",
       "skills": "./",
@@ -79,33 +30,13 @@
         "twitter",
         "promoted-tweets"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-financial-services",
-      "source": "./skills/apify-financial-services",
-      "skills": [
-        "./skills"
-      ],
-      "description": "Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
-      "keywords": [
-        "finance",
-        "news",
-        "osint",
-        "sentiment",
-        "registry",
-        "due-diligence",
-        "apify"
-      ],
-      "category": "data-extraction",
-      "version": "1.2.0"
+      "category": "data-extraction"
     },
     {
       "name": "apify-ai-search-visibility-tracker",
       "source": "./skills/apify-ai-search-visibility-tracker",
       "skills": "./",
-      "description": "Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule",
+      "description": "Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule. Use when user asks to track AI visibility, monitor brand mentions in AI search, track ChatGPT citations, do AI search SEO tracking, GEO tracking (Generative Engine Optimization), AEO tracking (Answer Engine Optimization), monitor Perplexity citations, track AI Overviews mentions, see if their brand shows up in AI search, discover which prompts competitors rank for in AI search, find citation opportunities, or audit a website for AI visibility readiness.",
       "keywords": [
         "ai-search",
         "geo",
@@ -123,74 +54,13 @@
         "monitoring",
         "scheduling"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-verified-email-finder",
-      "source": "./skills/apify-verified-email-finder",
-      "skills": "./",
-      "description": "Build a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed.",
-      "keywords": [
-        "email",
-        "verification",
-        "leads",
-        "contacts",
-        "verified-emails",
-        "google-maps",
-        "serp",
-        "apify",
-        "apollo-alternative",
-        "hunter-alternative"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-link-prospecting-outreach",
-      "source": "./skills/apify-link-prospecting-outreach",
-      "skills": "./",
-      "description": "Find link-building prospects, score them with Ahrefs domain and page authority, identify the strongest pitch angle per row, and draft brand-voice-matched outreach emails with concrete in-article link placements",
-      "keywords": [
-        "link-building",
-        "seo",
-        "outreach",
-        "prospecting",
-        "ahrefs",
-        "backlinks",
-        "cold-email",
-        "serp",
-        "unlinked-mentions",
-        "competitor-links",
-        "resource-pages"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-influencer-brand-collabs",
-      "source": "./skills/apify-influencer-brand-collabs",
-      "skills": "./",
-      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors against Meta's Ad Library. Audit influencer branded-content history, scope a brand's sponsorship roster, and surface paid collaborations in either direction",
-      "keywords": [
-        "influencer",
-        "brand",
-        "collaboration",
-        "sponsored",
-        "branded-content",
-        "partnership",
-        "instagram",
-        "meta-ad-library",
-        "creator-economy"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
     },
     {
       "name": "apify-booking-host-leads",
       "source": "./skills/apify-booking-host-leads",
       "skills": "./",
-      "description": "Find and enrich B2B leads from Booking.com - hotels, apartments, and vacation rentals - and pull each host's or property manager's real contact details (email, phone, company name, registration number), primarily from the Booking scraper's traderInfo field, with a Google Maps, Google Search, and website-scraper fallback. Use when the user says get emails from Booking.com, Booking.com lead generation, find tour operator / property manager / host contacts, scrape accommodation owner emails, or build a list of Booking hosts.",
+      "description": "Find and enrich B2B leads from Booking.com - hotels, apartments, and vacation rentals - and pull each host's or property manager's real contact details (email, phone, company name, registration number). Use when the user says things like \"get emails from Booking.com\", \"Booking.com lead generation\", \"find tour operator / property manager / host contacts\", \"scrape accommodation owner emails\", or \"build a list of Booking hosts\". The host's email is usually already inside the Booking scraper's traderInfo field (EU/AU trader-transparency disclosure) - this skill leads with that and uses a Google Maps email scraper only as a fallback, instead of relying on Google Maps first (which mostly returns the wrong business).",
       "keywords": [
         "booking",
         "booking.com",
@@ -205,36 +75,13 @@
         "contact-enrichment",
         "b2b"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-x402-agentic-wallet",
-      "source": "./skills/apify-x402-agentic-wallet",
-      "skills": "./",
-      "description": "Discover, pay for, and run any Apify Actor by paying USDC on Base over the x402 protocol with a Coinbase Agentic Wallet (awal) — no Apify account or API key. Buy one small, spend-capped prepaid Apify token, then run as many Actors as the request needs. Use when the user wants to use Apify tools without signing up, pay per use with crypto / USDC, set up an agentic wallet, or mentions x402, awal, agentic wallet, or paying on-chain per use.",
-      "keywords": [
-        "x402",
-        "awal",
-        "agentic-wallet",
-        "coinbase",
-        "usdc",
-        "base",
-        "crypto",
-        "pay-per-use",
-        "prepaid-token",
-        "no-api-key",
-        "micropayments",
-        "web-data"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
     },
     {
       "name": "apify-buying-signal-detection",
       "source": "./skills/apify-buying-signal-detection",
       "skills": "./",
-      "description": "Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings, fundraising events, and LinkedIn content — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture: Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says find companies with buying signals, detect intent signals for outbound, set up a weekly lead pipeline, monitor hiring signals for lead gen, track startup funding leads, find LinkedIn buying signals, schedule Apify Actors for prospecting, build a signals-based lead list, or set up buying-intent monitoring.",
+      "description": "Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings (hiring for the persona), fundraising events (recent raises), and LinkedIn content (pain-point posts, hiring announcements) — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture — Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says \"find companies with buying signals\", \"detect intent signals for outbound\", \"set up a weekly lead pipeline\", \"monitor hiring signals for lead gen\", \"track startup funding leads\", \"find LinkedIn buying signals\", \"schedule Apify Actors for prospecting\", \"build a signals-based lead list\", or \"set up buying-intent monitoring for my ICP\".",
       "keywords": [
         "buying-signals",
         "intent-data",
@@ -249,14 +96,78 @@
         "scheduled-pipeline",
         "b2b"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-easy-competitive-intelligence",
+      "source": "./skills/apify-easy-competitive-intelligence",
+      "skills": "./",
+      "description": "This skill should be used when the user asks to \"analyze a competitor\", \"compare pricing\", \"competitive landscape\", \"market research\", \"what do customers think\", \"review intelligence\", \"hiring signals\", \"content strategy\", \"SEO battle\", \"build a battlecard\", \"competitive analysis\", \"who are the players\", \"who competes with\", \"market intelligence\", \"competitive positioning\", \"deep dive on a company\", \"board prep\", \"SWOT analysis\", \"how does [X] compare to [Y]\", or mentions competitor analysis, pricing comparison, customer sentiment, or market landscape research. Requires Apify CLI or Apify MCP server.",
+      "keywords": [
+        "competitive-intelligence",
+        "battlecard",
+        "pricing",
+        "reviews",
+        "hiring",
+        "seo",
+        "market-landscape",
+        "g2",
+        "capterra",
+        "glassdoor",
+        "linkedin",
+        "crunchbase",
+        "similarweb",
+        "swot",
+        "competitor",
+        "analysis"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-ecommerce",
+      "source": "./skills/apify-ecommerce",
+      "skills": "./",
+      "description": "Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence.",
+      "keywords": [
+        "ecommerce",
+        "pricing",
+        "reviews",
+        "sentiment",
+        "products",
+        "sellers",
+        "amazon",
+        "walmart",
+        "ebay",
+        "MAP",
+        "competitor",
+        "research",
+        "supply-chain"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-financial-services",
+      "source": "./skills/apify-financial-services",
+      "skills": [
+        "./skills"
+      ],
+      "description": "Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
+      "keywords": [
+        "finance",
+        "news",
+        "osint",
+        "sentiment",
+        "registry",
+        "due-diligence",
+        "apify"
+      ],
+      "category": "data-extraction"
     },
     {
       "name": "apify-google-maps-leads",
       "source": "./skills/apify-google-maps-leads",
       "skills": "./",
-      "description": "Build a local-business lead database from Google Maps in one Apify pipeline. Interviews target audience + geography + optional review-based lead scoring, calls compass/crawler-google-places with company contacts enrichment (from website), business leads enrichment, and Instagram + Facebook profile scraping, filters by review count and rating when scoring is on, escalates to apify/ai-web-scraper to pull owner/decision-maker names from business websites when Google Maps enrichment came back without named contacts, then backfills missing phones via scalelist/phone-finder and missing emails via scalelist/email-finder. Delivers a deduplicated CSV.",
+      "description": "Build a local-business lead database from Google Maps in one Apify pipeline: search by target audience + geography, enrich each place with company contacts from its website, leads enrichment (names, emails, phones, LinkedIn), Instagram + Facebook profiles, and optionally reviews for lead scoring. For places with no named contacts, escalate to apify/ai-web-scraper to pull owner / decision-maker names from the business website. Backfill missing phones via scalelist/phone-finder and missing emails via scalelist/email-finder. Use when the user asks to build a lead list from Google Maps, scrape local businesses, generate B2B leads by city/industry, find owner/decision-maker contacts for restaurants / dentists / gyms / hotels / any local vertical, score leads by review volume or rating, or says \"Google Maps lead-gen pipeline\", \"leads from Maps\", \"prospect local businesses\", \"scrape Google Maps for outreach\", \"find companies in <city>\", or mentions chaining Google Maps + AI web scraper + Scalelist Actors.",
       "keywords": [
         "google-maps",
         "leads",
@@ -276,14 +187,31 @@
         "email-finder",
         "contact-enrichment"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-influencer-brand-collabs",
+      "source": "./skills/apify-influencer-brand-collabs",
+      "skills": "./",
+      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid posts for, wants to audit an influencer's branded-content history, or wants to scope a brand's sponsorship roster. **Triggers:** - \"who collabs with [brand] on Instagram?\" - \"what brands has [creator] done sponsored posts for?\" - \"find paid partnerships / branded content for [handle]\" - \"audit [influencer]'s brand deals\" - \"show me [brand]'s influencer roster\" Works in either direction — brand → creators or creator → brands — and detects direction from the data, so don't ask the user to declare it. Requires Apify MCP tools.",
+      "keywords": [
+        "influencer",
+        "brand",
+        "collaboration",
+        "sponsored",
+        "branded-content",
+        "partnership",
+        "instagram",
+        "meta-ad-library",
+        "creator-economy"
+      ],
+      "category": "data-extraction"
     },
     {
       "name": "apify-lead-scoring-enrichment",
       "source": "./skills/apify-lead-scoring-enrichment",
       "skills": "./",
-      "description": "Score and enrich a CSV of B2B leads. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech), Website Content Crawler (content), and Contact Info Scraper (company metadata) for scoring; enriches with department contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper -> AI Web Scraper -> Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column. Use when user asks to score leads, enrich lead lists, detect tech stack for outreach, find marketing/sales/engineering contacts, hunt blog copywriters for guest posts, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.",
+      "description": "Score and enrich a CSV of B2B leads using Apify Actors. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech stack), Website Content Crawler (content classification), and Contact Info Scraper (company metadata) for scoring; enriches with either department-specific contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper → AI Web Scraper → Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column that personalizes cold email copy (e.g. \"uses Shopify → send Shopify install guide\"). Use when user asks to score leads, qualify leads, enrich a lead list, detect a company's tech stack for outreach, find marketing/sales/engineering contacts at a list of companies, hunt down blog copywriters for guest-post pitches, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.",
       "keywords": [
         "lead-scoring",
         "lead-enrichment",
@@ -299,8 +227,67 @@
         "b2b",
         "csv-workflow"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-link-prospecting-outreach",
+      "source": "./skills/apify-link-prospecting-outreach",
+      "skills": "./",
+      "description": "Find sites ranking for target keywords, score every prospect with Ahrefs domain authority and page-level traffic, identify the strongest pitch angle per row (\"links to competitor\", \"mentions brand without linking\", \"top-3 SERP\", \"resource page\", \"outdated content\"), generate brand-voice-matched outreach emails using an outreach-type-aware template (unlinked-mention claim, competitor-link replacement, resource-page inclusion, outdated-content replacement, topical niche-edit), and propose a concrete in-article link placement as three artifacts — the verbatim source sentence, the same sentence rewritten with the link spliced in, or a fully-drafted new insertion if no natural fit exists. Use when user asks to find link building opportunities, prospect link partners, recover unlinked brand mentions, replace competitor links, build a tiered outreach list, or run cold email outreach for SEO link building.",
+      "keywords": [
+        "link-building",
+        "seo",
+        "outreach",
+        "prospecting",
+        "ahrefs",
+        "backlinks",
+        "cold-email",
+        "serp",
+        "unlinked-mentions",
+        "competitor-links",
+        "resource-pages"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-verified-email-finder",
+      "source": "./skills/apify-verified-email-finder",
+      "skills": "./",
+      "description": "Builds a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed. Use when user asks to find verified emails, build a leads list, scrape emails from Maps or SERP, verify emails for a URL list, or find an Apollo / Hunter alternative.",
+      "keywords": [
+        "email",
+        "verification",
+        "leads",
+        "contacts",
+        "verified-emails",
+        "google-maps",
+        "serp",
+        "apify",
+        "apollo-alternative",
+        "hunter-alternative"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-x402-agentic-wallet",
+      "source": "./skills/apify-x402-agentic-wallet",
+      "skills": "./",
+      "description": "Discover, pay for, and run any Apify Actor by paying USDC on Base over the x402 protocol with a Coinbase Agentic Wallet (awal) — no Apify account or API key. You buy one small, spend-capped prepaid Apify token, then run as many Actors as the request needs with it. Use when the user wants to use Apify tools without signing up, pay per use with crypto / USDC, set up an agentic wallet, mentions \"x402\", \"awal\", \"agentic wallet\", \"Coinbase wallet\", \"pay with USDC\", \"no API key\", or asks to pull live web data (social media, search, maps, marketplaces, news) while paying on-chain per use.",
+      "keywords": [
+        "x402",
+        "awal",
+        "agentic-wallet",
+        "coinbase",
+        "usdc",
+        "base",
+        "crypto",
+        "pay-per-use",
+        "prepaid-token",
+        "no-api-key",
+        "micropayments",
+        "web-data"
+      ],
+      "category": "data-extraction"
     }
   ]
 }

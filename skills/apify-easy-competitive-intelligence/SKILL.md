@@ -12,6 +12,8 @@ description: >
   or market landscape research. Requires Apify CLI or Apify MCP server.
 author: chocholous
 author_url: https://github.com/chocholous
+metadata:
+  keywords: "competitive-intelligence, battlecard, pricing, reviews, hiring, seo, market-landscape, g2, capterra, glassdoor, linkedin, crunchbase, similarweb, swot, competitor, analysis"
 ---
 
 # Competitive Intelligence

@@ -1,16 +1,8 @@
-name: Validate skill PRs and regenerate AGENTS.md
+name: Validate skill PRs and regenerate catalog
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
-    paths:
-      - "scripts/**"
-      - "skills/**"
-      - "agents/**"
-      - ".claude-plugin/**"
-      - "README.md"
-      - "CONTRIBUTING.md"
-      - ".github/**"
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main]
     paths:
@@ -31,10 +23,21 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Check PR scope (one skill per PR, no out-of-bounds files)
+      - name: Check PR scope (skill PR vs infra PR)
+        id: scope
+        continue-on-error: true
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: |
+          MAINTAINER=0
+          case ",$PR_LABELS," in
+            *,maintainer,*)
+              MAINTAINER=1
+              echo "::notice::maintainer label present — multi-skill/infra PR allowed"
+              ;;
+          esac
+
           CHANGED=$(git diff --name-only --diff-filter=ACMRT "origin/$BASE_REF...HEAD")
           if [ -z "$CHANGED" ]; then
             echo "No file changes detected."
@@ -48,24 +51,102 @@ jobs:
           SKILL_DIRS=$(echo "$CHANGED" | grep -oE '^skills/apify-[^/]+' | sort -u)
           N_SKILLS=$(echo "$SKILL_DIRS" | grep -c . || true)
 
-          # Allowed paths fall into two buckets:
-          #   - Skill submissions: skills/apify-<name>/ + the marketplace manifest.
-          #   - Repo maintenance:  root meta files, CI, scripts, generated agents/.
-          ALLOWED='^(skills/apify-[^/]+/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$|\.gitignore$|\.github/|scripts/|agents/)'
+          # A PR is a *skill PR* the moment it touches one skills/apify-<name>/
+          # directory, and an *infra PR* otherwise. The two get different
+          # allowlists:
+          #   - skill PR:  skills/apify-<name>/ only. The catalog is generated,
+          #                and a skill submission has no business editing CI,
+          #                the linters or the template.
+          #   - infra PR:  root meta docs on their own. CI, scripts/, agents/,
+          #                .claude-plugin/ and skills/_template/ need the
+          #                'maintainer' label — later steps run scripts/ out of
+          #                the PR checkout, so an unlabeled PR must not be able
+          #                to change what validates it. (GitHub resolves the
+          #                workflow file itself from the PR too; that one is on
+          #                the fork-approval gate and the human stage-1 rule in
+          #                REVIEWING.md, not on this check.)
+          SKILL_PATHS='^skills/apify-[^/]+/'
+          GENERATED_PATHS='^(\.claude-plugin/marketplace\.json|agents/AGENTS\.md)$'
+          INFRA_PATHS='^(\.github/|scripts/|agents/|\.claude-plugin/|skills/_template/)'
+          # The repo layout as a whole — nothing outside it, label or not.
+          ALLOWED='^(skills/apify-[^/]+/|skills/_template/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$|\.gitignore$|\.github/|scripts/|agents/)'
           OUT_OF_BOUNDS=$(echo "$CHANGED" | grep -vE "$ALLOWED" || true)
+
+          # README is generated only between the skills-table markers; edits to
+          # the surrounding prose are ordinary doc changes. Both branches below
+          # need this distinction, so resolve it once.
+          README_TABLE_CHANGED=0
+          if echo "$CHANGED" | grep -qxF 'README.md'; then
+            BASE_BLOCK=$(git show "origin/$BASE_REF:README.md" | sed -n '/<!-- BEGIN_SKILLS_TABLE -->/,/<!-- END_SKILLS_TABLE -->/p')
+            HEAD_BLOCK=$(sed -n '/<!-- BEGIN_SKILLS_TABLE -->/,/<!-- END_SKILLS_TABLE -->/p' README.md)
+            if [ "$BASE_BLOCK" != "$HEAD_BLOCK" ]; then
+              README_TABLE_CHANGED=1
+            fi
+          fi
 
           FAIL=0
 
+          if [ -n "$OUT_OF_BOUNDS" ]; then
+            echo "::error::PR touches files outside the repo layout (skill dirs, root meta files, .github/, scripts/, agents/):"
+            echo "$OUT_OF_BOUNDS" | sed 's/^/  - /'
+            FAIL=1
+          fi
+
+          if [ "$MAINTAINER" -eq 1 ]; then
+            echo "maintainer PR — the skill/infra split is not enforced."
+            if [ "$FAIL" -eq 1 ]; then
+              exit 1
+            fi
+            exit 0
+          fi
+
           if [ "$N_SKILLS" -gt 1 ]; then
-            echo "::error::PR touches $N_SKILLS skills; one skill per PR."
+            echo "::error::PR touches $N_SKILLS skills; one skill per PR (or ask a maintainer for the 'maintainer' label)."
             echo "$SKILL_DIRS" | sed 's/^/  - /'
             FAIL=1
           fi
 
-          if [ -n "$OUT_OF_BOUNDS" ]; then
-            echo "::error::PR touches files outside the allowed paths (skill dirs, marketplace.json, root meta files, .github/, scripts/, agents/):"
-            echo "$OUT_OF_BOUNDS" | sed 's/^/  - /'
-            FAIL=1
+          if [ -n "$SKILL_DIRS" ]; then
+            # --- skill PR ---
+            # Generated files first: they get the precise "edit frontmatter"
+            # reason instead of the generic out-of-your-skill-dir message.
+            GENERATED_TOUCHED=$(echo "$CHANGED" | grep -E "$GENERATED_PATHS" || true)
+
+            if [ "$README_TABLE_CHANGED" -eq 1 ]; then
+              GENERATED_TOUCHED=$(printf '%s\nREADME.md (skills table block)' "$GENERATED_TOUCHED")
+            fi
+
+            if [ -n "$GENERATED_TOUCHED" ]; then
+              echo "::error::.claude-plugin/marketplace.json: generated file — edit SKILL.md frontmatter instead, the bot regenerates the catalog after merge"
+              echo "$GENERATED_TOUCHED" | grep . | sed 's/^/  - /'
+              FAIL=1
+            fi
+
+            STRAY=$(echo "$CHANGED" | grep -vE "$SKILL_PATHS" | grep -vE "$GENERATED_PATHS" || true)
+            if [ -n "$STRAY" ]; then
+              echo "::error::a skill PR may only change files inside skills/apify-<name>/ — split these out into their own PR (a maintainer adds the 'maintainer' label to it):"
+              echo "$STRAY" | sed 's/^/  - /'
+              FAIL=1
+            fi
+          else
+            # --- infra PR ---
+            # Nothing to regenerate from: the catalog is derived from skill
+            # frontmatter, so a hand-edited catalog with no skill is a dead end.
+            NON_CATALOG=$(echo "$CHANGED" | grep -vE "$GENERATED_PATHS" || true)
+            if [ "$README_TABLE_CHANGED" -eq 1 ]; then
+              NON_CATALOG=$(echo "$NON_CATALOG" | grep -vxF 'README.md' || true)
+            fi
+            if [ -z "$NON_CATALOG" ]; then
+              echo "::error::this PR only edits generated files (marketplace.json, AGENTS.md, the README skills table) and adds no skill — they are generated from skills/<name>/SKILL.md frontmatter after merge; submit a skill folder instead (see CONTRIBUTING.md)"
+              FAIL=1
+            fi
+
+            INFRA_TOUCHED=$(echo "$CHANGED" | grep -E "$INFRA_PATHS" || true)
+            if [ -n "$INFRA_TOUCHED" ]; then
+              echo "::error::changing CI, scripts/, the generated catalog or skills/_template/ needs a maintainer to add the 'maintainer' label — these files decide how every PR is validated:"
+              echo "$INFRA_TOUCHED" | sed 's/^/  - /'
+              FAIL=1
+            fi
           fi
 
           if [ "$FAIL" -eq 1 ]; then
@@ -73,6 +154,8 @@ jobs:
           fi
 
       - name: Check PR checklist
+        id: checklist
+        continue-on-error: true
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
@@ -88,52 +171,169 @@ jobs:
             exit 1
           fi
 
-      - name: Lint telemetry user-agent
-        run: bash scripts/lint_telemetry.sh
-
-      - name: Validate skills and marketplace sync
-        run: uv run scripts/generate_agents.py
-
-      - name: Detect manual edits to generated files
+      # Both lints below run only on the skill dirs changed in the PR (same
+      # scope logic as the scope check above). Pre-existing findings on main
+      # are deliberately kept as exhibits (decision D2), so a full-repo run
+      # would fail every future PR. Full runs for local/maintainer use:
+      #   bash scripts/lint_telemetry.sh
+      #   uv run scripts/lint_references.py --check-actors
+      - name: Determine changed skill dirs
+        id: changed
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          GENERATED='agents/AGENTS.md README.md'
-          if git diff --name-only "origin/$BASE_REF...HEAD" -- $GENERATED | grep -q .; then
-            echo "::notice::PR modifies generated files (agents/AGENTS.md or README.md) — they will be overwritten by the post-merge regenerate job."
+          CHANGED=$(git diff --name-only --diff-filter=ACMRT "origin/$BASE_REF...HEAD")
+          SKILL_DIRS=$(echo "$CHANGED" | grep -oE '^skills/apify-[^/]+' | sort -u)
+          N_SKILLS=$(echo "$SKILL_DIRS" | grep -c . || true)
+          echo "n_skills=$N_SKILLS" >> "$GITHUB_OUTPUT"
+          echo "skill_dirs=$(echo "$SKILL_DIRS" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          echo "Changed skill dirs ($N_SKILLS):"
+          echo "$SKILL_DIRS" | sed 's/^/  - /'
+
+      - name: Lint telemetry (changed skills)
+        id: telemetry
+        continue-on-error: true
+        run: |
+          if [ "${{ steps.changed.outputs.n_skills }}" -eq 0 ]; then
+            echo "No skill directories changed — skipping telemetry lint."
+            exit 0
+          fi
+          bash scripts/lint_telemetry.sh ${{ steps.changed.outputs.skill_dirs }}
+
+      - name: Lint references (changed skills)
+        id: references
+        continue-on-error: true
+        run: |
+          N_SKILLS="${{ steps.changed.outputs.n_skills }}"
+          if [ "$N_SKILLS" -eq 0 ]; then
+            echo "No skill directories changed — skipping reference lint."
+            exit 0
+          fi
+          if [ "$N_SKILLS" -eq 1 ]; then
+            # Single-skill PR: offline checks + online actor existence check.
+            uv run scripts/lint_references.py ${{ steps.changed.outputs.skill_dirs }} --check-actors ${{ steps.changed.outputs.skill_dirs }}
+          else
+            uv run scripts/lint_references.py ${{ steps.changed.outputs.skill_dirs }}
+          fi
+
+      - name: Validate skills and run a trial generation
+        id: generator
+        continue-on-error: true
+        run: uv run scripts/generate_agents.py
+
+      # Informational only: when a PR changes the lint rules themselves, show
+      # what those new rules do across the WHOLE catalog (not just the PR's
+      # changed skills). Pre-existing findings on main are kept as exhibits
+      # (decision D2, see the comment above "Determine changed skill dirs"),
+      # so this must never gate the PR — it just gives the rule author (and
+      # reviewers) visibility into blast radius before merge.
+      - name: Full lint audit (rule change)
+        id: audit
+        continue-on-error: true
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          CHANGED=$(git diff --name-only --diff-filter=ACMRT "origin/$BASE_REF...HEAD")
+          RULE_FILES=$(echo "$CHANGED" | grep -xE 'scripts/lint_telemetry\.sh|scripts/lint_references\.py|scripts/generate_agents\.py' || true)
+
+          if [ -z "$RULE_FILES" ]; then
+            echo "No lint-rule files changed — skipping full-catalog audit."
+            exit 0
+          fi
+
+          echo "Lint rule files changed in this PR:"
+          echo "$RULE_FILES" | sed 's/^/  - /'
+          echo
+
+          echo "=== bash scripts/lint_telemetry.sh (full catalog) ==="
+          bash scripts/lint_telemetry.sh || true
+          echo
+          echo "=== uv run scripts/lint_references.py (full catalog, offline) ==="
+          uv run scripts/lint_references.py || true
+
+          echo "::notice::rule change — full-catalog audit above shows the impact of the new rules (informational, not gating)"
+          exit 0
+
+      # All checks run to completion (continue-on-error) so a contributor sees
+      # every problem in one CI run instead of iterating; this step is the
+      # single pass/fail gate. "audit" is deliberately excluded — it is
+      # informational and must never affect the verdict.
+      - name: Aggregate verdict
+        env:
+          V_SCOPE: ${{ steps.scope.outcome }}
+          V_CHECKLIST: ${{ steps.checklist.outcome }}
+          V_TELEMETRY: ${{ steps.telemetry.outcome }}
+          V_REFERENCES: ${{ steps.references.outcome }}
+          V_GENERATOR: ${{ steps.generator.outcome }}
+        run: |
+          echo "VERDICT scope=$V_SCOPE checklist=$V_CHECKLIST telemetry=$V_TELEMETRY references=$V_REFERENCES generator=$V_GENERATOR"
+          if [ "$V_SCOPE" = failure ] || [ "$V_CHECKLIST" = failure ] || [ "$V_TELEMETRY" = failure ] || [ "$V_REFERENCES" = failure ] || [ "$V_GENERATOR" = failure ]; then
+            echo "::error::One or more checks failed — see the VERDICT line and the failing steps above."
+            exit 1
           fi
 
   regenerate:
-    if: github.event_name == 'push'
+    # The bot's own regen push must not trigger another regen. Matching on the
+    # "[bot]" suffix rather than a hardcoded app name keeps this working if the
+    # app is ever renamed or replaced; no other bot pushes to main, and a bot
+    # push that did would still be caught by the next human push.
+    if: github.event_name == 'push' && !endsWith(github.actor, '[bot]')
+    # Serialize regen runs: two quick merges must not race each other's push
+    # (a lost race can leave main's catalog stale until the next push).
+    concurrency:
+      group: regenerate-main
+      cancel-in-progress: false
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
-      - name: Checkout
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout latest main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Regenerate AGENTS.md and README skills table
-        run: uv run scripts/generate_agents.py
+      # Identity of the app's own bot user, resolved at run time — nothing here
+      # names the app, so the workflow moves between repos unchanged.
+      - name: Resolve bot identity
+        id: bot
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          USER_ID=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          echo "name=${APP_SLUG}[bot]" >> "$GITHUB_OUTPUT"
+          echo "email=${USER_ID}+${APP_SLUG}[bot]@users.noreply.github.com" >> "$GITHUB_OUTPUT"
 
-      - name: Open or update regen PR (if diff exists)
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: chore/regen-bot
-          delete-branch: true
-          commit-message: "chore: regenerate agents/AGENTS.md and README skills table"
-          title: "chore: regenerate agents/AGENTS.md and README skills table"
-          body: |
-            Auto-generated by the post-merge `regenerate` workflow. Brings
-            `agents/AGENTS.md` and the README skills table back in sync with
-            `.claude-plugin/marketplace.json` after a skill PR landed on `main`.
+      - name: Regenerate and push catalog
+        run: |
+          git config user.name "${{ steps.bot.outputs.name }}"
+          git config user.email "${{ steps.bot.outputs.email }}"
+          for attempt in 1 2 3; do
+            uv run scripts/generate_agents.py
+            if git diff --quiet; then
+              echo "Catalog already at fixed point — nothing to push."
+              exit 0
+            fi
+            git commit -am "chore: regenerate marketplace.json, AGENTS.md and README [bot]"
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (main moved) — refreshing and retrying ($attempt/3)."
+            git fetch origin main
+            git reset --hard origin/main
+          done
+          echo "::error::regenerate: could not push after 3 attempts — main is moving too fast; re-run this job."
+          exit 1
 
-            - [x] Auto-generated; no manual review needed beyond confirming the diff matches marketplace.json.
-          add-paths: |
-            agents/AGENTS.md
-            README.md
+      - name: Validate marketplace manifest (strict)
+        # Verified locally: ~2 s warm, exit 1 on an invalid manifest.
+        run: npx --yes @anthropic-ai/claude-code plugin validate --strict .
