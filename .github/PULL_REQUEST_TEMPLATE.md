@@ -6,11 +6,14 @@
 
 ## Checklist
 
-- [ ] PR adds **one** skill in `skills/apify-<name>/`
-- [ ] `SKILL.md` frontmatter has `name` (matches folder, `apify-` prefix) and `description` (≤ 1024 chars)
-- [ ] My PR does **not** modify `.claude-plugin/marketplace.json`, `agents/AGENTS.md` or the README table (they are generated)
+- [ ] PR adds **one** skill in `skills/apify-<name>/` and changes nothing outside that directory
+- [ ] `SKILL.md` frontmatter has `name` (matches the folder, `apify-` prefix), `description` (≤ 1024 chars) and `metadata.keywords`
+- [ ] I read CONTRIBUTING.md (agents: agents/AGENTS.md)
 - [ ] Tested the skill end-to-end at least once
 
 ## Notes
 
 <!-- Optional: design decisions, links to similar skills, anything reviewers should know -->
+
+<!-- Maintainers: an infra PR (no skill) needs no checklist — delete it and keep the
+     description non-empty. CI fails on unchecked boxes, not on absent ones. -->
