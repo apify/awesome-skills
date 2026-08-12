@@ -69,7 +69,9 @@ jobs:
           GENERATED_PATHS='^(\.claude-plugin/marketplace\.json|agents/AGENTS\.md)$'
           INFRA_PATHS='^(\.github/|scripts/|agents/|\.claude-plugin/|skills/_template/)'
           # The repo layout as a whole — nothing outside it, label or not.
-          ALLOWED='^(skills/apify-[^/]+/|skills/_template/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$|\.gitignore$|\.github/|scripts/|agents/)'
+          # Only files that actually exist in the repo are listed; a path is
+          # added here when the file is added, not in advance.
+          ALLOWED='^(skills/apify-[^/]+/|skills/_template/|\.claude-plugin/marketplace\.json$|LICENSE$|README\.md$|CONTRIBUTING\.md$|REVIEWING\.md$|\.gitignore$|\.github/|scripts/|agents/)'
           OUT_OF_BOUNDS=$(echo "$CHANGED" | grep -vE "$ALLOWED" || true)
 
           # README is generated only between the skills-table markers; edits to
