@@ -123,7 +123,7 @@ You are here only if a server answered. The single most expensive mistake now is
 
 | What came back | Most likely cause | Do NOT | Go to |
 |---|---|---|---|
-| 403, CDN error page, the edge **identified as Cloudflare** (`server: cloudflare`, `cf-ray`), **no** `cf-mitigated` header | a rule that read your address or ASN. Nothing of yours was evaluated | change your client: a real browser can fail identically | Step 3, egress work |
+| 403, CDN error page, the edge **identified as Cloudflare** (`server: cloudflare`, `cf-ray`), **no** `cf-mitigated` header, and a blocked-page body rather than an interstitial | a rule that read your address or ASN. Nothing of yours was evaluated | change your client: a real browser can fail identically | Step 3, egress work |
 | 403 or 503, interstitial body (`Just a moment...`), **`cf-mitigated` present**, CSP naming a challenge host | a managed challenge. The edge will admit a good client, and the check clears itself given seconds | escalate straight to a browser Actor, see Rung 5 for what that actually did | Rung 1, then Rung 5 |
 | 403 from an edge that is **not** Cloudflare, or one you have not identified yet | unclassified. The Cloudflare marker cannot appear here, so its absence carries no information | read "no `cf-mitigated`" as "my address was judged" | name the vendor first, see below |
 | 200, a full server-rendered page carrying a form with hidden state (`__VIEWSTATE`, `__EVENTVALIDATION`, a CSRF field), and no records | not a block and not a shell. The records are behind a POST you never issued | read the empty form as a defence, or send it to Rung 5 for a browser | the form test below |
@@ -147,7 +147,7 @@ You are here only if a server answered. The single most expensive mistake now is
 
 | Edge | What identifies it | What separates hard block from challenge there |
 |---|---|---|
-| Cloudflare | `server: cloudflare`, `cf-ray`. Measured on a refusal: 4,560-byte body, `Sorry, you have been blocked` | `cf-mitigated`. Present means a managed challenge, absent means your address |
+| Cloudflare | `server: cloudflare`, `cf-ray`. Measured on a refusal: 4,560-byte body, `Sorry, you have been blocked` | `cf-mitigated` first, then the body. Present means a managed challenge; absent **plus a blocked-page body** means your address. Absent **with an interstitial body** is still a challenge: custom rules and newer challenge widgets do not all set the header, so let the body overrule it |
 | Akamai | `Server-Timing: ak_p`, `X-Reference-Error`, a body naming `errors.edgesuite.net`. Measured on a refusal: 384 bytes, `Access Denied`, and **no `Server` and no `Via` header at all** | not `cf-mitigated`, which never appears here. Treat the refusal as unclassified and let a second egress decide |
 | anything else, or unidentified | whatever `Server`, `Via`, `X-Cache` and `Server-Timing` do carry | unknown. Say so, and route by the second egress rather than by an absent header |
 
@@ -193,6 +193,10 @@ Write down which row you are in. Every later decision depends on it.
 **Test A moves more often than people expect, and it is free.** Measured on a state assessment portal from one hosting egress: a default HTTP client got `403` and a real desktop Chrome on the same address got the full page, same minutes. The `403` was about the client, not the address, and every proxy in the world would have been the wrong purchase. That page then printed terms forbidding automated collection, which is a Step 0 answer and not a Rung 1 one.
 
 **Two refusals are not a verdict, and this is where people abandon reachable sites.** A hosting IP and a datacenter proxy are the same class of address to a WAF, so refusing both is one fact, not two. Before calling a site defended, spend **exactly one run** on a residential egress in the country the site serves. If residential from the right country is also refused, the site is genuinely defended and "How this ends" applies.
+
+**That probe is billed traffic, so it is the one step to ask about rather than perform.** Residential is charged by volume and this skill exists to prevent buying it reflexively; running it unattended, on someone's account, to satisfy a diagnosis is the same mistake at a smaller scale. State what the probe would cost and what it would settle, then run it once when the answer is yes. Everything before this point is free or sub-cent.
+
+**And prefer a free vantage point to a paid one whenever you have both.** If you can issue a request from a second network yourself, a plain `curl` from there answers the same question as an Actor run, immediately and at no cost, and it shows you the things a crawler hides: whether TCP connected at all, the raw headers, the body before any parsing. Spend the run when your only second egress is the platform's.
 
 **When two same-class egresses disagree, stop before you buy anything.** The rule above expects a hosting IP and a datacenter proxy to be judged alike. When they are not, the rule being applied is not about the class of network at all: it is about your specific address or its immediate neighbours, and the fix is another datacenter egress, which is cheap and probably already in your account. Residential is the wrong purchase here, and this is where the reflex costs the most for the least.
 
@@ -308,7 +312,9 @@ It still retires the blocked session, so the pool keeps rotating away from bad a
 
 **This is a diagnostic switch, not a crawl setting.** Take it out once you have classified the refusal, or your crawl will happily write challenge pages into your dataset as if they were records.
 
-**It also reaches into Crawlee's internals rather than a supported option, so treat it as version-bound.** `retireOnBlockedStatusCodes` is a session method, not a documented input, and an upgrade can rename or restructure it with no error on your side. The failure is silent and recognisable: refusals go back to arriving as items with no status and no headers, exactly as described above. Check that first field before blaming the site. The supported-looking alternative does not do this job, measured: setting `gotOptions.throwHttpErrors = false` left one classified refusal out of six against six out of six with the hook.
+**Why a hook and not a setting.** Crawlee the library does expose this behaviour through session pool options, but you are not calling the library, you are filling in an Actor's input, and that input does not carry them. Measured against the published build schema of `apify/cheerio-scraper`: 30 input fields, and `sessionPoolOptions`, `blockedStatusCodes`, `additionalHttpErrorStatusCodes` and `gotOptions` are absent from all of them; the only session-related field is `sessionPoolName`. `preNavigationHooks` is the one field that hands you a live session object, which is why the fix lives there.
+
+**It does reach into internals, so treat it as version-bound.** `retireOnBlockedStatusCodes` is a session method rather than a documented input, and an upgrade can rename or restructure it with no error on your side. The failure is silent and recognisable: refusals go back to arriving as items with no status and no headers, exactly as described above. Check that field before blaming the site. The setting people try first does not do this job, measured: `gotOptions.throwHttpErrors = false` left one classified refusal out of six, against six out of six with the hook.
 
 ## Troubleshooting
 
