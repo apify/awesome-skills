@@ -232,6 +232,25 @@
       "category": "data-extraction"
     },
     {
+      "name": "apify-osint-threat-intel",
+      "source": "./skills/apify-osint-threat-intel",
+      "skills": "./",
+      "description": "Use this skill when the user asks to \"find CVEs for\", \"check if my domain is breached\", \"threat intel on\", \"OSINT on\", \"security news about\", \"attack surface of\", \"is this IP malicious\", \"what vulnerabilities affect\", \"security advisory for\", \"monitor threats for\", \"threat actor research\", \"recent exploits for\", \"data breach check\", \"security posture of\", \"what's the threat landscape for\", \"investigate [domain/IP/software]\", \"is [company] exposed\", or any request involving vulnerability research, breach detection, threat actor profiling, or security intelligence. Requires Apify CLI or Apify MCP server.",
+      "keywords": [
+        "osint",
+        "threat-intel",
+        "cve",
+        "vulnerability",
+        "security",
+        "cybersecurity",
+        "breach",
+        "threat-actor",
+        "cisa",
+        "mitre-attack"
+      ],
+      "category": "data-extraction"
+    },
+    {
       "name": "apify-verified-email-finder",
       "source": "./skills/apify-verified-email-finder",
       "skills": "./",
