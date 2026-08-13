@@ -63,7 +63,6 @@ Usage:
   uv run scripts/revalidate_catalog.py                        # full catalog, markdown to stdout
   uv run scripts/revalidate_catalog.py --json-out report.json --markdown-out report.md
   uv run scripts/revalidate_catalog.py skills/apify-ecommerce  # subset, for debugging
-  uv run scripts/revalidate_catalog.py skills/apify-financial-services/skills/apify-financial-news
   uv run scripts/revalidate_catalog.py --skip-external         # actors only (fast)
 """
 

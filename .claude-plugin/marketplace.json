@@ -146,24 +146,6 @@
       "category": "data-extraction"
     },
     {
-      "name": "apify-financial-services",
-      "source": "./skills/apify-financial-services",
-      "skills": [
-        "./skills"
-      ],
-      "description": "Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
-      "keywords": [
-        "finance",
-        "news",
-        "osint",
-        "sentiment",
-        "registry",
-        "due-diligence",
-        "apify"
-      ],
-      "category": "data-extraction"
-    },
-    {
       "name": "apify-google-maps-leads",
       "source": "./skills/apify-google-maps-leads",
       "skills": "./",
