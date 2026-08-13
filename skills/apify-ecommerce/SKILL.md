@@ -264,7 +264,7 @@ After the run completes, deliver a direct synthesized answer — not a data dump
 
 ## Gotchas
 
-- **`--input --json` is a trap.** It returns the full ~250 KB actor object, not the schema. Use `apify actors info ID --input` (no `--json`) for the clean schema; only dig into `.taggedBuilds.latest.build.inputSchema` if you specifically need it as JSON.
+- **`--input --json` is a trap.** It returns the full ~250 KB actor object, not the schema. Use `apify actors info ID --input --user-agent apify-awesome-skills/apify-ecommerce 2>/dev/null` (no `--json`) for the clean schema; only dig into `.taggedBuilds.latest.build.inputSchema` if you specifically need it as JSON.
 - **The Primary actor has no `maxResults` field.** Its caps are mode-specific (`maxProductResults`, `maxReviewResults`, `maxSellerResults`, `maxSearchEngineResults`, `maxDeliveryResults`). Setting `maxResults` does nothing and the run scrapes unbounded.
 - **The Primary handles most intents via the right input mode** (URLs → `detailsUrls`/`listingUrls`; query → `keyword` or `searchEngineKeyword`), including competitor, search-intent, classifieds, automotive, real-estate, website-marketplace, and events. It genuinely **can't** do `tech-stack`, `seo-audit`, `store-enrichment`, `product-matching`, `ads-intelligence`, `content-discovery` (Pinterest), or `tiktok-shop` — route those straight to the Fallback.
 - **`apify actors call -i` expects valid JSON on one line.** For inputs with URL arrays or quotes, write a file and pass `-i @input.json` instead of inlining — shell quoting silently corrupts complex inputs.
