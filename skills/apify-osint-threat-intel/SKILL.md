@@ -12,6 +12,8 @@ description: >
 
 author: karthik-zoro-96
 author_url: https://github.com/karthik-zoro-96
+metadata:
+  keywords: "osint, threat-intel, cve, vulnerability, security, cybersecurity, breach, threat-actor, cisa, mitre-attack"
 ---
 
 # OSINT Threat Intelligence
@@ -29,11 +31,14 @@ threat actor activity change daily — always gather live data first, then analy
 - Token: https://console.apify.com/settings/integrations
 
 ### CLI rules (always follow)
+
+Always pass `--user-agent apify-awesome-skills/apify-osint-threat-intel` on every `apify` CLI call — it's critical for telemetry, never omit it.
+
 ```bash
-apify actors call "ACTOR_ID" -i 'INPUT_JSON' --json 2>/dev/null
-apify datasets get-items DATASET_ID --format json > /tmp/results.json 2>/dev/null
+apify actors call "ACTOR_ID" -i 'INPUT_JSON' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
+apify datasets get-items DATASET_ID --format json --user-agent apify-awesome-skills/apify-osint-threat-intel > /tmp/results.json 2>/dev/null
 jq '.[] | "\(.field1) | \(.field2)"' /tmp/results.json
-apify actors info "ACTOR_ID" --input --json 2>/dev/null   # check schema
+apify actors info "ACTOR_ID" --input --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null   # check schema
 ```
 
 ---
@@ -48,7 +53,7 @@ apify actors info "ACTOR_ID" --input --json 2>/dev/null   # check schema
 | GitHub advisories | `apify/rag-web-browser` | URL: `github.com/advisories?query=[product]` |
 | Exploit-DB search | `apify/google-search-scraper` | Query: `site:exploit-db.com [product] [version]` |
 | Security news | `data_xplorer/google-news-scraper-fast` | Keywords: `"[target]" vulnerability OR exploit OR breach` |
-| Reddit threat discussion | `trudax/reddit-scraper` | `withinCommunity`: r/netsec OR r/cybersecurity |
+| Reddit threat discussion | `trudax/reddit-scraper` | `searchCommunityName`: netsec OR cybersecurity. **Paid rental Actor (~$45/month after free trial)** — warn the user before Reddit steps; every other Actor here is pay-per-use. |
 | Threat intel Twitter/X | `apidojo/tweet-scraper` | Keywords: `#threatintel [target]`, search mode |
 | Breach mention search | `apify/google-search-scraper` | Query: `"[domain]" site:pastebin.com OR intext:breach` |
 | Vendor security advisory | `apify/website-content-crawler` | Direct vendor security page URL |
@@ -89,27 +94,27 @@ Gather live CVE data for a product or version:
 # 1. Search NVD via Google
 apify actors call "apify/google-search-scraper" -i '{
   "queries": "site:nvd.nist.gov CVE [PRODUCT] [VERSION]",
-  "maxResultsPerPage": 10,
-  "resultsPerPage": 10
-}' --json 2>/dev/null
+  "maxPagesPerQuery": 1
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 2. Pull full NVD record for each CVE ID found
 apify actors call "apify/website-content-crawler" -i '{
   "startUrls": [{"url": "https://nvd.nist.gov/vuln/detail/CVE-XXXX-XXXXX"}],
+  "proxyConfiguration": {"useApifyProxy": true},
   "maxCrawlPages": 1
-}' --json 2>/dev/null
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 3. Check if CVE is in CISA's Known Exploited Vulnerabilities list
 apify actors call "apify/rag-web-browser" -i '{
   "query": "[CVE-ID] site:cisa.gov/known-exploited-vulnerabilities-catalog",
   "maxResults": 3
-}' --json 2>/dev/null
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 4. Check Exploit-DB for public PoC
 apify actors call "apify/google-search-scraper" -i '{
   "queries": "site:exploit-db.com [PRODUCT] [VERSION]",
-  "maxResultsPerPage": 5
-}' --json 2>/dev/null
+  "maxPagesPerQuery": 1
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
 Synthesize: severity (CVSS), exploitability (CISA KEV = active exploitation), public PoC exists (yes/no), patch available (yes/no).
@@ -120,27 +125,28 @@ Synthesize: severity (CVSS), exploitability (CISA KEV = active exploitation), pu
 # 1. Search for breach mentions
 apify actors call "apify/google-search-scraper" -i '{
   "queries": "\"[DOMAIN]\" breach OR leak OR hacked OR \"data exposed\"",
-  "maxResultsPerPage": 10
-}' --json 2>/dev/null
+  "maxPagesPerQuery": 1
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 2. Check paste sites for credential leaks
 apify actors call "apify/google-search-scraper" -i '{
   "queries": "\"[DOMAIN]\" site:pastebin.com OR site:ghostbin.com OR site:rentry.co",
-  "maxResultsPerPage": 5
-}' --json 2>/dev/null
+  "maxPagesPerQuery": 1
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 3. Check Shodan exposure hints via Google
 apify actors call "apify/google-search-scraper" -i '{
   "queries": "site:shodan.io \"[DOMAIN OR ORG]\"",
-  "maxResultsPerPage": 5
-}' --json 2>/dev/null
+  "maxPagesPerQuery": 1
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 4. Scan r/netsec and r/cybersecurity for mentions
 apify actors call "trudax/reddit-scraper" -i '{
-  "searchTerms": ["[DOMAIN] breach", "[DOMAIN] hack", "[DOMAIN] vulnerability"],
-  "withinCommunity": "r/netsec",
-  "maxPostsCount": 10
-}' --json 2>/dev/null
+  "searches": ["[DOMAIN] breach", "[DOMAIN] hack", "[DOMAIN] vulnerability"],
+  "searchCommunityName": "netsec",
+  "maxPostCount": 10,
+  "proxy": {"useApifyProxy": true}
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
 ### Step 2c — Threat Actor Profile
@@ -150,27 +156,28 @@ apify actors call "trudax/reddit-scraper" -i '{
 apify actors call "apify/rag-web-browser" -i '{
   "query": "[THREAT ACTOR NAME] site:attack.mitre.org",
   "maxResults": 3
-}' --json 2>/dev/null
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 2. Recent activity via news
 apify actors call "data_xplorer/google-news-scraper-fast" -i '{
-  "keyword": "[THREAT ACTOR NAME] attack OR campaign OR malware",
-  "maxItems": 15
-}' --json 2>/dev/null
+  "keywords": ["[THREAT ACTOR NAME] attack OR campaign OR malware"],
+  "maxArticles": 15
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 3. Community threat intel on Twitter/X
 apify actors call "apidojo/tweet-scraper" -i '{
   "searchTerms": ["#threatintel [THREAT ACTOR]", "[THREAT ACTOR] TTPs"],
   "maxItems": 20,
   "sort": "Latest"
-}' --json 2>/dev/null
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 4. Reddit discussion
 apify actors call "trudax/reddit-scraper" -i '{
-  "searchTerms": ["[THREAT ACTOR NAME]"],
-  "withinCommunity": "r/netsec",
-  "maxPostsCount": 10
-}' --json 2>/dev/null
+  "searches": ["[THREAT ACTOR NAME]"],
+  "searchCommunityName": "netsec",
+  "maxPostCount": 10,
+  "proxy": {"useApifyProxy": true}
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
 ### Step 2d — Security News Brief
@@ -178,16 +185,17 @@ apify actors call "trudax/reddit-scraper" -i '{
 ```bash
 # 1. Google News for topic
 apify actors call "data_xplorer/google-news-scraper-fast" -i '{
-  "keyword": "[TOPIC] vulnerability OR CVE OR breach OR exploit",
-  "maxItems": 20
-}' --json 2>/dev/null
+  "keywords": ["[TOPIC] vulnerability OR CVE OR breach OR exploit"],
+  "maxArticles": 20
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
 # 2. Reddit r/netsec latest
 apify actors call "trudax/reddit-scraper" -i '{
   "startUrls": [{"url": "https://www.reddit.com/r/netsec/"}],
-  "maxPostsCount": 15,
-  "sort": "new"
-}' --json 2>/dev/null
+  "maxPostCount": 15,
+  "sort": "new",
+  "proxy": {"useApifyProxy": true}
+}' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
 ### Step 3 — Triage and assess
@@ -257,4 +265,12 @@ Date: [today]
 | `tweet-scraper` returns sparse results | Broaden to `#cybersecurity [term]` or drop hashtag requirement |
 | CISA KEV page too large to crawl | Use `rag-web-browser` with specific CVE ID as query |
 
-See [gotchas.md](../../docs/gotchas.md) for cost guardrails and rate limit guidance.
+---
+
+## Example prompts
+
+- "Check if example.com has any known vulnerabilities or appears in recent breach data."
+- "What's the latest threat intel on CVE-2026-1234 — is it actively exploited?"
+- "Profile the APT28 group — recent campaigns, TTPs, and infrastructure."
+
+**Boundary:** This skill researches organizations, infrastructure and named threat *groups*. It won't build cross-platform profiles of private individuals.
