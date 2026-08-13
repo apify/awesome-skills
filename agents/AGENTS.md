@@ -18,7 +18,6 @@ Read a skill's SKILL.md before using it — that's where the full instructions l
 - **apify-buying-signal-detection** by [Fabian Maume](https://github.com/fmaume) → `skills/apify-buying-signal-detection/SKILL.md`: Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings (hiring for the persona), fundraising events (recent raises), and LinkedIn content (pain-point posts, hiring announcements) — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture — Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says "find companies with buying signals", "detect intent signals for outbound", "set up a weekly lead pipeline", "monitor hiring signals for lead gen", "track startup funding leads", "find LinkedIn buying signals", "schedule Apify Actors for prospecting", "build a signals-based lead list", or "set up buying-intent monitoring for my ICP".
 - **apify-easy-competitive-intelligence** by [chocholous](https://github.com/chocholous) → `skills/apify-easy-competitive-intelligence/SKILL.md`: This skill should be used when the user asks to "analyze a competitor", "compare pricing", "competitive landscape", "market research", "what do customers think", "review intelligence", "hiring signals", "content strategy", "SEO battle", "build a battlecard", "competitive analysis", "who are the players", "who competes with", "market intelligence", "competitive positioning", "deep dive on a company", "board prep", "SWOT analysis", "how does [X] compare to [Y]", or mentions competitor analysis, pricing comparison, customer sentiment, or market landscape research. Requires Apify CLI or Apify MCP server.
 - **apify-ecommerce** by [Luis Pinto](https://github.com/luispintoapify) → `skills/apify-ecommerce/SKILL.md`: Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence.
-- **apify-financial-services** → `skills/apify-financial-services/`: Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.
 - **apify-google-maps-leads** by [Fabian Maume](https://github.com/fmaume) → `skills/apify-google-maps-leads/SKILL.md`: Build a local-business lead database from Google Maps in one Apify pipeline: search by target audience + geography, enrich each place with company contacts from its website, leads enrichment (names, emails, phones, LinkedIn), Instagram + Facebook profiles, and optionally reviews for lead scoring. For places with no named contacts, escalate to apify/ai-web-scraper to pull owner / decision-maker names from the business website. Backfill missing phones via scalelist/phone-finder and missing emails via scalelist/email-finder. Use when the user asks to build a lead list from Google Maps, scrape local businesses, generate B2B leads by city/industry, find owner/decision-maker contacts for restaurants / dentists / gyms / hotels / any local vertical, score leads by review volume or rating, or says "Google Maps lead-gen pipeline", "leads from Maps", "prospect local businesses", "scrape Google Maps for outreach", "find companies in <city>", or mentions chaining Google Maps + AI web scraper + Scalelist Actors.
 - **apify-influencer-brand-collabs** by [Natasha Lekh](https://github.com/natashalekh) → `skills/apify-influencer-brand-collabs/SKILL.md`: Discover Instagram brand–creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid posts for, wants to audit an influencer's branded-content history, or wants to scope a brand's sponsorship roster. **Triggers:** - "who collabs with [brand] on Instagram?" - "what brands has [creator] done sponsored posts for?" - "find paid partnerships / branded content for [handle]" - "audit [influencer]'s brand deals" - "show me [brand]'s influencer roster" Works in either direction — brand → creators or creator → brands — and detects direction from the data, so don't ask the user to declare it. Requires Apify MCP tools.
 - **apify-lead-scoring-enrichment** by [Fabian Maume](https://github.com/fmaume) → `skills/apify-lead-scoring-enrichment/SKILL.md`: Score and enrich a CSV of B2B leads using Apify Actors. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech stack), Website Content Crawler (content classification), and Contact Info Scraper (company metadata) for scoring; enriches with either department-specific contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper → AI Web Scraper → Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column that personalizes cold email copy (e.g. "uses Shopify → send Shopify install guide"). Use when user asks to score leads, qualify leads, enrich a lead list, detect a company's tech stack for outreach, find marketing/sales/engineering contacts at a list of companies, hunt down blog copywriters for guest-post pitches, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.
@@ -45,29 +44,21 @@ A contributor asked you to add a new skill to this repo. Follow these steps.
    - `description: ...` (≤ 1024 characters; include trigger phrases the user would say)
    - `author: ...` (optional)
    - `author_url: https://...` (optional)
+   - `metadata:` block with:
+     - `keywords: "keyword-one, keyword-two, ..."` (comma-separated string; required)
+     - `category: data-extraction` (optional; defaults to `data-extraction`)
 2. **`skills/apify-<name>/references/actor-index.md`** and **`references/gotchas.md`** — copy the templates from `skills/_template/references/` and fill them in. Optional but recommended.
 
 ## Marketplace entry
 
-Add one entry to `.claude-plugin/marketplace.json` in the `plugins` array:
-
-```json
-{
-  "name": "apify-<name>",
-  "source": "./skills/apify-<name>",
-  "skills": "./",
-  "description": "Brief description",
-  "keywords": ["apify", "..."],
-  "category": "data-extraction",
-  "version": "1.0.0"
-}
-```
+There is nothing to add manually. `.claude-plugin/marketplace.json` is generated
+from SKILL.md frontmatter after your PR merges — do **not** edit it in your PR.
 
 ## Rules
 
 - **One skill per PR.** CI rejects PRs that touch multiple skills (unless a maintainer adds the `maintainer` label).
-- **No unnecessary changes.** Edit only files inside `skills/apify-<name>/` and `.claude-plugin/marketplace.json`.
-- **Do not edit** `agents/AGENTS.md` or the skills table in `README.md` — both are regenerated from frontmatter after merge.
+- **No unnecessary changes.** Edit only files inside `skills/apify-<name>/`.
+- **Do not edit** `.claude-plugin/marketplace.json`, `agents/AGENTS.md` or the skills table in `README.md` — all three are regenerated from frontmatter after merge.
 - **Use Apify Actors only** — they must be publicly available on the [Apify Store](https://apify.com/store).
 
 ## Calling Actors — your choice
@@ -88,4 +79,43 @@ Run locally before opening the PR:
 uv run scripts/generate_agents.py
 ```
 
-This checks marketplace ↔ SKILL.md sync, validates `name`/`description`/`author_url` formats, and regenerates `agents/AGENTS.md` + the README skills table. CI runs the same script on the PR.
+This validates `name`/`description`/`author_url`/`metadata.keywords` and regenerates `.claude-plugin/marketplace.json`, `agents/AGENTS.md` and the README skills table from frontmatter. CI runs the same script on the PR (don't commit the regenerated files — the bot pushes them after merge).
+
+## Submitting a skill (for AI agents)
+
+Follow this flow when the user wants to contribute their own skill — "submit my skill", "add my skill to awesome-skills", "contribute a skill". It layers a short user interview on top of the mechanical steps above. [CONTRIBUTING.md](../CONTRIBUTING.md) is the source of truth for every rule and limit; this section only sequences the work.
+
+### Step 1 — Interview the user
+
+Collect all six answers before writing any files:
+
+1. **Task & trigger phrases.** What does the skill accomplish, and what exact phrases would a user say to invoke it? → frontmatter `description` (≤ 1024 chars, trigger phrases included).
+2. **Actors.** Which public Actors from the [Apify Store](https://apify.com/store) does it use? Verify each one with `apify actors info <actor-id>`; if an Actor is private, deprecated or missing, stop and resolve it with the user.
+3. **Inputs & outputs.** What does a working input JSON look like for each Actor, and what fields come back in the dataset items? → usage examples in SKILL.md.
+4. **Costs.** What costs money, and where are the traps (per-result pricing, memory limits, runaway pagination)? → cost guardrails in `references/gotchas.md`.
+5. **Failure modes.** What fails in practice (empty results, blocked pages, timeouts), and how should an agent recover? → error-recovery guidance.
+6. **Attribution.** Author name and URL for credit? → optional frontmatter `author` / `author_url`. If any link carries an affiliate or referral parameter, or routes to a paid Actor the author owns, add the disclosure line CONTRIBUTING.md requires.
+
+### Step 2 — Draft, validate, open the PR
+
+1. Fork the repo and work on a branch of the fork.
+2. Copy `skills/_template/` to `skills/apify-<name>/`.
+3. Fill in `SKILL.md` (and optionally `references/`) from the interview answers.
+4. Add the `metadata:` block to the frontmatter — `keywords` is required. Do **not** touch `.claude-plugin/marketplace.json`: the catalog is generated from frontmatter after merge, and editing it fails CI.
+5. Validate locally — all three must pass:
+
+   ```bash
+   bash scripts/lint_telemetry.sh skills/apify-<name>
+   uv run scripts/lint_references.py skills/apify-<name> --check-actors skills/apify-<name>
+   uv run scripts/generate_agents.py
+   ```
+
+6. Do **not** commit the generated files (`.claude-plugin/marketplace.json`, `agents/AGENTS.md`, the README skills table) — the bot regenerates them after merge. Keep the PR inside your skill directory; changes to CI, `scripts/` or the template belong in a separate PR that a maintainer labels `maintainer`.
+7. Open the PR with `gh pr create`, filling in the PR template. Check a box only once it is actually true — CI fails the PR if the description is empty or any box is left unchecked.
+
+### Hard rules
+
+- Only **public Actors** from the Apify Store.
+- **One skill per PR**, and nothing outside `skills/apify-<name>/`.
+- Every `apify` CLI command in SKILL.md code blocks carries `--user-agent apify-awesome-skills/<skill-name>`, `--json` and `2>/dev/null` (see CONTRIBUTING.md for the documented exceptions).
+- Frontmatter `name` = folder name (`apify-<name>`).

@@ -3,6 +3,8 @@ name: apify-ecommerce
 description: Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence.
 author: Luis Pinto
 author_url: https://github.com/luispintoapify
+metadata:
+  keywords: "ecommerce, pricing, reviews, sentiment, products, sellers, amazon, walmart, ebay, MAP, competitor, research, supply-chain"
 ---
 
 # E-Commerce Cluster
@@ -96,7 +98,7 @@ If multiple intents are detected, ask: *"Do you want [intent A] or [intent B]?"*
 | `seo-audit` | any | `apify/e-commerce-scraping-tool` | `trovevault/product-listing-seo-auditor` |
 | `competitor` | any | `apify/e-commerce-scraping-tool` | `trovevault/competitor-intelligence-scraper---funnel-pricing-conversion` |
 | `search-intent` | any | `apify/e-commerce-scraping-tool` | `trovevault/ai-serp-intent-extractor---search-intent-classifier` |
-| `product-matching` | any | `apify/e-commerce-scraping-tool` | `tri_angle/product-matching-vectorizer` |
+| `product-matching` | any | `apify/e-commerce-scraping-tool` | — |
 | `store-enrichment` | any | `apify/e-commerce-scraping-tool` | `trovevault/e-commerce-store-data-enricher` |
 | `food-delivery` | DoorDash | `apify/e-commerce-scraping-tool` | `tri_angle/doordash-store-details-scraper` |
 | `food-delivery` | UberEats | `apify/e-commerce-scraping-tool` | `e-commerce/ubereats-reviews-scraper` |

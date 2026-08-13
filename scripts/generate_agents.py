@@ -3,16 +3,21 @@
 # requires-python = ">=3.10"
 # dependencies = []
 # ///
-"""Generate agents/AGENTS.md and the README skills table from SKILL.md frontmatter.
+"""Generate .claude-plugin/marketplace.json, agents/AGENTS.md and the README
+skills table from SKILL.md frontmatter.
 
-Also validates that .claude-plugin/marketplace.json is in sync with discovered
-skills. Fails (exit 1) on hard errors; prints nothing for healthy skills.
+SKILL.md frontmatter is the single source of truth; the marketplace catalog and
+docs are derived artifacts. Fails (exit 1) on hard errors; prints nothing for
+healthy skills.
 
 Frontmatter fields:
-  - name         (required) — must match folder name, kebab-case, apify- prefix
-  - description  (required) — max 1024 chars per agentskills.io spec
-  - author       (optional) — free string
-  - author_url   (optional) — must be a valid http(s) URL if present
+  - name              (required) — must match folder name, kebab-case, apify- prefix
+  - description       (required) — max 1024 chars per agentskills.io spec
+  - author            (optional) — free string
+  - author_url        (optional) — must be a valid http(s) URL if present
+  - metadata          (required) — nested map:
+      - keywords      (required) — comma-separated string, e.g. "seo, pricing"
+      - category      (optional) — defaults to DEFAULT_CATEGORY
 
 Usage:
   uv run scripts/generate_agents.py
@@ -43,24 +48,41 @@ URL_PATTERN = re.compile(r"^https?://[^\s]+$")
 # Skill directories that exist for tooling/templates, not for discovery.
 EXCLUDED_DIRS = {"_template"}
 
+MARKETPLACE_NAME = "awesome-skills"
+MARKETPLACE_OWNER = {
+    "name": "Apify Community",
+    "email": "support@apify.com",
+}
+MARKETPLACE_METADATA = {
+    "description": "Community collection of Apify agent skills for web scraping, data extraction, and automation",
+    "version": "1.0.0",
+}
+DEFAULT_CATEGORY = "data-extraction"
 
-def parse_frontmatter(text: str) -> dict[str, str]:
+def _strip_quotes(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        return value[1:-1]
+    return value
+
+
+def parse_frontmatter(text: str) -> dict:
     """Parse a minimal YAML-ish frontmatter block without external deps.
 
     Supports:
       - Single-line scalars:        key: value
       - Folded scalars over lines:  key: >- ... (joined with single spaces)
+      - One level of nested maps:   key: followed by indented `sub: value` pairs
     """
     match = re.search(r"^---\s*\n(.*?)\n---\s*", text, re.DOTALL)
     if not match:
         return {}
 
-    data: dict[str, str] = {}
+    data: dict = {}
     lines = match.group(1).splitlines()
     i = 0
     while i < len(lines):
         line = lines[i]
-        if ":" not in line:
+        if ":" not in line or line.startswith((" ", "\t")):
             i += 1
             continue
         key, raw_value = line.split(":", 1)
@@ -79,26 +101,38 @@ def parse_frontmatter(text: str) -> dict[str, str]:
             data[key] = " ".join(parts)
             continue
 
+        if value == "":
+            # Nested map — collect indented `sub: value` pairs
+            nested: dict[str, str] = {}
+            i += 1
+            while i < len(lines) and lines[i].startswith((" ", "\t")) and ":" in lines[i]:
+                sub_key, sub_value = lines[i].split(":", 1)
+                nested[sub_key.strip()] = _strip_quotes(sub_value.strip())
+                i += 1
+            data[key] = nested
+            continue
+
         data[key] = value
         i += 1
     return data
 
 
-def collect_skills() -> list[dict[str, str]]:
+def collect_skills() -> list[dict]:
     """Discover all SKILL.md files under skills/ (excluding _template, etc.).
 
-    Used by the validator (validate_marketplace_sync) to cross-check filesystem
-    against marketplace.json. NOT used by the doc generators — those iterate
-    marketplace.json directly via plugins_to_rows() so nested-plugin entries
-    (e.g. apify-financial-services with skills=["./skills"]) are surfaced as a
-    single parent row rather than missed.
+    Directories without a top-level SKILL.md are not silently skipped — they
+    fail layout_errors(). There are no special cases: a directory that does
+    not fit the model is resolved by a maintainer in the PR that carries it.
     """
-    skills: list[dict[str, str]] = []
+    skills: list[dict] = []
     for skill_md in SKILLS_DIR.glob("*/SKILL.md"):
         folder = skill_md.parent.name
         if folder in EXCLUDED_DIRS:
             continue
         meta = parse_frontmatter(skill_md.read_text(encoding="utf-8"))
+        metadata = meta.get("metadata")
+        if not isinstance(metadata, dict):
+            metadata = {}
         skills.append(
             {
                 "folder": folder,
@@ -106,13 +140,64 @@ def collect_skills() -> list[dict[str, str]]:
                 "description": meta.get("description", ""),
                 "author": meta.get("author", ""),
                 "author_url": meta.get("author_url", ""),
+                "metadata": metadata,
                 "path": str(skill_md.parent.relative_to(ROOT)),
             }
         )
     return sorted(skills, key=lambda s: s["name"].lower())
 
 
-def _read_frontmatter_file(path: Path) -> dict[str, str]:
+def layout_errors() -> list[str]:
+    """Every directory under skills/ must carry a top-level SKILL.md.
+
+    The catalog is generated from that frontmatter; a directory without it
+    (e.g. a nested plugin bundle) cannot be derived and fails the build
+    loudly instead of being special-cased in code.
+    """
+    errors: list[str] = []
+    for entry in sorted(SKILLS_DIR.iterdir()):
+        if not entry.is_dir() or entry.name in EXCLUDED_DIRS:
+            continue
+        if not (entry / "SKILL.md").is_file():
+            errors.append(
+                f"skills/{entry.name}/: no top-level SKILL.md — every skill "
+                "directory must carry one (the catalog is generated from its "
+                "frontmatter). Nested plugin bundles are not supported: add a "
+                "SKILL.md, restructure into flat skills, or remove the directory."
+            )
+    return errors
+
+
+def build_marketplace(skills: list[dict]) -> dict:
+    """Build the marketplace.json document from SKILL.md frontmatter."""
+    plugins: list[dict] = []
+    for skill in skills:
+        metadata = skill["metadata"]
+        keywords = [
+            keyword.strip()
+            for keyword in metadata.get("keywords", "").split(", ")
+            if keyword.strip()
+        ]
+        plugins.append(
+            {
+                "name": skill["name"],
+                "source": f"./{skill['path']}",
+                "skills": "./",
+                "description": skill["description"],
+                "keywords": keywords,
+                "category": metadata.get("category") or DEFAULT_CATEGORY,
+            }
+        )
+    plugins.sort(key=lambda p: p["name"].lower())
+    return {
+        "name": MARKETPLACE_NAME,
+        "owner": dict(MARKETPLACE_OWNER),
+        "metadata": dict(MARKETPLACE_METADATA),
+        "plugins": plugins,
+    }
+
+
+def _read_frontmatter_file(path: Path) -> dict:
     """Read frontmatter from a SKILL.md (returns empty dict if missing)."""
     if not path.is_file():
         return {}
@@ -120,14 +205,12 @@ def _read_frontmatter_file(path: Path) -> dict[str, str]:
 
 
 def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
-    """Convert marketplace.json plugin entries to renderable row dicts.
+    """Convert marketplace plugin entries to renderable row dicts.
 
-    One row per plugin entry, regardless of flat vs nested layout. This is the
+    One row per plugin entry. This is the
     single source of truth for both agents/AGENTS.md and the README skills
-    table. Description and author info prefer the SKILL.md frontmatter when
-    available (richer, includes trigger phrases), falling back to
-    marketplace.json's `description` for nested plugins where there's no
-    parent-level SKILL.md.
+    table. Description and author info come from the SKILL.md frontmatter
+    (layout_errors() guarantees every entry has one).
     """
     rows: list[dict[str, str]] = []
     for plugin in plugins:
@@ -135,26 +218,14 @@ def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
         source = plugin.get("source", "")
         source_rel = source.lstrip("./")
         source_dir = ROOT / source_rel
-        skills_field = plugin.get("skills", "./")
 
-        is_nested = isinstance(skills_field, list)
-
-        description = ""
-        author = ""
-        author_url = ""
-        if is_nested:
-            # Nested plugin: no parent SKILL.md. Use marketplace.json description.
-            # Link to the source directory so users can browse the nested layout.
-            description = plugin.get("description", "")
-            path_link = f"{source_rel}/"
-        else:
-            # Flat plugin: read the SKILL.md frontmatter for the richer
-            # description + author attribution.
-            meta = _read_frontmatter_file(source_dir / "SKILL.md")
-            description = meta.get("description") or plugin.get("description", "")
-            author = meta.get("author", "")
-            author_url = meta.get("author_url", "")
-            path_link = f"{source_rel}/SKILL.md"
+        # Read the SKILL.md frontmatter for the richer description + author
+        # attribution (layout_errors() guarantees the file exists).
+        meta = _read_frontmatter_file(source_dir / "SKILL.md")
+        description = meta.get("description") or plugin.get("description", "")
+        author = meta.get("author", "")
+        author_url = meta.get("author_url", "")
+        path_link = f"{source_rel}/SKILL.md"
 
         rows.append(
             {
@@ -163,7 +234,6 @@ def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
                 "author": author,
                 "author_url": author_url,
                 "path_link": path_link,
-                "nested": "1" if is_nested else "",
             }
         )
 
@@ -173,7 +243,7 @@ def plugins_to_rows(plugins: list[dict]) -> list[dict[str, str]]:
 def render_template(template: str, rows: list[dict[str, str]]) -> str:
     """Tiny Mustache-like renderer for the {{#skills}}...{{/skills}} loop.
 
-    `rows` come from plugins_to_rows() — one row per marketplace.json plugin.
+    `rows` come from plugins_to_rows() — one row per marketplace plugin.
     """
 
     def repl(match: re.Match[str]) -> str:
@@ -197,16 +267,10 @@ def render_template(template: str, rows: list[dict[str, str]]) -> str:
     return re.sub(r"{{#skills}}(.*?){{/skills}}", repl, template, flags=re.DOTALL)
 
 
-def load_marketplace() -> dict:
-    if not MARKETPLACE_PATH.exists():
-        raise FileNotFoundError(f"marketplace.json not found at {MARKETPLACE_PATH}")
-    return json.loads(MARKETPLACE_PATH.read_text(encoding="utf-8"))
-
-
 def generate_readme_table(rows: list[dict[str, str]]) -> str:
     """Render the README skills table with an Author column.
 
-    `rows` come from plugins_to_rows() — one row per marketplace.json plugin.
+    `rows` come from plugins_to_rows() — one row per marketplace plugin.
     """
     lines = [
         "| Name | Description | Author |",
@@ -257,7 +321,7 @@ def update_readme(rows: list[dict[str, str]]) -> bool:
     return True
 
 
-def validate_skills(skills: list[dict[str, str]]) -> list[str]:
+def validate_skills(skills: list[dict]) -> list[str]:
     """Hard validation. Returns list of error messages (empty = OK)."""
     errors: list[str] = []
     for skill in skills:
@@ -296,61 +360,26 @@ def validate_skills(skills: list[dict[str, str]]) -> list[str]:
                 f"skills/{folder}/SKILL.md: author_url '{author_url}' is not a valid http(s) URL"
             )
 
-    return errors
+        if not skill["metadata"].get("keywords", "").strip():
+            errors.append(
+                f"skills/{folder}/SKILL.md: missing 'metadata.keywords' — "
+                "add a 'metadata:' block to the frontmatter with keywords as "
+                'a comma-separated string, e.g. keywords: "kw-one, kw-two"'
+            )
 
-
-def validate_marketplace_sync(skills: list[dict[str, str]]) -> list[str]:
-    errors: list[str] = []
-    marketplace = load_marketplace()
-    plugins = marketplace.get("plugins", [])
-
-    skill_by_source = {f"./{s['path']}": s for s in skills}
-    plugin_by_source = {p["source"]: p for p in plugins}
-
+    seen: dict[str, str] = {}
     for skill in skills:
-        expected_source = f"./{skill['path']}"
-        if expected_source not in plugin_by_source:
-            errors.append(
-                f"Skill '{skill['name']}' at '{skill['path']}' is missing "
-                "from .claude-plugin/marketplace.json"
-            )
-        elif plugin_by_source[expected_source]["name"] != skill["name"]:
-            errors.append(
-                f"Name mismatch at '{expected_source}': "
-                f"SKILL.md='{skill['name']}', "
-                f"marketplace.json='{plugin_by_source[expected_source]['name']}'"
-            )
-
-    for plugin in plugins:
-        skills_field = plugin.get("skills")
-        source = plugin["source"]
-        source_path = ROOT / source.lstrip("./")
-
-        if isinstance(skills_field, list):
-            # Nested-plugin layout. Validate each nested skills directory has
-            # at least one sub-skill (i.e. <source>/<subdir>/*/SKILL.md).
-            for subdir in skills_field:
-                nested_root = source_path / subdir.lstrip("./")
-                if not nested_root.is_dir():
-                    errors.append(
-                        f"Marketplace plugin '{plugin['name']}' references "
-                        f"missing nested directory '{nested_root}'"
-                    )
-                    continue
-                sub_skills = list(nested_root.glob("*/SKILL.md"))
-                if not sub_skills:
-                    errors.append(
-                        f"Marketplace plugin '{plugin['name']}' has no sub-skills "
-                        f"under '{nested_root}'"
-                    )
+        name = skill["name"]
+        if not name:
             continue
-
-        # Flat-skill layout (skills is "./" or absent).
-        if source not in skill_by_source:
+        origin = f"skills/{skill['folder']}/SKILL.md"
+        if name in seen:
             errors.append(
-                f"Marketplace plugin '{plugin['name']}' at '{plugin['source']}' "
-                "has no SKILL.md"
+                f"{origin}: duplicate name '{name}' (already used by {seen[name]}) — "
+                "skill names must be unique across the marketplace"
             )
+        else:
+            seen[name] = origin
 
     return errors
 
@@ -359,18 +388,22 @@ def main() -> int:
     template = TEMPLATE_PATH.read_text(encoding="utf-8")
     skills = collect_skills()
 
-    errors = validate_skills(skills) + validate_marketplace_sync(skills)
+    errors = layout_errors() + validate_skills(skills)
     if errors:
         print("Validation failed:", file=sys.stderr)
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    # Docs are driven by marketplace.json — one row per plugin entry, so
-    # nested-plugin layouts (e.g. apify-financial-services) appear as a single
-    # parent row rather than being skipped by the filesystem walk.
-    marketplace = load_marketplace()
-    rows = plugins_to_rows(marketplace.get("plugins", []))
+    marketplace = build_marketplace(skills)
+    marketplace_json = json.dumps(marketplace, indent=2, ensure_ascii=False) + "\n"
+    if not MARKETPLACE_PATH.exists() or MARKETPLACE_PATH.read_text(encoding="utf-8") != marketplace_json:
+        MARKETPLACE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MARKETPLACE_PATH.write_text(marketplace_json, encoding="utf-8")
+        print(f"Wrote {MARKETPLACE_PATH.relative_to(ROOT)} ({len(marketplace['plugins'])} plugins).")
+
+    # Docs are driven by the generated plugins list — one row per plugin entry.
+    rows = plugins_to_rows(marketplace["plugins"])
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(render_template(template, rows), encoding="utf-8")

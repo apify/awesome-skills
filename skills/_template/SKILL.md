@@ -3,11 +3,26 @@
 # Do NOT add real values here; this file is a starting point, not an installable skill.
 name: ""
 description: ""
+# metadata.keywords is required — comma-separated search terms for the catalog.
+metadata:
+  category: data-extraction
+  keywords: ""
 ---
 
 # REPLACE: Skill Title
 
 REPLACE: One-line summary of what this skill helps the agent accomplish.
+
+## Example prompts
+
+Prompts this skill handles:
+
+- "REPLACE: a real prompt a user would type"
+- "REPLACE: a second one, phrased differently"
+
+Out of scope (the boundary):
+
+- "REPLACE: a nearby request this skill deliberately does not handle — and where to send it instead"
 
 ## Prerequisites
 
@@ -58,7 +73,8 @@ Works in any shell-capable agent. Three flags on every call:
 Other useful commands:
 
     # Search Actors
-    apify actors search "KEYWORDS" --json --limit 10 2>/dev/null
+    apify actors search "KEYWORDS" --json --limit 10 \
+      --user-agent apify-awesome-skills/REPLACE-skill-name 2>/dev/null
 
     # Fetch Actor schema
     apify actors info "ACTOR_ID" --input --json \

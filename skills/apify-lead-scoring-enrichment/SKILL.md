@@ -3,6 +3,8 @@ name: apify-lead-scoring-enrichment
 description: Score and enrich a CSV of B2B leads using Apify Actors. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech stack), Website Content Crawler (content classification), and Contact Info Scraper (company metadata) for scoring; enriches with either department-specific contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper → AI Web Scraper → Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column that personalizes cold email copy (e.g. "uses Shopify → send Shopify install guide"). Use when user asks to score leads, qualify leads, enrich a lead list, detect a company's tech stack for outreach, find marketing/sales/engineering contacts at a list of companies, hunt down blog copywriters for guest-post pitches, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.
 author: Fabian Maume
 author_url: https://github.com/fmaume
+metadata:
+  keywords: "lead-scoring, lead-enrichment, outreach, cold-email, personalization, tech-stack, builtwith, email-finder, copywriter-discovery, guest-post, prospecting, b2b, csv-workflow"
 ---
 
 # Lead Scoring & Enrichment

@@ -3,6 +3,8 @@ name: apify-buying-signal-detection
 description: Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings (hiring for the persona), fundraising events (recent raises), and LinkedIn content (pain-point posts, hiring announcements) — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture — Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says "find companies with buying signals", "detect intent signals for outbound", "set up a weekly lead pipeline", "monitor hiring signals for lead gen", "track startup funding leads", "find LinkedIn buying signals", "schedule Apify Actors for prospecting", "build a signals-based lead list", or "set up buying-intent monitoring for my ICP".
 author: Fabian Maume
 author_url: https://github.com/fmaume
+metadata:
+  keywords: "buying-signals, intent-data, lead-generation, outbound, prospecting, hiring-signals, funding-signals, linkedin-signals, sales-triggers, icp, scheduled-pipeline, b2b"
 ---
 
 # Buying-Signal Detection

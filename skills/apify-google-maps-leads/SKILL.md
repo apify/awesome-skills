@@ -3,6 +3,8 @@ name: apify-google-maps-leads
 description: Build a local-business lead database from Google Maps in one Apify pipeline: search by target audience + geography, enrich each place with company contacts from its website, leads enrichment (names, emails, phones, LinkedIn), Instagram + Facebook profiles, and optionally reviews for lead scoring. For places with no named contacts, escalate to apify/ai-web-scraper to pull owner / decision-maker names from the business website. Backfill missing phones via scalelist/phone-finder and missing emails via scalelist/email-finder. Use when the user asks to build a lead list from Google Maps, scrape local businesses, generate B2B leads by city/industry, find owner/decision-maker contacts for restaurants / dentists / gyms / hotels / any local vertical, score leads by review volume or rating, or says "Google Maps lead-gen pipeline", "leads from Maps", "prospect local businesses", "scrape Google Maps for outreach", "find companies in <city>", or mentions chaining Google Maps + AI web scraper + Scalelist Actors.
 author: Fabian Maume
 author_url: https://github.com/fmaume
+metadata:
+  keywords: "google-maps, leads, lead-generation, local-business, b2b, prospecting, google-places, lead-scoring, reviews, instagram-enrichment, facebook-enrichment, ai-web-scraper, name-discovery, scalelist, phone-finder, email-finder, contact-enrichment"
 ---
 
 # Google Maps Leads (with Scalelist backfill)
