@@ -3,6 +3,9 @@ name: apify-blocked-scrape-triage
 description: Diagnose and recover a scrape that is blocked, throttled, or served empty or partial content, in cost order, before paying for a heavier Actor. Use when a run returns 0 items, when a site answers 403, 429 or a challenge page, when the HTML comes back empty or truncated, when a request fails with no response at all, when the page shows data in a browser that the Actor does not see, or when a scraper that worked yesterday suddenly returns nothing. Triggers - "I'm getting blocked", "403 from the site", "429 rate limited", "Cloudflare challenge", "scraper returns empty results", "connection reset", "page loads in my browser but not in the Actor", "do I need residential proxies", "should I switch to a browser", "my scraper broke overnight". Escalates in cost order - a cheaper published source first, then reachability, request rate and IP spread, request fidelity, session tokens, the site's own internal API, browser last.
 author: Mikhail Koviazin
 author_url: https://github.com/mikhail-koviazin
+metadata:
+  category: data-extraction
+  keywords: "blocked, 403, 429, rate-limit, anti-bot, bot-detection, cloudflare-challenge, proxy, residential-proxy, session, empty-results, troubleshooting, web-data"
 ---
 
 # Blocked scrape triage
