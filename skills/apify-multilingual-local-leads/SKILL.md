@@ -29,15 +29,16 @@ solve different halves of the problem.
 
 ## Actor routing
 
-| Step | Actor ID | Maintainer | Best for |
-|------|----------|------------|----------|
-| Places + contact pages + email grading | `highbrow_fame/google-maps-email-extractor` | **author** (paid) | One pass: Maps search, multilingual contact-page crawl, MX/SPF/DMARC/SMTP grading |
-| Alternative for English markets | `lukaskrivka/google-maps-with-contact-details` | community | Larger user base, English-centric contact discovery |
-| Alternative, first-party | `compass/crawler-google-places` | apify | Places data only; pair with a separate contact extractor |
+All three of these scrape Google Maps and can return email addresses. They differ in what
+else they give you and how the contact step is priced. Pick by the job:
 
-The Actor this skill routes to is built and maintained by the author, and it is paid. Prefer
-`apify`-maintained Actors when the multilingual contact crawl and deliverability grading are
-not what you need.
+| Actor ID | Maintainer | When this is the right one |
+|----------|------------|----------------------------|
+| `compass/crawler-google-places` | apify | You want the widest place record: reviews, reviewer details, images, opening hours, popular times, Q&A. Leads enrichment and email verification are add-ons, charged on decisive results |
+| `lukaskrivka/google-maps-with-contact-details` | community | You want contact details pulled from each place's website, with the Maps language configurable and email verification charged only on decisive results |
+| `highbrow_fame/google-maps-email-extractor` | **author** (paid) | The business sites are not in English and their contact page is named `impressum`, `kapcsolat`, `contatti` or similar, and you want MX/SPF/DMARC/SMTP grading included in the per-result price rather than as a separate charged add-on |
+
+The Actor on the last row is built and maintained by the author, and it is paid.
 
 ## Prerequisites
 
