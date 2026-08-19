@@ -1,31 +1,36 @@
 ---
 name: apify-multilingual-local-leads
-description: Build a local-business lead list for non-English markets from Google Maps, where the email column is normally empty. Crawls contact pages by their native names (impressum, kapcsolat, contacto, contatti, contactez-nous, kontakt-z-nami, fale-conosco, contacteer, kontakty) rather than only /contact, and grades every address for deliverability with MX, SPF, DMARC and an SMTP probe before you send. Use when the user asks for leads in Germany, Austria, Switzerland, France, Italy, Spain, Portugal, Poland, Hungary, the Netherlands or any non-English market, says their Google Maps scrape "came back with no emails", asks for verified or deliverable emails, wants to avoid bounces on a cold campaign, needs more than Google's ~120 results per search, or wants to re-run a city weekly without paying for the same places twice.
+description: Build a local-business lead list from Google Maps with four things wired in: contact pages located by their native names (impressum, kapcsolat, contacto, contatti, contactez-nous, kontakt-z-nami, fale-conosco, contacteer, kontakty) across ten languages; a geo-grid that tiles a city to get past Google's roughly 120-result cap on one search; a delta re-run that skips places already in a previous run's dataset so the same business is not billed twice; and MX, SPF, DMARC and SMTP deliverability grading on every address, included in the per-result price. Use when the user asks to build or refresh a local-business lead list from Google Maps, wants emails graded before a cold send, needs more than 120 results from a single city, re-runs a market on a schedule, or is prospecting in Germany, Austria, Switzerland, France, Italy, Spain, Portugal, Poland, Hungary or the Netherlands.
 author: yestrue
 author_url: https://github.com/projectworks007
 metadata:
   keywords: "google-maps, leads, local-business, b2b, prospecting, email-verification, deliverability, mx-record, spf, dmarc, catch-all, multilingual, non-english, europe, germany, france, italy, spain, poland, hungary, netherlands, geo-grid, delta-mode"
 ---
 
-# Multilingual local leads with deliverability grading
+# Build a graded local-business lead list from Google Maps
 
 Links route to `highbrow_fame/google-maps-email-extractor`, a paid Actor built by the author.
 
-Most Google Maps lead pipelines look for `/contact` and `/about` on the business website. In
-Germany the page is `/impressum`, in Hungary `/kapcsolat`, in Poland `/kontakt-z-nami`, in
-Italy `/contatti`. When the crawler cannot find the page, the email column comes back empty
-and the run looks like it worked. This skill is for exactly that situation.
+Four decisions shape whether a Maps lead build is usable, and this skill covers all four:
+where to look for the contact page when it is not called `/contact`, how to get past Google's
+per-search result cap, how to re-run a market without paying for the same places again, and
+how to tell which addresses will deliver before anything is sent.
 
-Use `apify-google-maps-leads` instead when the target market is English-speaking and you want
-third-party enrichment (Scalelist phone/email backfill, AI name discovery). The two skills
-solve different halves of the problem.
+`apify-google-maps-leads` covers a different shape: chaining third-party enrichment onto a
+Maps scrape (Scalelist phone and email backfill, AI-driven name discovery) to get named
+decision-makers. Use that one when the goal is a person's name; use this one when the goal is
+a graded contact list built in one pass.
 
-## When this is the right tool
+## What this skill sets up
 
-- The market is not English-speaking, or is mixed.
-- The user needs emails that will actually deliver, not just strings that look like emails.
-- A previous Maps scrape returned rows with names and phones but no email addresses.
-- The user is about to run cold outreach and cares about bounce rate.
+- **Contact pages by native name.** German sites call it `/impressum`, Hungarian `/kapcsolat`,
+  Polish `/kontakt-z-nami`, Italian `/contatti`. The crawl looks for these directly.
+- **Grading before sending.** Every address gets MX, SPF, DMARC and an SMTP probe, and the
+  result travels with the row rather than being bought separately.
+- **Coverage past the cap.** A geo-grid tiles a city so one query can exceed Google's
+  roughly 120 places per search.
+- **Cheap repeats.** A delta re-run filters places already seen in a prior dataset before
+  they are billed.
 
 ## Actor routing
 
@@ -73,11 +78,12 @@ apify call highbrow_fame/google-maps-email-extractor --input '{
 }'
 ```
 
-`language` accepts 48 codes. It sets the Maps interface language and, more importantly,
-tells the crawler which contact-page names to look for.
+`language` accepts 48 codes. It sets the Maps interface language and selects which
+contact-page names the website crawl looks for.
 
-Residential proxy is not optional here. Google throttles datacenter IPs on Maps hard enough
-that runs time out rather than return fewer results.
+Keep the residential proxy on. Measured on this Actor: the same 10-place query took 443
+seconds through a datacenter IP against 124 to 163 seconds through a residential one,
+because Google throttles datacenter ranges on Maps.
 
 ### 3. Read the deliverability grade
 
