@@ -1,0 +1,16 @@
+# Actor routing table
+
+One Actor powers both Zillow skills; the skills differ in the question they are shaped for.
+
+| Question | Skill | Actor input shape |
+|---|---|---|
+| Homes with a recent price cut | apify-zillow-price-cuts | `statusType: "sale"`, `priceReduction: true` |
+| A weekly price-drop feed by city | apify-zillow-price-cuts | same, on a schedule, diffed downstream |
+| Biggest price drops in a metro | apify-zillow-price-cuts | same, sorted by `priceChange` |
+| For-sale, rental, or sold listings by city or ZIP | apify-zillow-api | `locations` list, `statusType`, filters |
+| Recently sold homes for comping | apify-zillow-api | `statusType: "sold"` |
+
+- Actor: https://apify.com/johnvc/zillow-api?fpr=9n7kx3&fp_sid=awesomeskills
+- Actor ID: `johnvc/zillow-api`
+- Dataset view for this skill: `priceCuts` (change amount, change date, days on market together).
+- Related family: Zoopla Property API (https://apify.com/johnvc/zoopla-property-api?fpr=9n7kx3&fp_sid=awesomeskills) and Realestate.com.au Property API (https://apify.com/johnvc/realestate-au-property-api?fpr=9n7kx3&fp_sid=awesomeskills) share the row shape for cross-market property work.
