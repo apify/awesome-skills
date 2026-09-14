@@ -9,6 +9,10 @@ on:
       - "scripts/**"
       - "skills/**"
       - ".claude-plugin/**"
+      - ".github/workflows/generate-agents.yml"
+
+permissions:
+  contents: read
 
 jobs:
   validate-pr:
@@ -272,11 +276,10 @@ jobs:
           fi
 
   regenerate:
-    # The bot's own regen push must not trigger another regen. Matching on the
-    # "[bot]" suffix rather than a hardcoded app name keeps this working if the
-    # app is ever renamed or replaced; no other bot pushes to main, and a bot
-    # push that did would still be caught by the next human push.
-    if: github.event_name == 'push' && !endsWith(github.actor, '[bot]')
+    # GITHUB_TOKEN pushes do not trigger another push workflow run.
+    if: github.event_name == 'push'
+    permissions:
+      contents: write
     # Serialize regen runs: two quick merges must not race each other's push
     # (a lost race can leave main's catalog stale until the next push).
     concurrency:
@@ -284,35 +287,23 @@ jobs:
       cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
-      - name: Create GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v3
-        with:
-          # Client ID is not sensitive — the action's docs store it as a
-          # repository variable, with only the private key in secrets.
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Checkout latest main
         uses: actions/checkout@v4
         with:
           ref: main
-          token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v4
 
-      # Identity of the app's own bot user, resolved at run time — nothing here
-      # names the app, so the workflow moves between repos unchanged.
       - name: Resolve bot identity
         id: bot
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          GH_TOKEN: ${{ github.token }}
+          BOT_LOGIN: github-actions[bot]
         run: |
-          USER_ID=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
-          echo "name=${APP_SLUG}[bot]" >> "$GITHUB_OUTPUT"
-          echo "email=${USER_ID}+${APP_SLUG}[bot]@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+          USER_ID=$(gh api "/users/$BOT_LOGIN" --jq .id)
+          echo "name=$BOT_LOGIN" >> "$GITHUB_OUTPUT"
+          echo "email=${USER_ID}+${BOT_LOGIN}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
 
       - name: Regenerate and push catalog
         run: |
@@ -328,7 +319,7 @@ jobs:
             # catalog must never land on main. (~2 s warm, exit 1 on invalid.)
             npx --yes @anthropic-ai/claude-code plugin validate --strict .
             git commit -am "chore: regenerate marketplace.json, AGENTS.md and README [bot]"
-            if git push; then
+            if git push origin HEAD:main; then
               exit 0
             fi
             echo "Push rejected (main moved) — refreshing and retrying ($attempt/3)."
