@@ -370,6 +370,26 @@
       "category": "data-extraction"
     },
     {
+      "name": "apify-plan-travel",
+      "source": "./skills/apify-plan-travel",
+      "skills": "./",
+      "description": "This skill should be used when the user asks to \"find flights\", \"compare flights\", \"analyze flight search results\", \"plan a flight itinerary\", \"plan a complete trip\", \"plan an event trip\", or create an itinerary and budget that combines flights with lodging. It turns supplied or live Apify travel results into a defensible recommendation while preserving unresolved fare scope. Do not use it for hotel-only or lodging-only requests. It prices and advises but never books.",
+      "keywords": [
+        "flight search",
+        "compare flights",
+        "multi-city itinerary",
+        "open-jaw flights",
+        "trip planning",
+        "event trip",
+        "flights and hotels",
+        "travel budget",
+        "google flights",
+        "google hotels",
+        "apify"
+      ],
+      "category": "data-extraction"
+    },
+    {
       "name": "apify-product-data-setup",
       "source": "./skills/apify-product-data-setup",
       "skills": "./",
