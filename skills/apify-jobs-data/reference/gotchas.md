@@ -15,7 +15,7 @@ apify actors info "ACTOR_ID" --json \
 
 | Model | Actors here | What to watch |
 |---|---|---|
-| `PAY_PER_RESULT` / `PAY_PER_EVENT` (all of them) | `agentx/all-jobs-scraper` (default), `misceres/indeed-scraper` (Apify-maintained), `memo23/glassdoor-scraper-ppr` | Cost scales with `max_results × boards`. No subscriptions — a run costs cents. Estimate first. |
+| `PAY_PER_RESULT` / `PAY_PER_EVENT` (all of them) | `agentx/all-jobs-scraper` (default), `misceres/indeed-scraper` (community), `memo23/glassdoor-scraper-ppr` | Cost scales with `max_results × platforms`. No subscriptions — a capped run costs cents. Estimate first. |
 
 **ToS / account risk.** Every board Actor scrapes a third-party site against its
 Terms of Service (SKILL.md Prerequisites). All routes run on Apify's infrastructure
@@ -27,14 +27,18 @@ Terms of Service (SKILL.md Prerequisites). All routes run on Apify's infrastruct
 total ≈ board_pull + (optional Glassdoor salary benchmark × companies)
 board_pull ≈ start_fee + (max_results × boards_hit × per_result)
 ```
-For `agentx/all-jobs-scraper`, `max_results` is **per board** and it hits ~6 boards,
-so the row count (and cost) is ≈ `max_results × 6` — a request for 50 returns ≈ 300
-jobs, not 50.
+For `agentx/all-jobs-scraper`, `max_results` is **per platform** and, with `platforms`
+empty, it hits every platform it supports for the country (up to 42), so the row count
+(and cost) is ≈ `max_results × platforms_hit` — a request for 50 returns hundreds of
+jobs, not 50. Pin `platforms` to make the estimate exact.
 
-Reference rates (confirm live in console — they change):
-- `agentx/all-jobs-scraper`: ≈ $0.01 start + $0.0023 / job (≈ $2.31 / 1,000).
-- `misceres/indeed-scraper`: ≈ $3 / 1,000 listings.
-- `memo23/glassdoor-scraper-ppr`: per-company — only when the salary benchmark is used.
+Reference rates as of 2026-09-16, free tier (confirm live in console — they change, and
+paid plans get lower per-result rates):
+- `agentx/all-jobs-scraper`: ≈ $0.01 start (per GB of run memory) + $0.0035 / job (≈ $3.50 / 1,000).
+- `misceres/indeed-scraper`: ≈ $0.006 / job (≈ $6 / 1,000 listings), no start fee.
+- `memo23/glassdoor-scraper-ppr`: ≈ $0.005 start + $0.00475 / row; **always set `maxItems`
+  (≤ 50 for a benchmark)** — the Actor's default is 20,000 per URL (≈ $95). Only when
+  the salary benchmark is used.
 
 ### Confirmation thresholds
 
@@ -49,7 +53,7 @@ Reference rates (confirm live in console — they change):
 |---|---|---|
 | Zero results, all boards | Over-narrow query / unparseable location | Widen `posted_since`, drop one filter, try `City, Country` form, lower specificity |
 | Zero on one board only | That board blocked the run or has no matches | Note it in the header — the aggregator covers the gap. Not a fatal error. |
-| Run `RUNNING` for minutes | Large `max_results` / multi-board fan-out | Poll `get-actor-run` (waitSecs ≤ 45); raise `timeout` to 900–1800 |
+| Run `RUNNING` for minutes | Large `max_results` / multi-board fan-out | Poll `get-actor-run` (waitSecs ≤ 45); raise `timeout` to 900–1800. The Actors' own default timeouts are huge (aggregator 12 h, Indeed 7 days — live `defaultRunOptions`, 2026-09-16), so a longer timeout is always paired with `maxTotalChargeUsd`, the only cap on spend (SKILL.md Step 4) |
 | Anti-bot / partial pages | Board rate-limited the Actor | Lower concurrency, reduce `max_results`, retry once |
 | LinkedIn returns little/nothing | LinkedIn blocks hardest | Retry once; otherwise note the thin LinkedIn coverage in the header — the aggregator's other boards carry the run |
 | Duplicate-heavy dataset | Same role syndicated across boards | Expected — skip-pass rule 2 dedupes; set `saveOnlyUniqueItems: true` on Indeed |
@@ -61,11 +65,12 @@ Reference rates (confirm live in console — they change):
 
 ### `agentx/all-jobs-scraper`
 - `country` is a **full country name** from the actor's enum (`Germany`, `United
-  States`) — **not** an ISO-2 code; defaults to `United States`. A wrong/empty
-  country silently narrows or mis-targets results.
-- **`max_results` is per board.** The actor fans out to ~6 boards, so a request for
-  10 returns ≈ 60 rows (verified live). Budget and expectations should use
-  `max_results × boards`, not `max_results`.
+  States`) — **not** an ISO-2 code; it is required with no default (omitting it fails
+  validation). A wrong country silently narrows or mis-targets results.
+- **`max_results` is per platform.** With `platforms` empty the actor fans out to
+  every platform it supports for the country, so a request for 10 can return far
+  more than 60 rows. Budget and expectations should use `max_results × platforms`,
+  not `max_results` — pin `platforms` to bound it.
 - `job_type` enum values have **no hyphen** (`fulltime`, not `full-time`).
 - Field coverage varies sharply by board/region; `salary` especially is often blank
   (a live Berlin run disclosed salary on 1 of 58 rows) and currency/period can be
@@ -80,6 +85,9 @@ Reference rates (confirm live in console — they change):
   selector — there is **no `companyName` field**. Find the URL via a SERP for
   "<company> glassdoor".
 - The section selector's exact name/values vary by version — fetch the live schema first.
+  Set `command: "salaries"` explicitly (the default is `reviews`) and **always set
+  `maxItems`** (default 20,000 per URL). Leave the separately billed add-ons
+  (`painPointAnalysis`, `reviewInsights`, `enrichEmails`) at their `false` default.
 - Verify the returned company is the right entity (generic names mis-match) before
   trusting the salary figures; surface the matched Glassdoor URL in the output.
 

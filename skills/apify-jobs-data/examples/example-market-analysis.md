@@ -14,15 +14,16 @@ Analysis ("demand / salary / skills"). No résumé needed.
 | 1 | Role | `senior backend engineer` |
 | 2 | Location / country | `Berlin` / `Germany` (full country name, per the schema) |
 | 3 | Boards | `auto` → aggregator (broad sample) |
-| 4 | Result cap | `50` **per board** ≈ 300 rows across ~6 boards — a bigger sample makes the stats meaningful |
+| 4 | Result cap | `50` **per platform** — rows ≈ 50 × the platforms the Actor runs for Germany (pin `platforms` to bound it); a bigger sample makes the stats meaningful |
 | 5 | Recency | `1 month` |
 | 6 | Filters | none (open market scan) |
 
 ## Steps 2–4 — Run
 
 `agentx/all-jobs-scraper`, `country: "Germany"`, `posted_since: "1 month"`,
-`max_results: 50` (per board). Returns 312 raw rows across 6 boards — cost ≈ $0.01 +
-312 × $0.0023 ≈ **$0.73**.
+`max_results: 50` (per platform). Returns 312 raw rows across the platforms the Actor
+ran — cost ≈ start fee + 312 × per-result rate ≈ **$1.10** at the rate current when
+this example was written (re-estimate live).
 
 ## Step 5 — De-noise + normalize
 

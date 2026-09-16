@@ -1,7 +1,8 @@
 # Example — Résumé-fit ranking + ATS gap
 
-User: *"Rank senior backend roles in Berlin against my résumé and tell me which ATS
-keywords I'm missing. Résumé: Python, Go, Postgres, Kubernetes, 7 yrs, led a team of 4."*
+User: *"Rank full-time senior backend roles in Berlin paying at least €85k against my
+résumé and tell me which ATS keywords I'm missing. Résumé: Python, Go, Postgres,
+Kubernetes, 7 yrs, led a team of 4."*
 
 ## Step 0 — Mode
 
@@ -14,15 +15,16 @@ Résumé-fit (a résumé is supplied → full Path-A scoring).
 | 1 | Role | `senior backend engineer` |
 | 2 | Location / country | `Berlin` / `Germany` |
 | 3 | Boards | `auto` → aggregator |
-| 4 | Result cap | `15` **per board** (≈90 across ~6 boards; fewer after some boards return less) |
+| 4 | Result cap | `15` **per platform** (≈ 15 × the platforms the Actor runs for Germany; fewer after some boards return less) |
 | 5 | Recency | `2 weeks` |
-| 6 | Filters | `salary_floor: 85000 EUR`, `job_type: fulltime` |
+| 6 | Filters | `salary_floor: 85000 EUR`, `job_type: fulltime` (both stated in the prompt) |
 | 7 | Résumé | Python, Go, Postgres, Kubernetes; 7 yrs; team lead |
 
 ## Steps 2–5 — Run + de-noise
 
 `agentx/all-jobs-scraper`, `country: "Germany"`, `job_type: "fulltime"`. 71 raw rows
-returned across the boards — cost ≈ **$0.18** (71 × $0.0023 + start). Funnel:
+returned across the boards — cost ≈ **$0.26** at the rate current when this example
+was written (71 × per-result + start; re-estimate live). Funnel:
 `71 raw → 67 after dropping 4 below the €85k floor → 38 after merging 29 duplicates`;
 3 ghost-flagged. 38 clean rows.
 
@@ -33,15 +35,17 @@ contract (fit, matched skills, gaps, `ats_keywords_missing`, hook). Ranked top:
 
 | Fit | Band | Title | Company | Salary | Matched | ATS to add |
 |---:|---|---|---|---|---|---|
-| 92 | 🟢 | Senior Backend Engineer (Go) | Example Cloud GmbH | €90–110k | Go, Postgres, Kubernetes, team lead | Kubernetes, gRPC |
+| 92 | 🟢 | Senior Backend Engineer (Go) | Example Cloud GmbH | €90–110k | Go, Postgres, Kubernetes, team lead | gRPC (ask — not on résumé) |
 | 84 | 🟢 | Senior SWE, Platform | Beispiel AG | €88–105k | Python, Kubernetes | (none — résumé covers it) |
 | 71 | 🟡 | Backend Engineer | Muster Tech | undisclosed | Python, Postgres | — |
 | 58 | 🟠 | Staff Engineer | Probe Labs | €120k+ | Go, Kubernetes | Terraform (real gap) |
 
-ATS note for row 1: the résumé says "container orchestration" — the JD says
-**Kubernetes**, an exact ATS keyword the screen looks for, so name it explicitly;
-**gRPC** is listed under the Acme project but not surfaced. Both `honest_to_add: true`.
-Row 4's `Terraform` is `honest_to_add: false` — a genuine gap, don't fake it.
+ATS note for row 1: **Kubernetes** is on the résumé → matched, not missing. The JD
+requires **gRPC**, which the résumé does not mention anywhere → `honest_to_add: false`
+and the note says "ask the user whether they have real gRPC experience before adding".
+Row 4's `Terraform` is likewise `honest_to_add: false` — a genuine gap, don't fake it.
+`honest_to_add: true` is reserved for a synonym the résumé actually contains (e.g.
+"Postgres" → "PostgreSQL").
 
 ## Step 7 — Deliver
 

@@ -13,9 +13,10 @@ and prefer the aggregator so the sample spans many boards.
 ## Aggregations
 
 ### Hiring demand
-- Count of **distinct, de-noised** postings (ghosts and duplicates already removed —
-  this is why de-noise matters: it's the difference between real demand and a board's
-  inflated count).
+- Count of **distinct, de-noised** postings (duplicates merged; ghost-flagged rows are
+  counted separately and reported as "N of which flagged possible ghost" — exclude
+  them only if the user asked. This is why de-noise matters: it's the difference
+  between real demand and a board's inflated count).
 - Break down by company (top employers hiring for the role), location, seniority, and
   `job_type`. Report **counts**, not just percentages.
 

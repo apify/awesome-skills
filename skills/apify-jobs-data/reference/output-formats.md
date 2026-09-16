@@ -17,7 +17,7 @@ Actors use their own names (fetch the live schema).
 | `title` | `title` | |
 | `company` | `company_name` | normalize (strip Inc/GmbH/Ltd suffixes) for grouping |
 | `location` | `location` | city / region |
-| `remote` | `is_remote` / `work_from_home` | → `remote` / `onsite` / blank |
+| `remote` | `is_remote` / `work_mode` | → `remote` / `onsite` / blank |
 | `salary_min`, `salary_max`, `salary_currency`, `salary_period` | `salary_minimum`, `salary_maximum`, `salary_currency`, `salary_period` | as published; blank if undisclosed (often is). Currency/period can be inconsistent — normalize before any stat |
 | `seniority` | `job_level` / `experience_range` | mark when inferred from title |
 | `job_type` | `job_type` | |
@@ -26,7 +26,7 @@ Actors use their own names (fetch the live schema).
 | `source` | `platform` | board the row came from |
 | `apply_url` | `official_url` / `platform_url` | primary link |
 | `other_sources` | — | apply links merged from de-duplicated rows |
-| `flags` | — | `ghost?` / `agency?` (skip-pass flags), blank if clean |
+| `flags` | — | `ghost?` / `agency?` / `remote: unverified` (skip-pass flags), blank if clean |
 
 (The raw output also includes `applicant_count`, `easy_apply`, `company_rating`,
 `emails`, `phones`, and more — pass through to the export if the user wants them.)
@@ -38,13 +38,25 @@ Actors use their own names (fetch the live schema).
 - **JSON** — `{ "rows": [...], "skipped": [...], "meta": {...} }`.
 - **Raw Apify dataset** — surface the `datasetId` from Step 4 so the user can ingest it
   directly into a dashboard/BI tool via the Apify API
-  (`https://api.apify.com/v2/datasets/<id>/items?format=csv`) without re-running.
+  (`https://api.apify.com/v2/datasets/<id>/items?format=csv`, auth via
+  `Authorization: Bearer` header, not `?token=`) without re-running.
 - **Skipped rows** travel in a separate `skipped` array / file section, each with a
   `skip_reason` (hard-filter violation, off-target). De-duplicated rows are **not**
   here — they're merged into the surviving row's `other_sources` as a count. Ghost /
-  agency *flagged* rows stay in the main set with a `flags` value.
+  agency / `remote: unverified` *flagged* rows stay in the main set (`rows` / the CSV)
+  with a `flags` value — never in `skipped`.
 
 Never paste a 100-row table into chat — write the file, show a short sample.
+
+## Remote rows without a stated region (any mode)
+
+Rows flagged `remote: unverified` in Step 5 are delivered, not just counted. In every
+table shown in chat — analysis breakdowns, the export sample, the résumé-fit ranking —
+they form their own group **under** the in-area rows, headed
+`Remote — region unverified (K)` with the same columns, and no "N in <city>" figure
+includes them. In the CSV / JSON `rows` they carry `remote: unverified` in `flags`.
+The header's "K remote postings without a stated region" is the size of that group,
+never a substitute for it.
 
 ## Résumé-fit mode output
 
@@ -67,9 +79,8 @@ fabrication):
 🟢 92 · Senior Backend Engineer (Go) · Example Cloud GmbH · €90–110k
   Opener: "~7 years building Go + Kubernetes services on Postgres, led a team of four —
            the multi-region work in your JD lines up closely."
-  ATS keywords to add (honest): "Kubernetes" (résumé says "container orchestration"),
-           "gRPC" (listed under the Acme project — name it explicitly).
-  Gap to prep: distributed tracing at scale (not on your résumé).
+  ATS keywords to add (honest): "PostgreSQL" (résumé says "Postgres" — same product).
+  Gap to prep: gRPC and distributed tracing at scale (neither on your résumé — don't add them).
   → Apply: <url>
 ```
 
@@ -79,18 +90,21 @@ The full ranked set goes to the file.
 
 Lead with it, above any mode output:
 
-- Role + location queried; boards searched (and any that returned 0 / were blocked).
-- **Funnel:** `raw → after hard filters → after dedupe → clean` (+ `N ghost-flagged`,
-  `M agency-flagged`).
+- Role + location queried; boards requested vs. boards that returned in-area rows (a
+  board with 0 in-area rows is a coverage gap — say so, and whether the fallback ran).
+- **Funnel:** `raw → after location check → after hard filters → after dedupe → clean`
+  (+ `N ghost-flagged`, `M agency-flagged`, `K remote postings without a stated region`
+  — listed separately, not inside the in-area count; the K rows appear as their own
+  group in the table, see above).
 - Date window; run cost.
 - For analysis: coverage notes (e.g. salary disclosed by only ~6% of postings (varies sharply by region)). For
   résumé-fit: whether the score is **full** (sub-agent read the JDs) or **partial**.
 
 Example:
 
-> **126 senior backend postings in Berlin** across LinkedIn, Indeed, Glassdoor, Google
-> Jobs. 154 raw → 150 after filters → 126 after merging 24 duplicate/repost rows; 5
-> flagged as possible ghosts (re-stamped). Window: last 2 weeks. Run cost ≈ $0.30.
+> **126 senior backend postings in Berlin** across LinkedIn, Indeed, Glassdoor,
+> StepStone. 154 raw → 152 after location check → 150 after filters → 126 after merging 24 duplicate/repost rows; 5
+> flagged as possible ghosts (re-stamped). Window: last 2 weeks. Run cost ≈ $0.55.
 > Salary disclosed by 6% (8/126). Analysis below; clean rows in the CSV + dataset `<id>`.
 
 ## `run_metadata.json` sidecar
@@ -103,9 +117,9 @@ Written next to every deliverable for traceability and re-runs:
   "modes": ["analysis", "export"],
   "anchors": { "role": "...", "location": "...", "boards": "auto", "resultCap": 100, "postedSince": "2 weeks" },
   "actors": [{ "actorId": "agentx/all-jobs-scraper", "runId": "...", "datasetId": "..." }],
-  "funnel": { "raw": 154, "afterHardFilters": 150, "afterDedupe": 126, "ghostFlagged": 5, "agencyFlagged": 0 },
+  "funnel": { "raw": 154, "afterLocationCheck": 152, "afterHardFilters": 150, "afterDedupe": 126, "ghostFlagged": 5, "agencyFlagged": 0, "remoteUnverified": 0 },
   "coverage": { "salaryDisclosedPct": 6 },
-  "estimatedCostUsd": 0.30
+  "estimatedCostUsd": 0.55
 }
 ```
 

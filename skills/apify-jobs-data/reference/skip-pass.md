@@ -23,21 +23,31 @@ record which filter it failed.
 | `remote_only` | Posting is on-site / hybrid-required and the user required remote. |
 | `job_type` | Posting type ≠ requested (e.g. contract when user wants full-time). |
 | Work authorization | JD states a citizenship / clearance / visa-sponsorship-excluded constraint the user can't meet. Only drop on an explicit, unambiguous statement — don't infer. |
+| Location | Posting location is a different city/region than anchor #2 **and** the JD does not state remote eligibility for the user's region. Record `location mismatch: <posting city>`. A JD that explicitly states remote for the user's region is in-area. Bare `Remote` (no region) is **never dropped and never counted as in-area** — keep it, flag it `remote: unverified` (the flag must reach the output table and the CSV `flags` column), and report the count separately in the Step 7 header ("N remote postings without a stated region"). |
 
-Hard filters are only relevant when the user supplied them (anchor #6) — an
-analysis-mode run usually wants the *whole* market, no hard filters.
+Filters from anchor #6 apply only when the user supplied them — an analysis-mode run
+usually wants the *whole* market, no hard filters. The **Location check always runs**
+when anchor #2 is set — Actors return out-of-area rows even with an explicit location
+input (aggregator/Indeed: ~99 % in one measured run); treat their location filter as
+unverified. Strip ZIP codes before comparing (`Austin, TX 78759` = `Austin, TX`), for
+this rule and for the Rule 2 dedupe key.
 
 ## Rule 2 — Duplicate / repost (DROP, merge up)
 
 The same role is syndicated across boards and reposted over time. Group by
-`(normalized company, normalized title, location)`:
+`(normalized company, normalized title, location)` **as candidates only**:
 
 - Normalize company: lowercase, strip `Inc/GmbH/Ltd/LLC/AG`, collapse whitespace.
 - Normalize title: lowercase, strip seniority punctuation and `(m/f/d)`-style tags.
 
-Keep the row with the **most complete fields and the freshest genuine post date**;
-merge the duplicates' apply links into `Other Sources` so nothing is lost. Set
-`saveOnlyUniqueItems: true` on Indeed to cut board-side dupes early.
+Merge a group only when a stable vacancy identity also matches: the same job id /
+apply URL, or a near-identical JD body. Same company + title + location with different
+JD bodies stays as separate rows, each flagged `possible duplicate` — losing a real
+vacancy costs more than one extra row.
+
+Within a merged group keep the row with the **most complete fields and the freshest
+genuine post date**; merge the duplicates' apply links into `Other Sources` so nothing
+is lost. Set `saveOnlyUniqueItems: true` on Indeed to cut board-side dupes early.
 
 ## Rule 3 — Ghost / stale job (FLAG)
 
@@ -99,5 +109,6 @@ location, drop a filter, try the fallback Actor). Never fabricate filler rows. (
 ## Report the cuts
 
 In the Step 7 header, state the funnel in application order:
-`raw → after hard filters → after dedupe → clean (+ N flagged ghosts, M flagged
-agency)`. Transparency lets the user trust the data and re-run with a looser rule.
+`raw → after location check → after hard filters → after dedupe → clean (+ N flagged
+ghosts, M flagged agency, K remote postings without a stated region)`. Transparency
+lets the user trust the data and re-run with a looser rule.
