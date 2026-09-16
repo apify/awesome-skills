@@ -3,6 +3,8 @@ name: apify-ads-intelligence
 description: Research, spy on, and analyze ads across Meta (Facebook & Instagram), Google (Ads Transparency Center + paid search results), TikTok (Ads Library + Creative Center), LinkedIn Ad Library, and X (Twitter — promoted tweets, best-effort) using Apify Actors. Use when user asks about competitor ads, ad library research, winning creatives, ad copy analysis, landing page audits from ads, cross-platform ad audits, brand transparency checks, or any task involving paid ad creatives, advertiser data, or ad targeting from public ad libraries.
 author: Sameh Jarour
 author_url: https://github.com/samehjarour
+metadata:
+  keywords: "ads, advertising, competitor-ads, ad-library, creative-research, transparency, facebook, instagram, google, tiktok, linkedin, x, twitter, promoted-tweets"
 ---
 
 # Ads Intelligence Cluster

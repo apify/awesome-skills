@@ -1,0 +1,36 @@
+{
+  "campaign_name": "eu-saas-hiring-aes",
+  "leads_csv": "./leads.csv",
+  "blacklist_csv": "./blacklist.csv",
+  "signals": ["jobs", "funding", "linkedin_content"],
+  "geo": ["FR", "DE", "BE"],
+  "industry_keywords": [
+    "b2b saas",
+    "sales enablement",
+    "revenue operations"
+  ],
+  "persona": {
+    "titles": ["Account Executive", "SDR", "BDR", "Sales Development"],
+    "seniority": ["mid", "senior"],
+    "company_size": ["11-50", "51-200", "201-500"]
+  },
+  "funding": {
+    "stages": ["seed", "series_a", "series_b"],
+    "max_days_since_announcement": 60
+  },
+  "linkedin_content": {
+    "search_terms": [
+      "we are hiring account executives",
+      "growing our sales team",
+      "cold email is broken",
+      "outbound is dead"
+    ],
+    "min_reactions": 20,
+    "posted_within_days": 14
+  },
+  "schedule": {
+    "apify_side_cron": "0 6 * * 1",
+    "claude_side_cron": "0 8 * * 1",
+    "note": "Apify runs first on Monday 06:00 UTC, Claude aggregates on Monday 08:00 UTC."
+  }
+}

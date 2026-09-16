@@ -12,3 +12,6 @@ PLAN-*.md
 scripts/hooks/
 .idea
 node_modules/
+
+# revalidate_catalog.py imports lint_references as a module
+__pycache__/

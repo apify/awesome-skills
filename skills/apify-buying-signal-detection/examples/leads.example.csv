@@ -1,0 +1,4 @@
+detected_at,company,domain,signal_type,signal_detail,signal_source_actor,signal_date,evidence_url,geo,notes
+2026-08-04T08:12:03Z,Alpha Analytics,alpha-analytics.io,jobs,Hiring 3x Account Executive - EMEA,bebity/linkedin-jobs-scraper,2026-08-01,https://linkedin.com/jobs/view/123456,FR,
+2026-08-04T08:12:03Z,BetaOps,betaops.com,funding,Raised $12M Series A led by Accel,nexgendata/startup-funding-tracker,2026-07-30,https://techcrunch.com/2026/07/30/betaops-series-a/,DE,
+2026-08-04T08:12:03Z,Gamma Cloud,gamma.cloud,linkedin_content,"Post: ""growing our sales team from 3 to 15 - if outbound is broken send help""",harvestapi/linkedin-post-search,2026-08-02,https://linkedin.com/posts/gamma-cloud_activity-789,BE,

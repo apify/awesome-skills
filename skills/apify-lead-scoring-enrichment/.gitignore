@@ -1,0 +1,21 @@
+# Local secrets and env
+.env
+.ENV
+.env.*
+
+# Node
+scripts/node_modules/
+scripts/package-lock.json
+
+# Runtime artifacts produced by the workflow
+scoring.json
+scored.json
+enrichment.json
+enrichment_*.json
+qualified_leads.csv
+leads.enriched.csv
+
+# User-supplied data (should stay local, never committed)
+leads.csv
+leads.*.csv
+!examples/leads.example.csv

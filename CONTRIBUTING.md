@@ -11,24 +11,43 @@ Add your Apify skill to this list in under a minute.
    - `description: ...` (≤ 1024 chars; include trigger phrases a user would say)
    - `author`, `author_url` (optional)
    - Replace every `REPLACE` placeholder in the body
-4. **Add** one entry to `.claude-plugin/marketplace.json` (see existing entries)
+4. **Add** a `metadata:` block to your SKILL.md frontmatter — `keywords: "kw-one, kw-two, ..."` (required) and optionally `category:` (defaults to `data-extraction`). Do **not** touch `.claude-plugin/marketplace.json` — it is generated from frontmatter after merge.
 5. **Open a PR** — CI validates, a maintainer reviews and merges
 
 ## Rules
 
 - **One skill per PR.** CI enforces this. Exception: maintainers can add a `maintainer` label.
-- **No unnecessary changes.** Edit only files inside your skill dir and `.claude-plugin/marketplace.json`. Don't touch `agents/AGENTS.md` or the skills table in `README.md` — both are regenerated automatically.
+- **No unnecessary changes.** Edit only files inside your skill dir. Don't touch `.claude-plugin/marketplace.json`, `agents/AGENTS.md` or the skills table in `README.md` — all three are regenerated automatically after merge.
+- **Two kinds of PR exist: skill and infra.** A skill PR changes files inside `skills/apify-<name>/` and nothing else. Everything else — CI, `scripts/`, docs, the template — is an infra PR, and infra is maintainer territory: without the `maintainer` label it never passes CI. If you spot a typo or want to improve the tooling, open the PR anyway and say so — a maintainer reviews it and adds the label.
 - **Use Apify Actors only** — publicly available on the [Apify Store](https://apify.com/store).
+- **Disclose financial interest.** Affiliate/referral parameters on links (e.g. `?fpr=…`)
+  and routing to paid Actors you own are allowed, but the skill must say so — add a short
+  disclosure line next to the `author` credit (e.g. "Links use the author's Apify affiliate
+  code; routed Actors are built by the author."). CI warns on undisclosed referral params.
 
 ## Quality (recommended, not required)
 
-The `skills/_template/` shows the recommended structure with three optional pieces:
+The `skills/_template/` shows the recommended structure with these optional pieces:
 
 - **Apify CLI pattern** with three standard flags (`--json`, `--user-agent`, `2>/dev/null`)
 - **`references/actor-index.md`** — full Actor routing table
 - **`references/gotchas.md`** — cost guardrails and error recovery
+- **`author` + `author_url`** in the frontmatter — you get credit in the catalog
+- **Example prompts** — one to three real prompts the skill handles, and one it
+  deliberately does not (the boundary). Reviewers use these as the input for a live test.
 
 For a polished reference implementation, see [apify/agent-skills ultimate-scraper](https://github.com/apify/agent-skills/blob/main/skills/apify-ultimate-scraper/SKILL.md).
+
+## After you open a PR
+
+CI runs every check in one pass, so you see all problems at once instead of iterating.
+A maintainer then reviews per [REVIEWING.md](REVIEWING.md) — expect one of: a merge
+(small fixes are applied for you, with credit), a specific list of changes in the form
+`path: problem — fix`, or a consolidation suggestion if the skill overlaps an existing
+one.
+
+Updating an existing skill works the same way as adding one: one skill per PR, edit only
+that skill's directory.
 
 ## FAQ
 
@@ -43,7 +62,7 @@ Yes. After editing, run `uv run scripts/generate_agents.py` to validate. To prev
 
 ## Telemetry on CLI commands
 
-Every `apify` CLI invocation inside a `SKILL.md` file must follow three rules. CI will fail the PR if any of them are missing.
+Every `apify` CLI invocation inside a `SKILL.md` file must follow three rules. CI will fail the PR if any of them are missing. Checked surfaces: fenced code blocks, indented code blocks, and inline code spans that carry flags (a span like `` `apify actors call X --json ...` `` is a command an agent will copy verbatim; a bare `` `apify actors call` `` mention in prose is fine).
 
 ### Rule 1 — `--user-agent` flag
 
@@ -59,11 +78,13 @@ where `<skill-name>` is the exact directory name of the skill (e.g., `apify-awes
 
 ### Rule 2 — `--json` flag
 
-Always pass `--json` (or `--format json` for `datasets get-items`) to get machine-readable output. This ensures structured data that downstream tools and agents can parse reliably.
+Always pass `--json` (or `--format json` for `datasets get-items`) to get machine-readable output. Exceptions: `--readme` fetches and `apify actors info --input` (bare schema fetch) return non-JSON output by design and are exempt; `--format csv` is allowed but CI emits a warning — make sure the skill handles non-JSON output deliberately. This ensures structured data that downstream tools and agents can parse reliably.
 
 ### Rule 3 — `2>/dev/null` stderr redirect
 
 Always append `2>/dev/null` to suppress CLI progress messages and spinners. These messages are written to stderr and break JSON parsers that consume the combined output stream.
+
+**Exception — `--readme`:** commands that fetch an Actor README (e.g. `apify actors info "<actor-id>" --readme`) return markdown, not JSON, so Rules 2 and 3 do not apply to them. Rule 1 (`--user-agent`) still does.
 
 ### Example
 
@@ -74,8 +95,9 @@ apify actors call apify/web-scraper \
   --json 2>/dev/null
 ```
 
-CI checks these rules automatically via `scripts/lint_telemetry.sh`. Run it locally before opening a PR:
+CI checks these rules automatically via `scripts/lint_telemetry.sh`, and skill references (paths, Apify Store actors, URLs) via `scripts/lint_references.py` — both run on the skills your PR changes. Run them locally before opening a PR:
 
 ```bash
-bash scripts/lint_telemetry.sh
+bash scripts/lint_telemetry.sh skills/apify-<name>
+uv run scripts/lint_references.py skills/apify-<name> --check-actors skills/apify-<name>
 ```
