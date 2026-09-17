@@ -407,6 +407,29 @@
       "category": "data-extraction"
     },
     {
+      "name": "apify-reddit-scraper",
+      "source": "./skills/apify-reddit-scraper",
+      "skills": "./",
+      "description": "Scrape Reddit with the harshmaur/reddit-scraper Apify Actor: keyword search across all of Reddit or inside one subreddit, full subreddit listings, post permalinks with complete comment threads, user profiles and community info, with date-range filters and optional delivery of results into Slack, Notion, Google Sheets or Airtable through Apify MCP connectors. Use when the user says \"monitor my brand on Reddit\", \"find leads on Reddit\", \"what is Reddit saying about X\", \"scrape r/<subreddit>\", \"pull all comments from this Reddit thread\", \"Reddit posts about X since <date>\", \"track competitor mentions on Reddit\", \"Reddit sentiment for X\" (labels are a paid add-on; otherwise quote the body), \"build a Reddit dataset\", \"scrape a Reddit user's history\", or any request for Reddit posts, comments, subreddits or users as structured data. No Reddit API key or login is needed. Out of scope: posting or replying on Reddit, private or quarantined communities, and semantic/topic search (Reddit search is literal).",
+      "keywords": [
+        "reddit",
+        "reddit-scraper",
+        "subreddit",
+        "reddit-comments",
+        "brand-monitoring",
+        "social-listening",
+        "lead-generation",
+        "reddit-search",
+        "reddit-sentiment",
+        "reddit-dataset",
+        "community-research",
+        "mcp-connector",
+        "slack",
+        "notion"
+      ],
+      "category": "data-extraction"
+    },
+    {
       "name": "apify-verified-email-finder",
       "source": "./skills/apify-verified-email-finder",
       "skills": "./",
