@@ -53,7 +53,7 @@ apify actors info "ACTOR_ID" --input --user-agent apify-awesome-skills/apify-osi
 | GitHub advisories | `apify/rag-web-browser` | URL: `github.com/advisories?query=[product]` |
 | Exploit-DB search | `apify/google-search-scraper` | Query: `site:exploit-db.com [product] [version]` |
 | Security news | `data_xplorer/google-news-scraper-fast` | Keywords: `"[target]" vulnerability OR exploit OR breach` |
-| Reddit threat discussion | `trudax/reddit-scraper` | `searchCommunityName`: netsec OR cybersecurity. **Paid rental Actor (~$45/month after free trial)** — warn the user before Reddit steps; every other Actor here is pay-per-use. |
+| Reddit threat discussion | `harshmaur/reddit-scraper` | `searchTerms` + `withinCommunity` — **one subreddit per run** (`netsec`, then a second run for `cybersecurity`); a value like `netsec OR cybersecurity` silently drops the filter and searches all of Reddit. Always set `postedAfter` (`YYYY-MM-DD`) for recency — `searchTime` is not enforced and the Actor pads the cap with years-old posts. Pay-per-event: $0.02 per run + $0.002 per post; `maxPostsCount` is **per search term**. |
 | Threat intel Twitter/X | `apidojo/tweet-scraper` | Keywords: `#threatintel [target]`, search mode |
 | Breach mention search | `apify/google-search-scraper` | Query: `"[domain]" site:pastebin.com OR intext:breach` |
 | Vendor security advisory | `apify/website-content-crawler` | Direct vendor security page URL |
@@ -140,12 +140,15 @@ apify actors call "apify/google-search-scraper" -i '{
   "maxPagesPerQuery": 1
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
-# 4. Scan r/netsec and r/cybersecurity for mentions
-apify actors call "trudax/reddit-scraper" -i '{
-  "searches": ["[DOMAIN] breach", "[DOMAIN] hack", "[DOMAIN] vulnerability"],
-  "searchCommunityName": "netsec",
-  "maxPostCount": 10,
-  "proxy": {"useApifyProxy": true}
+# 4. Scan r/netsec for mentions — one subreddit per run; repeat with "withinCommunity": "cybersecurity"
+#    postedAfter = today minus 365 days (YYYY-MM-DD). 3 terms × 5 posts = 15 posts ≈ $0.05.
+#    Use `postUrl` as the Source and `createdAt` for the date stamp.
+apify actors call "harshmaur/reddit-scraper" -i '{
+  "searchTerms": ["[DOMAIN] breach", "[DOMAIN] hack", "[DOMAIN] vulnerability"],
+  "withinCommunity": "netsec",
+  "postedAfter": "[YYYY-MM-DD]",
+  "maxPostsCount": 5,
+  "crawlCommentsPerPost": false
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
@@ -171,12 +174,13 @@ apify actors call "apidojo/tweet-scraper" -i '{
   "sort": "Latest"
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
-# 4. Reddit discussion
-apify actors call "trudax/reddit-scraper" -i '{
-  "searches": ["[THREAT ACTOR NAME]"],
-  "searchCommunityName": "netsec",
-  "maxPostCount": 10,
-  "proxy": {"useApifyProxy": true}
+# 4. Reddit discussion — postedAfter = today minus 365 days; `createdAt` of the newest post = "Last seen"
+apify actors call "harshmaur/reddit-scraper" -i '{
+  "searchTerms": ["[THREAT ACTOR NAME]"],
+  "withinCommunity": "netsec",
+  "postedAfter": "[YYYY-MM-DD]",
+  "maxPostsCount": 10,
+  "crawlCommentsPerPost": false
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
@@ -189,12 +193,11 @@ apify actors call "data_xplorer/google-news-scraper-fast" -i '{
   "maxArticles": 20
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
-# 2. Reddit r/netsec latest
-apify actors call "trudax/reddit-scraper" -i '{
-  "startUrls": [{"url": "https://www.reddit.com/r/netsec/"}],
-  "maxPostCount": 15,
-  "sort": "new",
-  "proxy": {"useApifyProxy": true}
+# 2. Reddit r/netsec latest — sort goes into the URL (/new/); `searchSort` does not apply to startUrls
+apify actors call "harshmaur/reddit-scraper" -i '{
+  "startUrls": [{"url": "https://www.reddit.com/r/netsec/new/"}],
+  "maxPostsCount": 15,
+  "crawlCommentsPerPost": false
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 ```
 
@@ -250,7 +253,7 @@ Date: [today]
   - `[Confirmed]` — primary source (NVD, CISA, vendor advisory)
   - `[Reported]` — news + community corroboration
   - `[Unverified]` — single secondary source, flag clearly
-- **Parallelize** independent actor calls (CVE search + news + Reddit can run simultaneously)
+- **Parallelize** independent actor calls (CVE search + news + Reddit can run simultaneously; the two Reddit runs — `netsec`, `cybersecurity` — too)
 - **Budget**: warn user if >10 actor calls needed; get approval before proceeding
 
 ---
@@ -261,7 +264,7 @@ Date: [today]
 |---|---|
 | `google-search-scraper` returns 0 results | Simplify query, remove `site:` filter, try broader terms |
 | `website-content-crawler` times out on NVD | Use `rag-web-browser` as fallback with direct CVE URL |
-| `trudax/reddit-scraper` returns empty | Try `harshmaur/reddit-scraper` as fallback |
+| `harshmaur/reddit-scraper` returns 0 items, or posts from unrelated subreddits | Read the `RUN-SUMMARY` record in the run's key-value store: `inputWarnings` says when `withinCommunity` was dropped (more than one name) or a date was unparseable, `emptyReason` explains 0 items. Shorten the term (Reddit search is literal). Fallback: `fatihtahta/reddit-scraper-search-fast` with `{"subredditName": "netsec", "subredditKeywords": ["[TERM]"], "subredditTimeframe": "month", "maxPosts": 10}` ($0.00149 per post, no start fee; fields `title`, `url`, `subreddit`, `created_utc`, `score`, `num_comments`) |
 | `tweet-scraper` returns sparse results | Broaden to `#cybersecurity [term]` or drop hashtag requirement |
 | CISA KEV page too large to crawl | Use `rag-web-browser` with specific CVE ID as query |
 
