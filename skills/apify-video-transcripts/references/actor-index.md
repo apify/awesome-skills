@@ -60,11 +60,11 @@ only on delivery; platform usage is included in the event price.
 | `steadyfetch/youtube-transcript-scraper` | per speech-to-text minute (only when a video has no captions) | $0.008 | $0.008 |
 | `steadyfetch/youtube-channel-transcripts` | per delivered transcript | $0.005 | $0.0012 |
 | `steadyfetch/youtube-channel-transcripts` | per speech-to-text minute (only when a video has no captions) | $0.008 | $0.008 |
-| `steadyfetch/instagram-reel-transcript-scraper` | per delivered reel (first 3 minutes included) | $0.015 | $0.005 |
+| `steadyfetch/instagram-reel-transcript-scraper` | per delivered reel (first 3 minutes included) | $0.015 | $0.0075 |
 | `steadyfetch/instagram-reel-transcript-scraper` | per started minute beyond 3 | $0.005 | $0.005 |
 | `steadyfetch/media-transcriber` | per transcribed audio minute | $0.003 | $0.003 |
 
-A published pricing record raises the reel Actor's paid-plan price to **$0.0075** on **2026-09-15**.
+The reel Actor's paid-plan price has been **$0.0075** since **2026-09-15**.
 Re-read before quoting any of these to a user:
 
 ```bash

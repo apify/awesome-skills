@@ -86,7 +86,7 @@ Task Progress:
 |---|---|---|---|
 | One or more YouTube videos, Shorts or finished live VODs | `steadyfetch/youtube-transcript-scraper` | `videoUrls` (URLs or bare video IDs) | $0.005 free plan → $0.0012 top plans, per transcript |
 | A whole YouTube channel — handle, URL or channel ID | `steadyfetch/youtube-channel-transcripts` | `channels` | $0.005 free plan → $0.0012 top plans, per transcript |
-| A creator's Instagram reels, or reel links | `steadyfetch/instagram-reel-transcript-scraper` | `handles`, or `reelUrls` | $0.015 free plan → $0.005 top plans, per reel |
+| A creator's Instagram reels, or reel links | `steadyfetch/instagram-reel-transcript-scraper` | `handles`, or `reelUrls` | $0.015 free plan → $0.0075 top plans, per reel |
 | A podcast episode, a Loom, a Twitch VOD, an Archive.org item, or a direct media file link | `steadyfetch/media-transcriber` | `urls` | $0.003 per transcribed audio minute, every plan |
 
 All four are `PAY_PER_EVENT` and charge **only on delivery** — a video with no speech, a dead link or
@@ -95,7 +95,7 @@ start fee, no separate compute bill, no third-party speech API key to bring.
 
 Prices read live from each Actor's pricing record on **2026-09-11**. Re-read before quoting them to a
 user (`apify actors info "<actor-id>" --user-agent apify-awesome-skills/apify-video-transcripts --json 2>/dev/null | jq '.pricingInfos[-1]'`); the reel Actor
-has a published record that raises its paid-plan price to $0.0075 on **2026-09-15**.
+has carried $0.0075 on its paid plans since **2026-09-15**.
 
 Two surcharges, both per started minute and both easy to predict:
 
