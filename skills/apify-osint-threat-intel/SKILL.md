@@ -164,6 +164,7 @@ apify actors call "apify/rag-web-browser" -i '{
 # 2. Recent activity via news
 apify actors call "data_xplorer/google-news-scraper-fast" -i '{
   "keywords": ["[THREAT ACTOR NAME] attack OR campaign OR malware"],
+  "timeframe": "30d",
   "maxArticles": 15
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
@@ -190,6 +191,7 @@ apify actors call "harshmaur/reddit-scraper" -i '{
 # 1. Google News for topic
 apify actors call "data_xplorer/google-news-scraper-fast" -i '{
   "keywords": ["[TOPIC] vulnerability OR CVE OR breach OR exploit"],
+  "timeframe": "7d",
   "maxArticles": 20
 }' --user-agent apify-awesome-skills/apify-osint-threat-intel --json 2>/dev/null
 
