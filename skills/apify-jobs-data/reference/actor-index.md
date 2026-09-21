@@ -23,8 +23,10 @@ If a schema fetch disagrees with the field names below, trust the schema.
   (2026-09-16). Optional salary benchmark (analysis mode). **Always set `maxItems`.**
 
 No per-board LinkedIn subscription Actor is used — the aggregator already covers
-LinkedIn. Google Jobs is not covered by any Actor in this skill. If a board is blocked
-on a given run, note it in the header rather than reaching for a paid per-board Actor.
+LinkedIn. Google Jobs is not covered by any Actor in this skill. If a board the user
+named comes back with zero (or near-zero) in-area rows, run its standalone Actor once
+(SKILL.md Step 2 fallback rule); only a board with no standalone Actor here (LinkedIn,
+Glassdoor postings) is noted in the header as a coverage gap instead.
 
 **Legal note:** these Actors scrape third-party boards against those sites' Terms of
 Service (see SKILL.md Prerequisites). All routes run on Apify's infrastructure (no
@@ -121,10 +123,16 @@ substituting another source silently.
 
 ## Picking the route
 
-1. Anchor #3 names a board → that board's primary Actor (fallback per the SKILL.md Step 2 rule).
-2. Anchor #3 is `auto` (default) → `agentx/all-jobs-scraper`.
-3. User names two+ boards → run their primaries in parallel, tag `source`, dedupe.
+1. Anchor #3 is `auto` (default) → `agentx/all-jobs-scraper`, `platforms` pinned only
+   for cost.
+2. Anchor #3 names one or more boards → `agentx/all-jobs-scraper` with `platforms`
+   pinned to exactly those boards — one run, whatever the number of boards.
+3. Anchor #3 names Indeed *exclusively* → `misceres/indeed-scraper` (optional
+   shortcut), capped with `maxItemsPerSearch`.
+4. A named board came back with 0 in-area rows → one capped fallback run with its
+   standalone Actor (SKILL.md Step 2 rule), merged in Step 5.
 
-Never run more than the user asked for. The aggregator already covers most boards in
-one run — split into per-board Actors only when the user wants one board's deeper
-fields or its cheaper rate.
+Never run more than the user asked for, and **never run two Actors against the same
+query for any other reason** — the fallback in 4 is earned by a measured zero, not a
+default fan-out. The aggregator already covers most boards in one run; a standalone
+Actor is for an Indeed-only request or that earned fallback.

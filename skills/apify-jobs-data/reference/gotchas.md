@@ -52,10 +52,10 @@ paid plans get lower per-result rates):
 | Symptom | Cause | Fix |
 |---|---|---|
 | Zero results, all boards | Over-narrow query / unparseable location | Widen `posted_since`, drop one filter, try `City, Country` form, lower specificity |
-| Zero on one board only | That board blocked the run or has no matches | Note it in the header — the aggregator covers the gap. Not a fatal error. |
+| Zero in-area rows on one board only | That board blocked the run, or the Actor ignored the location | If the user named that board and it has a standalone Actor, run the fallback once (SKILL.md Step 2); otherwise note it in the header as a coverage gap. Not a fatal error. |
 | Run `RUNNING` for minutes | Large `max_results` / multi-board fan-out | Poll `get-actor-run` (waitSecs ≤ 45); raise `timeout` to 900–1800. The Actors' own default timeouts are huge (aggregator 12 h, Indeed 7 days — live `defaultRunOptions`, 2026-09-16), so a longer timeout is always paired with `maxTotalChargeUsd`, the only cap on spend (SKILL.md Step 4) |
-| Anti-bot / partial pages | Board rate-limited the Actor | Lower concurrency, reduce `max_results`, retry once |
-| LinkedIn returns little/nothing | LinkedIn blocks hardest | Retry once; otherwise note the thin LinkedIn coverage in the header — the aggregator's other boards carry the run |
+| Anti-bot / partial pages | Board rate-limited the Actor | Lower concurrency and `max_results` in the *first* run's design — don't rerun the aggregator for the same board (SKILL.md Step 2); if a named board came back with 0 in-area rows, take its per-board fallback instead |
+| LinkedIn returns little/nothing | LinkedIn blocks hardest | No standalone LinkedIn Actor here and no second aggregator retry — note the thin LinkedIn coverage in the header as a gap; the aggregator's other boards carry the run |
 | Duplicate-heavy dataset | Same role syndicated across boards | Expected — skip-pass rule 2 dedupes; set `saveOnlyUniqueItems: true` on Indeed |
 | Salary always blank | Many postings don't disclose | Real — never infer. Leave blank; in analysis, report the disclosed share as coverage |
 | "Posted today" on a known-old role | Board re-stamped a repost | Ghost tell (skip-pass rule 3). Flag `⚠ re-stamped`; don't trust the date |
@@ -98,5 +98,6 @@ paid plans get lower per-result rates):
 - **Recency is signal.** A 45-day-old "urgent" req is often filled — flag, don't hide.
 - **Disclosed ≠ accurate.** Posted bands can be aspirational; cross-check against the
   Glassdoor salary benchmark (analysis mode) when comp matters.
-- **One board's silence isn't the market.** Zero LinkedIn rows usually means a block,
-  not no jobs — lean on the aggregator's breadth and the fallback Actor.
+- **One board's silence isn't the market.** Zero in-area rows on one board usually
+  means a block, not no jobs — run that board's standalone fallback Actor where one
+  exists (Indeed), and where none does (LinkedIn), say so in the header.

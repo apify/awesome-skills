@@ -165,20 +165,26 @@ not cover it.
 | Glassdoor salary benchmark | `memo23/glassdoor-scraper-ppr` | Pay-per-result; analysis mode only, to cross-check posted salaries (analysis.md). |
 
 Start with the aggregator unless the user explicitly wants a single board.
-**Per-board fallback rule:** after the run, count rows per requested board *that
-match anchor #2 (location)*. A board with 0 in-area rows (blocked, or the Actor
-ignored the location — Indeed does) gets **one** fallback run with its standalone
-Actor from the table (`misceres/indeed-scraper` for Indeed), if budget and run count
-allow; otherwise report it as a coverage gap in the header. Never a second aggregator
-retry for the same board — whatever the cause (blocked, location ignored, or TIMED-OUT
-before the board was reached); do the per-board in-area count first, and if the
-aggregator timed out, narrow `platforms`/`max_results` only in the *first* run's
-design, never in a rerun. Full schemas and field mappings:
-[reference/actor-index.md](reference/actor-index.md).
+**Named boards stay in one run:** if the user names one or more boards, pass them in
+the aggregator's `platforms` array (anchor #3) — a single run whatever the number of
+boards, never one Actor per board. The only standalone route chosen up front is
+`misceres/indeed-scraper`, and only when the user wants Indeed *exclusively*.
 
-**Cross-board parallel runs.** If the user names two+ boards, run their primaries in
-parallel (background each `call-actor` / CLI invocation), tag every row with its
-`Source` board, and dedupe in Step 5.
+**Per-board fallback rule:** after the run, count rows per requested board *that
+match anchor #2 (location)*. A board the user named that comes back with **zero (or
+near-zero) in-area rows** — blocked, or the Actor ignored the location, as Indeed's
+path does — gets **one** fallback run with its standalone Actor from the table
+(`misceres/indeed-scraper` for Indeed, capped with `maxItemsPerSearch`), if budget
+and run count allow; its rows carry their own `Source` board and are deduped against
+the aggregator's in Step 5. Only if budget or the run count is gone do you report the
+board as a coverage gap instead — a board the user asked for is worth that one capped
+run. The fallback is **conditional on a measured zero**: outside it, never run two
+Actors against the same query. Never a second aggregator retry for the same board —
+whatever the cause (blocked, location ignored, or TIMED-OUT before the board was
+reached); do the per-board in-area count first, and if the aggregator timed out,
+narrow `platforms`/`max_results` only in the *first* run's design, never in a rerun.
+Full schemas and field mappings:
+[reference/actor-index.md](reference/actor-index.md).
 
 ### Step 3: Build the input, estimate cost, confirm
 
