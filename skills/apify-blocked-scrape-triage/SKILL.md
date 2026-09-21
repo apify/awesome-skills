@@ -4,7 +4,7 @@ description: Diagnose and recover a scrape that is blocked, throttled, or served
 author: Mikhail Koviazin
 author_url: https://github.com/mikhail-koviazin
 metadata:
-  category: data-extraction
+  category: actor-development
   keywords: "blocked, 403, 429, rate-limit, anti-bot, bot-detection, cloudflare-challenge, proxy, residential-proxy, session, empty-results, troubleshooting, web-data"
 ---
 
@@ -21,6 +21,7 @@ Work the steps in order. Step 0 ends more investigations than the whole ladder d
   - `apify login` (OAuth, if using the Apify CLI)
   - `APIFY_TOKEN` environment variable
   - Token from [Apify Console → Settings → Integrations](https://console.apify.com/settings/integrations)
+- **A one-time permission approval, before the first diagnostic run.** `apify/cheerio-scraper` requires full account access and refuses to start until that is approved in the Console. Both paths refuse, with different wording: MCP `call-actor` answers `requires full access to your account. You must approve its permissions before running it`, while the CLI prints `Error: Actor apify/cheerio-scraper requires full access to your Apify account and has not been approved yet.` **on stdout with exit code 0** — so an unattended CLI flow reads it as a normal result and stops without saying why. Approve it once at the URL the message prints, before you need a diagnosis. The same applies to `apify/web-scraper` and the browser Actors in Rung 5; `apify/website-content-crawler` does not require it.
 
 ## What a diagnosis is allowed to cost
 
@@ -238,21 +239,23 @@ The highest-leverage rung, and the one most often skipped. The public HTML is th
 
 With a browser, devtools filtered to XHR is faster than all of the above; it is listed last because it costs a browser, not because it is worse. Payoff for the rung: usually faster, cheaper per record, more stable across redesigns, and less defended. It often removes the blocking problem instead of working around it.
 
-**The HTTP Actor will not fetch the endpoint you just found unless you tell it to.** `apify/cheerio-scraper` supports `text/html` and `application/xhtml+xml` and **skips every other content type**, which is exactly the JSON this rung exists to reach. The field that fixes it is:
+**The JSON endpoint you just found goes through without any extra input.** `apify/cheerio-scraper` accepts `text/html`, `text/xml`, `application/xhtml+xml`, `application/xml` and `application/json` by default, so the endpoint this rung exists to reach needs no MIME configuration at all. Measured: a JSON endpoint returns a `200` with a readable body whether or not `additionalMimeTypes` is set, and the two runs are indistinguishable. The Actor names its own list when it skips something:
 
-```json
-{ "additionalMimeTypes": ["application/json", "text/plain"] }
+```
+Error: Resource https://example.org/data.txt served Content-Type text/plain,
+but only text/html, text/xml, application/xhtml+xml, application/xml, application/json
+are allowed. Skipping resource.
 ```
 
-**Measured trap: that field is currently not accepted through the MCP `call-actor` tool at all**, and its error message sends you hunting in the wrong place. An array is rejected with `Validation errors: must be object`, the same array as a JSON string is rejected the same way, and an object is rejected with `must be array`, while the Actor's own build schema declares the field `"type": "array"`. Everything else in the diagnostic input goes through untouched, including `preNavigationHooks`, `maxRequestRetries: 0`, `maxConcurrency`, `pageLoadTimeoutSecs`, a `customData` object and a `pageFunction` full of backslashes, so this is one field rather than your escaping. Three ways past it, cheapest first:
+**`additionalMimeTypes` is only needed for a content type outside that list** — `text/plain`, CSV, or an endpoint that mislabels its JSON. If you hit one of those, note that **the field is not accepted through the MCP `call-actor` tool in any encoding**, and its error message sends you hunting in the wrong place: an array is rejected with `Validation errors: must be object`, the same array as a JSON string is rejected the same way, and an object is rejected with `must be array`, while the Actor's own build schema declares the field `"type": "array"`. Everything else in the diagnostic input goes through untouched, so this is one field rather than your escaping. Three ways past it, cheapest first:
 
-- **Ask the endpoint for HTML.** An ArcGIS or Socrata service answers `f=html` or a browsable catalogue page with the same content, and that route measured `200` through the Actor on a host whose JSON form the Actor would have skipped. Good enough to diagnose, not what you want in production.
+- **Ask the endpoint for HTML.** An ArcGIS or Socrata service answers `f=html` or a browsable catalogue page with the same content, and that route measured `200` through the Actor on a host whose form the Actor would have skipped. Good enough to diagnose, not what you want in production.
 - **Fetch it with your own code.** A paginated JSON endpoint is a loop over `resultOffset`, not a crawl: there are no links to follow and no HTML to parse, so twenty lines beat any crawler Actor and the MIME question disappears.
-- **Run the Actor from somewhere other than the MCP tool** if you have the Console or the CLI. Not tested here, so verify before you count on it.
+- **Run the Actor from the CLI instead**, where the same input is accepted. The CLI does not require `proxyConfiguration` either, which MCP does.
 
 ### Rung 5: browser, last
 
-**A browser is not automatically the stronger client.** Measured on one vendor platform, same URL, same proxy pool, one minute apart: the browser Actor got a hard block page while the plain HTTP Actor got a managed challenge twice and a clean `200` on the third request. Confirm a browser buys you something before you buy one. It costs about twelve times the HTTP Actor per page, and it demands approval of full account access in the Console before its first run, which stops an unattended flow dead.
+**A browser is not automatically the stronger client.** Measured on one vendor platform, same URL, same proxy pool, one minute apart: the browser Actor got a hard block page while the plain HTTP Actor got a managed challenge twice and a clean `200` on the third request. Confirm a browser buys you something before you buy one. It costs about twelve times the HTTP Actor per page. It also demands approval of full account access in the Console before its first run — but so does `apify/cheerio-scraper`, so that is a reason to approve both before you need them (see Prerequisites), not a reason to prefer one over the other.
 
 **A Crawlee-based browser Actor will not wait out a challenge by default:** it aborts on the challenge's `403` before the page can clear, which is the one thing a browser was supposed to be for. Unblind it exactly as below, then wait for the interstitial to disappear inside your `pageFunction`. Numbers and the Chrome comparison: [references/gotchas.md](references/gotchas.md).
 
@@ -309,7 +312,7 @@ Put this in `preNavigationHooks` and the refusal arrives as data instead:
 }
 ```
 
-It still retires the blocked session, so the pool keeps rotating away from bad addresses, but it stops the throw, so the response reaches your code. Measured over six identical requests to a challenged platform, this took a run from three classified refusals out of six to six out of six, while the variant that skips the retire call sees everything and gets nothing through. The comparison table and the diagnostic `pageFunction` that uses it: [references/diagnostic-run.md](references/diagnostic-run.md).
+It still retires the blocked session, so the pool keeps rotating away from bad addresses, but it stops the throw, so the response reaches your code. Measured over six identical requests to a challenged platform, this took a run from no classified refusals at all to every refusal classified, with usable fields on six items out of six instead of three, while the variant that skips the retire call sees everything and gets nothing through. The comparison table and the diagnostic `pageFunction` that uses it: [references/diagnostic-run.md](references/diagnostic-run.md).
 
 **There is no fallback field to read instead, and this is worth stating because `#debug.statusCode` looks like one.** It is present on requests that completed, so a run full of `200`s will show it and give you the wrong impression of what you have. Measured on a run without the hook against a platform that refuses: two items, `#error: true`, `#debug.retryCount: 0`, and the entire field list was `#error`, `#debug.requestId`, `#debug.url`, `#debug.method`, `#debug.retryCount`, `#debug.errorMessages`. No status, no headers, no body. If you took the run without the hook, you have the fact that something failed and the message Crawlee threw, and you must re-run to classify.
 
@@ -317,7 +320,7 @@ It still retires the blocked session, so the pool keeps rotating away from bad a
 
 **Why a hook and not a setting.** Crawlee the library does expose this behaviour through session pool options, but you are not calling the library, you are filling in an Actor's input, and that input does not carry them. Measured against the published build schema of `apify/cheerio-scraper`: 30 input fields, and `sessionPoolOptions`, `blockedStatusCodes`, `additionalHttpErrorStatusCodes` and `gotOptions` are absent from all of them; the only session-related field is `sessionPoolName`. `preNavigationHooks` is the one field that hands you a live session object, which is why the fix lives there.
 
-**It does reach into internals, so treat it as version-bound.** `retireOnBlockedStatusCodes` is a session method rather than a documented input, and an upgrade can rename or restructure it with no error on your side. The failure is silent and recognisable: refusals go back to arriving as items with no status and no headers, exactly as described above. Check that field before blaming the site. The setting people try first does not do this job, measured: `gotOptions.throwHttpErrors = false` left one classified refusal out of six, against six out of six with the hook.
+**It does reach into internals, so treat it as version-bound.** `retireOnBlockedStatusCodes` is a session method rather than a documented input, and an upgrade can rename or restructure it with no error on your side. The failure is silent and recognisable: refusals go back to arriving as items with no status and no headers, exactly as described above. Check that field before blaming the site. The setting people try first cannot do this job at all, measured: `gotOptions` is not among the Actor's 30 input fields, and the Actor accepts an input containing it without any validation error and silently discards it, so `throwHttpErrors` never reaches Crawlee. A run with it is indistinguishable from a run without it. This is worth knowing beyond this one field: "I tried that setting and it changed nothing" does not separate a setting that does not work from one that was never delivered.
 
 ## Troubleshooting
 
@@ -329,7 +332,7 @@ It still retires the blocked session, so the pool keeps rotating away from bad a
 - **Your resolver answers `198.18.x.x`** → your own proxy client in fake-ip mode, not the site. Re-resolve over DoH.
 - **Your hosting IP is refused and a datacenter proxy is not** → your specific address, not its class. Change datacenter egress, do not buy residential.
 - **A 200 whose whole body is `Invalid Password` or `Not authorized`** → a missing argument or a credential. Apply the parameter test in Step 2.
-- **The JSON endpoint you found comes back empty through the Actor** → `apify/cheerio-scraper` skips non-HTML, and `additionalMimeTypes` is currently rejected through MCP whatever you encode it as. Ask the service for `f=html`, or fetch the endpoint with your own code.
+- **The JSON endpoint you found comes back empty through the Actor** → not the MIME list; `application/json` is accepted by default. Read `#debug.errorMessages` on the item, which names the content type and the allowed list when the Actor really did skip it. For a type outside that list (`text/plain`, CSV), `additionalMimeTypes` is rejected through MCP whatever you encode it as — use the CLI, ask the service for `f=html`, or fetch the endpoint with your own code.
 - **No status, no headers, no body** → Step 1, and check your own vantage point first.
 - **A non-routable address from your own resolver, but traffic works** → transparent interception. Proceed, mark the vantage point confounded, require Test B before any verdict.
 - **0 items, run succeeded** → read `SDK_CRAWLER_STATISTICS_0`; a green run proves nothing.

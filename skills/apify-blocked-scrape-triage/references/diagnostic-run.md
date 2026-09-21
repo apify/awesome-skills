@@ -13,13 +13,15 @@ Through the MCP server this whole object is the `input` argument to `call-actor`
   "maxRequestRetries": 0,
   "maxConcurrency": 1,
   "preNavigationHooks": "[async ({ session }) => { if (session) { const retire = session.retireOnBlockedStatusCodes.bind(session); session.retireOnBlockedStatusCodes = (code, extra) => { retire(code, extra); return false; }; } }]",
-  "pageFunction": "async function pageFunction(context) { const r = context.response || {}; const h = r.headers || {}; const body = String(context.body || ''); return { url: context.request.url, loadedUrl: context.request.loadedUrl, status: r.status, cfMitigated: h['cf-mitigated'], bytes: body.length, title: context.$('title').text().trim().slice(0, 80) }; }"
+  "pageFunction": "async function pageFunction(context) { const r = context.response || {}; const h = r.headers || {}; const body = String(context.body || ''); const $ = typeof context.$ === 'function' ? context.$ : null; return { url: context.request.url, loadedUrl: context.request.loadedUrl, status: r.status, cfMitigated: h['cf-mitigated'], bytes: body.length, title: $ ? $('title').text().trim().slice(0, 80) : null }; }"
 }
 ```
 
 Six fields answer the first two rows of Step 2, which is where most investigations end. Grow to the full version below only when the answer is a `200` and you have to tell a shell from a brochure.
 
-**If your target serves JSON rather than HTML**, the field that fixes it is `"additionalMimeTypes": ["application/json", "text/plain"]`, because without it the Actor skips the response and the endpoint looks broken when it is not. **Through MCP that field is rejected in every encoding measured**: an array gives `Validation errors: must be object`, the array as a JSON string gives the same, an object gives `must be array`, and the build schema declares it an array. Everything else here validates alongside it, so when a run is rejected, this is the field to pull first. Workarounds are in Rung 4 of `SKILL.md`: ask the service for an HTML representation, or fetch the endpoint with your own code.
+**If your target serves JSON rather than HTML, you need nothing extra** — `application/json` and `application/xml` are among the Actor's default content types alongside the HTML ones, measured identical with and without `additionalMimeTypes`. The field is only for a type outside that list, such as `text/plain` or CSV. **When you do need it, through MCP it is rejected in every encoding measured**: an array gives `Validation errors: must be object`, the array as a JSON string gives the same, an object gives `must be array`, and the build schema declares it an array. Everything else here validates alongside it, so when a run is rejected, this is the field to pull first. Workarounds are in Rung 4 of `SKILL.md`: run it from the CLI, ask the service for an HTML representation, or fetch the endpoint with your own code.
+
+**Through MCP, `proxyConfiguration` is required** and its absence is reported as `Validation errors: must have required property 'proxyConfiguration'` buried in a reply that opens by printing the entire input schema. Through the CLI the same input runs without it. If an MCP call is rejected and you cannot see why, check this before you start bisecting your `pageFunction`.
 
 ## The full input
 
@@ -32,7 +34,7 @@ The `preNavigationHooks` line is the one from `SKILL.md`, and without it every r
   "maxRequestRetries": 0,
   "maxConcurrency": 1,
   "preNavigationHooks": "[async ({ session }) => { if (session) { const retire = session.retireOnBlockedStatusCodes.bind(session); session.retireOnBlockedStatusCodes = (code, extra) => { retire(code, extra); return false; }; } }]",
-  "pageFunction": "async function pageFunction(context) { const $ = context.$; const r = context.response || {}; const h = r.headers || {}; const host = new URL(context.request.url).hostname; const links = $('a[href^=\"http\"]').map((i, el) => { try { return new URL($(el).attr('href')).hostname; } catch (e) { return null; } }).get().filter(Boolean); const offHost = links.filter(x => x !== host); const tally = {}; offHost.forEach(x => { tally[x] = (tally[x] || 0) + 1; }); const topOffHost = Object.entries(tally).sort((a, b) => b[1] - a[1]).slice(0, 5); return { url: context.request.url, loadedUrl: context.request.loadedUrl, status: r.status, cfMitigated: h['cf-mitigated'], etag: h.etag, server: h.server, via: h.via, cfRay: h['cf-ray'], xCache: h['x-cache'], retryAfter: h['retry-after'], setCookie: h['set-cookie'] ? String(h['set-cookie']).slice(0, 200) : null, contentType: h['content-type'], bytes: context.body ? context.body.length : 0, title: $('title').text().trim().slice(0, 80), mountPoints: $('#root, #app, #vue-app, [id^=\"__next\"]').length, scripts: $('script[src]').length, offHostLinks: offHost.length, topOffHost: topOffHost, bodyHead: String(context.body || '').replace(/\\s+/g, ' ').slice(0, 300) }; }"
+  "pageFunction": "async function pageFunction(context) { const $ = typeof context.$ === 'function' ? context.$ : null; const r = context.response || {}; const h = r.headers || {}; const host = new URL(context.request.url).hostname; const links = $ ? $('a[href^=\"http\"]').map((i, el) => { try { return new URL($(el).attr('href')).hostname; } catch (e) { return null; } }).get().filter(Boolean) : []; const offHost = links.filter(x => x !== host); const tally = {}; offHost.forEach(x => { tally[x] = (tally[x] || 0) + 1; }); const topOffHost = Object.entries(tally).sort((a, b) => b[1] - a[1]).slice(0, 5); return { url: context.request.url, loadedUrl: context.request.loadedUrl, status: r.status, cfMitigated: h['cf-mitigated'], etag: h.etag, server: h.server, via: h.via, cfRay: h['cf-ray'], xCache: h['x-cache'], retryAfter: h['retry-after'], setCookie: h['set-cookie'] ? String(h['set-cookie']).slice(0, 200) : null, contentType: h['content-type'], bytes: context.body ? context.body.length : 0, title: $ ? $('title').text().trim().slice(0, 80) : null, mountPoints: $ ? $('#root, #app, #vue-app, [id^=\"__next\"]').length : null, scripts: $ ? $('script[src]').length : null, offHostLinks: offHost.length, topOffHost: topOffHost, bodyHead: String(context.body || '').replace(/\\s+/g, ' ').slice(0, 300) }; }"
 }
 ```
 
@@ -88,10 +90,13 @@ Six identical requests to one challenged vendor platform, one run each, same pro
 | Hook | Items carrying fields | Refusals classified | Requests that got through |
 |---|---|---|---|
 | none | 3 of 6 | 0, three empty error items | 3 |
-| `gotOptions.throwHttpErrors = false` only | 1 of 6 | 0, five empty error items | 1 |
 | retire and return false | **6 of 6** | **2, both `cf-mitigated: challenge`** | 4 |
 | never retire | 6 of 6 | 6 | **0** |
 
-`throwHttpErrors` is the flag people reach for, and on this failure it changes nothing: Crawlee is not throwing because got threw, it is throwing because the session pool treats 401, 403 and 429 as blocking. Dropping the retire call unblinds the run and costs every request that would have succeeded, because the pool stops rotating away from addresses the site has already refused.
+Read the middle column, not the first: without the hook the run classified **nothing**, and the three items that carried fields were the requests that succeeded, not refusals it managed to read.
+
+`gotOptions.throwHttpErrors = false` is deliberately absent from that table. It is the setting people reach for, and it cannot be tested this way at all: `gotOptions` is not among the Actor's 30 input fields, and an input containing it is accepted without a validation error and then silently discarded. A run with it is indistinguishable from a run without it — measured on a target returning `403` to every request, both produced six items whose entire field list was `#error` and `#debug.*`, with the same `errorMessages` and the same `requestsFailed: 6`. Crawlee is not throwing because got threw; it is throwing because the session pool treats 401, 403 and 429 as blocking, and no input field on this Actor reaches that behaviour.
+
+Dropping the retire call unblinds the run and costs every request that would have succeeded, because the pool stops rotating away from addresses the site has already refused. That is the last row of the table: everything classified, nothing delivered.
 
 **Take the hook out once the refusal is classified.** Left in, a crawl writes challenge pages into the dataset as if they were records.

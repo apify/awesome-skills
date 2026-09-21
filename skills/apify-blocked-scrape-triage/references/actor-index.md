@@ -35,7 +35,7 @@ These fields exist on `apify/cheerio-scraper`, `apify/web-scraper`, `apify/playw
 
 Browser Actors additionally expose `headless`, `useChrome` and `waitUntil`; an incoherent combination of these with the proxy country is the classic self-inflicted block.
 
-**Two things to know before the first browser run.** A browser Actor asks for full account access and refuses to start until that is approved in the Console, which stops an unattended flow dead. And its `pageFunction` context is not the raw Puppeteer or Playwright API: the `response` it hands you is a plain object with `status` and `headers`, the same shape `apify/cheerio-scraper` uses, so `response.status()` throws.
+**Two things to know before the first browser run.** A browser Actor asks for full account access and refuses to start until that is approved in the Console, which stops an unattended flow dead — and this is not a browser-only tax: `apify/cheerio-scraper` and `apify/web-scraper` ask for the same thing, so approve whichever you plan to use before you need it. (`apify/website-content-crawler` does not.) And a browser Actor's `pageFunction` context is not the raw Puppeteer or Playwright API: the `response` it hands you is a plain object with `status` and `headers`, the same shape `apify/cheerio-scraper` uses, so `response.status()` throws.
 
 ## Calling these from the CLI
 
