@@ -57,6 +57,34 @@
       "category": "data-extraction"
     },
     {
+      "name": "apify-app-store-intelligence",
+      "source": "./skills/apify-app-store-intelligence",
+      "skills": "./",
+      "description": "Pull structured Apple App Store and Google Play data — app metadata, price, rating, the 1–5★ ratings histogram, version, developer, and reviews — and watch it for changes over time. Use when the user asks to look up an iOS or Android app by App ID, bundle ID, package name or app name, compare a set of competitor apps across both stores, monitor a competitor's price or rating for changes, track when an app ships a new version, scrape App Store or Google Play reviews, resolve a bundle ID to a full app record, check an app's rating across multiple country storefronts, build an ASO or app-market dataset, or set up a recurring app-store watch on an app's price, rating and version. One routed Actor, praise-most-high/app-store-intelligence, is built by this skill's author; every other row is unaffiliated (see Disclosure).",
+      "keywords": [
+        "app-store",
+        "google-play",
+        "ios",
+        "android",
+        "apple",
+        "aso",
+        "app-store-optimization",
+        "app-metadata",
+        "app-reviews",
+        "ratings",
+        "ratings-histogram",
+        "price-monitoring",
+        "version-tracking",
+        "bundle-id",
+        "package-name",
+        "storefronts",
+        "competitor-monitoring",
+        "change-detection",
+        "itunes"
+      ],
+      "category": "data-extraction"
+    },
+    {
       "name": "apify-ashby-jobs-scraper",
       "source": "./skills/apify-ashby-jobs-scraper",
       "skills": "./",
