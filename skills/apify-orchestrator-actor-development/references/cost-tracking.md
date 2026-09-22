@@ -10,7 +10,7 @@ An orchestrator Actor's total cost is the parent Run's compute cost **plus** the
 | **Pay-per-result** | `maxItems: <integer>` | Cap on the number of dataset items charged. |
 | **Rental / compute-unit** | *(neither)* — control cost via `memory` and `timeout` | No dollar cap available; use the Run's own timeout + memory instead. |
 
-Check each sub-Actor's pricing model on its Apify Store page (or via the MCP `fetch-actor-details` output — `pricingInfo` field) before picking which cap to pass.
+Check each sub-Actor's pricing model on its Apify Store page (or via the MCP `fetch-actor-details` output — the field is `actorInfo.pricing`, not `pricingInfo`) before picking which cap to pass. For a pay-per-event Actor it also itemises the charges, e.g. `{"model": "PAY_PER_EVENT", "events": [{"title": "Result", "priceUsd": 0.002}]}` — enough to size the cap rather than guess it.
 
 Type reference (from `apify-client`):
 
@@ -84,7 +84,7 @@ interface ActorRun {
 }
 ```
 
-- After a sub-Actor call finishes, read `run.usageTotalUsd` from the returned object.
+- After a sub-Actor call finishes, **do not** read `run.usageTotalUsd` from the returned object — it reads `0` there. A child's charges accrue for several seconds after it reaches `SUCCEEDED`, and they do not arrive whole. Re-read the Run with `client.run(runId).get()` until the figure holds steady, then re-read it again before each later budget decision. Measured on one workflow: a two-item child read `$0.0020` at ~3 s and settled at `$0.0040`, while its sibling still read `$0` at 8 s.
 - To poll a still-running child Run, use `client.run(runId).get()`.
 
 ## The running-budget pattern
@@ -95,7 +95,8 @@ Wrap each `client.actor(id).call(...)` with a helper that computes the step cap 
 let spent = 0;
 const remaining = (): number => totalBudget - spent;
 
-function planStepCap(step: Step): number | undefined {
+async function planStepCap(step: Step): Promise<number | undefined> {
+    await reconcile();   // late charges from earlier steps land here
     const rem = remaining();
     if (rem <= 0) {
         throw new Error(`Cost cap $${totalBudget} reached before step "${step}"`);
@@ -107,20 +108,48 @@ function planStepCap(step: Step): number | undefined {
     return Math.min(perStepCap, rem);
 }
 
-function recordSpend(step: string, cost: number): void {
-    spent += cost;
-    log.info(`Step "${step}" spent $${cost.toFixed(4)}; cumulative $${spent.toFixed(4)}`);
+interface StepCost { step: string; runId: string; counted: number }
+const ledger: StepCost[] = [];
+
+// Add whatever each recorded Run has been charged since it was last read.
+async function reconcile(): Promise<void> {
+    for (const entry of ledger) {
+        const fresh = await client.run(entry.runId).get();
+        const cost = fresh?.usageTotalUsd ?? 0;
+        if (cost <= entry.counted) continue;
+        spent += cost - entry.counted;
+        entry.counted = cost;
+    }
+}
+
+async function recordSpend(step: string, runId: string): Promise<void> {
+    const entry: StepCost = { step, runId, counted: 0 };
+    ledger.push(entry);
+    // Wait for the figure to hold steady, not merely to turn non-zero: a step that is
+    // still accruing reports a real but partial charge.
+    for (const waitMs of [0, 1000, 2000, 2000, 3000]) {
+        if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
+        const before = entry.counted;
+        await reconcile();
+        if (entry.counted > 0 && entry.counted === before) break;   // two readings agree
+    }
+    if (entry.counted === 0) {
+        log.warning(`Step "${step}" still reports $0 after ~8 s; re-checked at the next decision`);
+    }
+    log.info(`Step "${step}" spent $${entry.counted.toFixed(4)}; cumulative $${spent.toFixed(4)}`);
 }
 
 // Usage:
-const cap = planStepCap('crawl');
+const cap = await planStepCap('crawl');
 const run = await client
     .actor('apify/website-content-crawler')
     .call('crawl', input, cap != null ? { maxTotalChargeUsd: cap } : undefined);
-recordSpend('crawl', run.usageTotalUsd ?? 0);
+await recordSpend('crawl', run.id);
 ```
 
-The wrapper hands the sub-Actor a cap that never exceeds the remaining budget and updates the running tally. If cumulative spend ever exceeds `totalBudget`, the next `planStepCap` call throws before making the next Run — preventing runaway spend even if a sub-Actor overshot its individual cap.
+The wrapper hands the sub-Actor a cap that never exceeds the remaining budget, and `reconcile` keeps the tally honest as late charges land.
+
+**What the throw does and does not guarantee.** With an even split and children that respect the cap they were handed, `planStepCap` cannot throw before the last step: after *k* of *n* steps the tally is at most *k · (total / n)*, which is below the total. The throw is a backstop for a step that ran **uncapped** — the compute-unit row above — and even then it fires only if the overshoot has finished accruing by the time the next step is planned. Measured: a step given no cap charged `$0.0040` against a `$0.0030` total and the next step still launched, because the tally read `$0.0020` at that moment; the final total then reported `$0.0040 of $0.0030` correctly. So treat the Run-level `maxTotalChargeUsd` as the enforcement mechanism, and this tally as reporting plus a best-effort backstop — not the other way round.
 
 ## LLM (Standby Actor) steps
 
@@ -151,8 +180,9 @@ If the caller expects to run the orchestrator uncapped for exploratory use, that
 ## Gotchas
 
 1. **`maxTotalChargeUsd` only works on pay-per-event Actors.** Silently ignored on compute-unit Actors. Read the sub-Actor's pricing model before assuming the cap will bind.
-2. **`usageTotalUsd` lags slightly.** Apify updates it as the Run charges accumulate — it may be up to a few seconds stale. For orchestration control flow, that's fine; don't build sub-second cost logic on top of it.
+2. **`usageTotalUsd` lags, and the lag is long enough to matter.** It reads `0` on the Run object `.call()` returns, then accrues per charged event for several seconds after the child reaches `SUCCEEDED`. Measured: a two-item child read `$0.0020` at ~3 s and settled at `$0.0040`; its sibling still read `$0` at 8 s. Control flow built on a single reading is therefore wrong in both directions — it under-counts a step that is still accruing and misses one that has not started. Re-read until the figure holds steady, and keep re-reading recorded Runs before each later decision.
 3. **Aborted-by-cap Runs still produce partial data.** When a sub-Actor is stopped mid-Run by hitting `maxTotalChargeUsd`, its dataset contains whatever it managed to write. Handle partial results (skip empty, retry, or degrade gracefully).
 4. **Compute unit runs need timeout + memory caps instead.** Set `timeout: 3600` (seconds) and `memory: 1024` on the `.call()` options — the product roughly bounds the compute-unit cost.
 5. **Don't double-count.** `usageTotalUsd` on the parent already excludes child Runs. Sum child Runs separately; add both totals to compute the true orchestrator cost.
 6. **Local `apify run` has no self-Run.** `env.actorRunId` points at a synthetic ID; `client.run(id).get()` returns an error. Catch it and fall back to `Infinity` (uncapped) so local runs still work.
+7. **A child that did not succeed still hands you a readable, empty dataset.** A `FAILED`, `ABORTED` or `TIMED-OUT` child returns a Run object carrying a `defaultDatasetId`, and reading that dataset yields `[]` rather than an error — measured on a `TIMED-OUT` child. An unchecked workflow therefore treats a failed step as an empty one, runs the next step on nothing, and reports success with no data. Check `run.status !== 'SUCCEEDED'` and refuse the step's output before you read its dataset.

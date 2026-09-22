@@ -85,7 +85,51 @@ log.info(
     `Per-step cap (even split across ${STEPS.length} steps): ${Number.isFinite(perStepCap) ? '$' + perStepCap.toFixed(4) : 'unlimited'}.`,
 );
 
-function planStepCap(step: Step): number | undefined {
+interface StepCost { step: string; runId: string; counted: number }
+const ledger: StepCost[] = [];
+
+async function usageOf(runId: string): Promise<number> {
+    const fresh = await client.run(runId).get();
+    return fresh?.usageTotalUsd ?? 0;
+}
+
+// Add whatever a recorded Run has been charged since it was last read. Cheap enough to call
+// before every budget decision, and the only thing that makes the final total trustworthy.
+async function reconcile() {
+    for (const entry of ledger) {
+        const cost = await usageOf(entry.runId);
+        if (cost <= entry.counted) continue;
+        spent += cost - entry.counted;
+        entry.counted = cost;
+    }
+}
+
+// `usageTotalUsd` is 0 on the Run object `.call()` hands back, and it does not then arrive whole:
+// a pay-per-event child is billed per charged event for several seconds after it reaches
+// SUCCEEDED. Measured on one workflow: a two-item child read $0.0020 at ~3 s and settled at
+// $0.0040, while a sibling still read $0 at 8 s. So neither obvious reading is safe - taking the
+// returned value leaves `spent` at 0 for the whole workflow and silently disables the guard in
+// planStepCap, and stopping at the first non-zero reading under-counts a step that is still
+// accruing. Wait for the figure to hold steady instead, and keep correcting it afterwards.
+async function record(stepName: string, run: { id: string }) {
+    const entry: StepCost = { step: stepName, runId: run.id, counted: 0 };
+    ledger.push(entry);
+    for (const waitMs of [0, 1000, 2000, 2000, 3000]) {
+        if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
+        const before = entry.counted;
+        await reconcile();
+        if (entry.counted > 0 && entry.counted === before) break;   // two readings agree
+    }
+    if (entry.counted === 0) {
+        // A genuinely free step and a charge that has not landed look identical at this point;
+        // say so rather than folding both into a silent zero. `reconcile` re-checks it later.
+        log.warning(`Step "${stepName}" still reports $0 after ~8 s; re-checked before the next step and at exit`);
+    }
+    log.info(`Step "${stepName}" spent $${entry.counted.toFixed(4)}; cumulative $${spent.toFixed(4)}`);
+}
+
+async function planStepCap(step: Step): Promise<number | undefined> {
+    await reconcile();
     const remaining = totalBudget - spent;
     if (remaining <= 0) {
         throw new Error(`Cost cap of $${totalBudget} reached before step "${step}"; refusing to launch`);
@@ -95,10 +139,17 @@ function planStepCap(step: Step): number | undefined {
     return Math.min(perStepCap, remaining);
 }
 
-function record(stepName: string, run: { usageTotalUsd?: number }) {
-    const stepCost = run.usageTotalUsd ?? 0;
-    spent += stepCost;
-    log.info(`Step "${stepName}" spent $${stepCost.toFixed(4)}; cumulative $${spent.toFixed(4)}`);
+
+// A child Run that ends in anything other than SUCCEEDED still returns a Run object with a
+// dataset id, and reading that dataset yields an empty list rather than an error — so an
+// unchecked workflow treats a failed step as an empty one and carries on.
+function requireSucceeded(stepName: string, run: { id: string; status: string }) {
+    if (run.status !== 'SUCCEEDED') {
+        throw new Error(
+            `Step "${stepName}" ended as ${run.status} (Run ${run.id}); refusing to use its output. ` +
+            `Inspect it at https://console.apify.com/actors/runs/${run.id}`,
+        );
+    }
 }
 
 // -------------------------------------------------------------------------
@@ -111,12 +162,13 @@ const step1Input: StepOneInput = {
     startUrls: input.startUrls,
     // maxCrawlDepth: 2,  // hardcoded example
 };
-const step1Cap = planStepCap('step1');
+const step1Cap = await planStepCap('step1');
 const run1 = await client
     .actor('<sub-actor-1-id>')
     .call('step-1', step1Input, step1Cap != null ? { maxTotalChargeUsd: step1Cap } : undefined);
 // For compute-unit sub-Actors, drop maxTotalChargeUsd and pass { memory, timeout } instead.
-record('step-1', run1);
+await record('step-1', run1);
+requireSucceeded('step-1', run1);
 const step1Items = await client.dataset(run1.defaultDatasetId).listItems({ skipEmpty: true });
 log.info(`Step 1 finished: ${step1Items.items.length} items`);
 
@@ -141,11 +193,12 @@ const step2Input: StepTwoInput = {
     query: step1Items.items.map(i => i.text as string).join('\n').slice(0, 4000),
     maxResults: input.maxItems ?? 20,
 };
-const step2Cap = planStepCap('step2');
+const step2Cap = await planStepCap('step2');
 const run2 = await client
     .actor('<sub-actor-2-id>')
     .call('step-2', step2Input, step2Cap != null ? { maxTotalChargeUsd: step2Cap } : undefined);
-record('step-2', run2);
+await record('step-2', run2);
+requireSucceeded('step-2', run2);
 
 // -------------------------------------------------------------------------
 // Emit final dataset — iterate (not listItems) to survive large payloads
@@ -172,6 +225,13 @@ const subDatasets = [
     },
 ];
 await Actor.setValue('SUB_DATASETS', subDatasets);
+
+await reconcile();
+const neverCharged = ledger.filter((e) => e.counted === 0).map((e) => `"${e.step}"`);
+if (neverCharged.length > 0) {
+    log.warning(`Never reported a cost: ${neverCharged.join(', ')}`);
+}
+log.info(`Total spent: $${spent.toFixed(4)} of ${Number.isFinite(totalBudget) ? '$' + totalBudget.toFixed(4) : 'an unlimited budget'}`);
 
 await Actor.exit();
 ```

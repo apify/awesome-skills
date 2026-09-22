@@ -13,13 +13,13 @@ If the user has the Apify MCP server configured, its tools are already available
 
 ## Primary tool: `fetch-actor-details`
 
-Returns the input schema, output schema, README (summary or full), and pricing for a given Actor ID.
+Returns the input schema, README (summary or full) and pricing for a given Actor ID. It declares an `outputSchema` field too, but that is inferred from successful runs and is often absent — measured missing on all 7 Actors tried, including the example below. Plan to get the output shape from a sample dataset instead (step 3 under *What to do with the schemas*).
 
 **Call it once per sub-Actor** during the interactive creation flow. Example flow the agent should follow:
 
 1. User says "add `apify/website-content-crawler` as step 1".
-2. Agent calls `fetch-actor-details` with `actorId: "apify/website-content-crawler"`.
-3. Agent presents the input schema back to the user, highlighting `REQUIRED`-prefixed fields.
+2. Agent calls `fetch-actor-details` with `actor: "apify/website-content-crawler"` — the parameter is `actor`, not `actorId`; passing `actorId` fails with `must have required property 'actor'`.
+3. Agent presents the input schema back to the user, highlighting the fields named in `inputSchema.required`.
 4. Agent asks the user which input fields should be exposed as top-level orchestrator input, which should be hardcoded, and which should be derived from a previous step's output.
 
 ## Supporting tools
@@ -35,9 +35,9 @@ Returns the input schema, output schema, README (summary or full), and pricing f
 
 `fetch-actor-details` post-processes schemas before returning them:
 
-- Field **descriptions** are truncated to **500 chars**.
-- **Enum** lists are truncated (combined string length capped at **200 chars**).
-- **Required fields** get a `REQUIRED` prefix in their descriptions (because some MCP clients ignore JSON Schema `required`).
+- Field **descriptions** are truncated to **500 chars**, with `\n\n[Description truncated]` appended — so a truncated description measures ~523 chars in total.
+- **Enum** lists come through whole: `apify/google-search-scraper` returned all 240 `countryCode` values (480 chars). Budget tokens for the full list.
+- **Required fields** are marked by the standard JSON Schema `required` array on the schema (e.g. `["startUrls", "proxyConfiguration"]`). There is **no** `REQUIRED` prefix in the descriptions — read `inputSchema.required`.
 
 For high-fidelity scaffolding — especially for Actors with long enum lists (locales, model names, etc.) — fetch the raw `INPUT_SCHEMA.json` directly:
 
@@ -60,7 +60,7 @@ Note the tilde (`~`) replacing the slash in the actor ID for the REST URL.
 Once fetched, the agent should:
 
 1. **Generate a TypeScript `interface` for each sub-Actor's input** — this catches typos at build time. If the schema has an `enum`, translate it to a union of string literals.
-2. **Note required fields** — those `REQUIRED`-prefixed descriptions become the fields whose values the orchestrator's own input schema must expose or hardcode.
+2. **Note required fields** — read `inputSchema.required`; those fields are the ones whose values the orchestrator's own input schema must expose or hardcode.
 3. **Skim the output schema (or a sample dataset)** — you need to know which output field(s) to read to feed the next step. If the output schema is missing, use `get-dataset-items` with `limit=1` on a public sample Run to peek.
 4. **Cite the source** — leave a comment in `src/main.ts` next to each `client.actor(id).call(...)` linking to the Actor's Apify Store page. Future maintainers will thank you.
 

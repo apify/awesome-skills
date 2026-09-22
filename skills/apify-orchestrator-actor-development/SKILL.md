@@ -3,6 +3,9 @@ name: apify-orchestrator-actor-development
 description: Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when creating a new orchestrator Actor, chaining Apify Actors together, adding an OpenRouter LLM step between Actors, or scaffolding parent-Actor workflows that call other Actors.
 author: Fabian Maume
 author_url: https://github.com/fmaume
+metadata:
+  category: actor-development
+  keywords: "orchestrator, sub-actor, actor-chaining, apify-orchestrator, typescript, cost-cap, maxTotalChargeUsd, openrouter, llm-step, scaffolding, input-schema, output-schema, mcp"
 ---
 
 # Apify orchestrator Actor development
@@ -58,7 +61,7 @@ If the user names a task instead of an Actor ID ("scrape LinkedIn profiles"), us
 
 ### Step 2 — Fetch each sub-Actor's schema via Apify MCP
 
-For **every** sub-Actor in the chain, call the Apify MCP `fetch-actor-details` tool. Present the input schema back to the user with `REQUIRED`-prefixed fields highlighted. See [references/mcp-schema-discovery.md](references/mcp-schema-discovery.md) for the truncation gotcha (500-char descriptions, 200-char enum lists) and the fallback path via the REST API / raw `INPUT_SCHEMA.json` on GitHub.
+For **every** sub-Actor in the chain, call the Apify MCP `fetch-actor-details` tool. The parameter is `actor`, not `actorId`. Present the input schema back to the user with the fields listed in `inputSchema.required` highlighted. See [references/mcp-schema-discovery.md](references/mcp-schema-discovery.md) for the truncation gotcha (500-char descriptions; enum lists arrive whole), the frequently absent `outputSchema`, and the fallback path via the REST API / raw `INPUT_SCHEMA.json` on GitHub.
 
 Never guess field names. If the MCP truncation is limiting, fetch the raw schema from the Actor's GitHub repo.
 
@@ -78,7 +81,7 @@ At Run time the orchestrator:
 1. Reads its own cap via `client.run(actorRunId).get().options.maxTotalChargeUsd`.
 2. **Divides the total evenly across the sub-Actor steps at compile time** — declare a `STEPS` tuple and compute `perStepCap = maxTotalChargeUsd / STEPS.length`.
 3. Passes each step's share as `maxTotalChargeUsd` when calling the sub-Actor (for pay-per-event Actors) or as `maxItems` (for pay-per-result Actors).
-4. Tracks cumulative cost across sub-Actor Runs (`run.usageTotalUsd`) and refuses to launch the next step if the running total exceeds the cap.
+4. Tracks cumulative cost across sub-Actor Runs and refuses to launch the next step once the running total reaches the cap. Note that `run.usageTotalUsd` reads `0` on the object `.call()` returns and then accrues over several seconds, so the tally has to re-read each child Run rather than trust that value. The Run-level `maxTotalChargeUsd` is what enforces the ceiling; the tally is reporting plus a backstop for a step that ran uncapped. See [references/cost-tracking.md](references/cost-tracking.md).
 
 **Do not add a `stepBudgets` input schema field.** The even split is a deliberate compile-time constant — it keeps the input schema clean, makes cost behavior predictable for the caller, and removes a footgun (three shares that don't sum to the total). Users control cost solely via the Run's `maxTotalChargeUsd` option; the orchestrator handles the split.
 
