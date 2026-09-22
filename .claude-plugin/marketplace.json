@@ -426,28 +426,6 @@
       "category": "data-extraction"
     },
     {
-      "name": "apify-orchestrator-actor-development",
-      "source": "./skills/apify-orchestrator-actor-development",
-      "skills": "./",
-      "description": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when creating a new orchestrator Actor, chaining Apify Actors together, adding an OpenRouter LLM step between Actors, or scaffolding parent-Actor workflows that call other Actors.",
-      "keywords": [
-        "orchestrator",
-        "sub-actor",
-        "actor-chaining",
-        "apify-orchestrator",
-        "typescript",
-        "cost-cap",
-        "maxTotalChargeUsd",
-        "openrouter",
-        "llm-step",
-        "scaffolding",
-        "input-schema",
-        "output-schema",
-        "mcp"
-      ],
-      "category": "actor-development"
-    },
-    {
       "name": "apify-osint-threat-intel",
       "source": "./skills/apify-osint-threat-intel",
       "skills": "./",
