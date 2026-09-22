@@ -10,55 +10,6 @@
   },
   "plugins": [
     {
-      "name": "apify-easy-competitive-intelligence",
-      "source": "./skills/apify-easy-competitive-intelligence",
-      "skills": "./",
-      "description": "Full-stack competitive intelligence with 7 analysis modules: Competitor Snapshot, Pricing Intelligence, Pricing Deep Dive (Nagle decomposition), Review Intelligence, Hiring Signals, Content & SEO, and Market Landscape. 20+ verified Apify actor schemas, multi-module orchestration via subagents, and pre-delivery verification with confidence labeling. Uses Apify CLI (preferred) or MCP. Covers SaaS CI sources: G2, Capterra, Glassdoor, LinkedIn Jobs, Crunchbase, SimilarWeb, Google News, Wayback Machine.",
-      "keywords": [
-        "competitive-intelligence",
-        "battlecard",
-        "pricing",
-        "reviews",
-        "hiring",
-        "seo",
-        "market-landscape",
-        "g2",
-        "capterra",
-        "glassdoor",
-        "linkedin",
-        "crunchbase",
-        "similarweb",
-        "swot",
-        "competitor",
-        "analysis"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-ecommerce",
-      "source": "./skills/apify-ecommerce",
-      "skills": "./",
-      "description": "Scrape e-commerce data for pricing intelligence, customer sentiment, product research, quality analysis, and supply chain monitoring across Amazon, Walmart, eBay, IKEA, and 50+ marketplaces",
-      "keywords": [
-        "ecommerce",
-        "pricing",
-        "reviews",
-        "sentiment",
-        "products",
-        "sellers",
-        "amazon",
-        "walmart",
-        "ebay",
-        "MAP",
-        "competitor",
-        "research",
-        "supply-chain"
-      ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
       "name": "apify-ads-intelligence",
       "source": "./skills/apify-ads-intelligence",
       "skills": "./",
@@ -79,33 +30,13 @@
         "twitter",
         "promoted-tweets"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
-    },
-    {
-      "name": "apify-financial-services",
-      "source": "./skills/apify-financial-services",
-      "skills": [
-        "./skills"
-      ],
-      "description": "Financial company intelligence — news monitoring (33 sources), social listening (Reddit, Twitter/X, Trustpilot), and public registry lookups (11 European countries). 3 skills + portfolio-sweep command.",
-      "keywords": [
-        "finance",
-        "news",
-        "osint",
-        "sentiment",
-        "registry",
-        "due-diligence",
-        "apify"
-      ],
-      "category": "data-extraction",
-      "version": "1.2.0"
+      "category": "data-extraction"
     },
     {
       "name": "apify-ai-search-visibility-tracker",
       "source": "./skills/apify-ai-search-visibility-tracker",
       "skills": "./",
-      "description": "Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule",
+      "description": "Track whether a brand and its competitors get cited or mentioned across Google AI Overviews, Google AI Mode, ChatGPT Search, Perplexity, Microsoft Copilot, and Google Gemini for a defined set of prompts, on a recurring schedule. Use when user asks to track AI visibility, monitor brand mentions in AI search, track ChatGPT citations, do AI search SEO tracking, GEO tracking (Generative Engine Optimization), AEO tracking (Answer Engine Optimization), monitor Perplexity citations, track AI Overviews mentions, see if their brand shows up in AI search, discover which prompts competitors rank for in AI search, find citation opportunities, or audit a website for AI visibility readiness.",
       "keywords": [
         "ai-search",
         "geo",
@@ -123,74 +54,79 @@
         "monitoring",
         "scheduling"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
     },
     {
-      "name": "apify-verified-email-finder",
-      "source": "./skills/apify-verified-email-finder",
+      "name": "apify-app-store-intelligence",
+      "source": "./skills/apify-app-store-intelligence",
       "skills": "./",
-      "description": "Build a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed.",
+      "description": "Pull structured Apple App Store and Google Play data — app metadata, price, rating, the 1–5★ ratings histogram, version, developer, and reviews — and watch it for changes over time. Use when the user asks to look up an iOS or Android app by App ID, bundle ID, package name or app name, compare a set of competitor apps across both stores, monitor a competitor's price or rating for changes, track when an app ships a new version, scrape App Store or Google Play reviews, resolve a bundle ID to a full app record, check an app's rating across multiple country storefronts, build an ASO or app-market dataset, or set up a recurring app-store watch on an app's price, rating and version. One routed Actor, praise-most-high/app-store-intelligence, is built by this skill's author; every other row is unaffiliated (see Disclosure).",
       "keywords": [
-        "email",
-        "verification",
-        "leads",
-        "contacts",
-        "verified-emails",
-        "google-maps",
-        "serp",
-        "apify",
-        "apollo-alternative",
-        "hunter-alternative"
+        "app-store",
+        "google-play",
+        "ios",
+        "android",
+        "apple",
+        "aso",
+        "app-store-optimization",
+        "app-metadata",
+        "app-reviews",
+        "ratings",
+        "ratings-histogram",
+        "price-monitoring",
+        "version-tracking",
+        "bundle-id",
+        "package-name",
+        "storefronts",
+        "competitor-monitoring",
+        "change-detection",
+        "itunes"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
     },
     {
-      "name": "apify-link-prospecting-outreach",
-      "source": "./skills/apify-link-prospecting-outreach",
+      "name": "apify-ashby-jobs-scraper",
+      "source": "./skills/apify-ashby-jobs-scraper",
       "skills": "./",
-      "description": "Find link-building prospects, score them with Ahrefs domain and page authority, identify the strongest pitch angle per row, and draft brand-voice-matched outreach emails with concrete in-article link placements",
+      "description": "\"Scrape Ashby jobs or discover companies using Ashby with the Apify Ashby Job Board API Actor (johnvc/ashby-job-board-scraper). Job mode returns live job rows with title, company, location, remote and employment fields, publish date, apply URL, employer-published salary columns, equity flag, and Markdown descriptions. Company mode finds Ashby boards from a bundled directory or checks a prospect list, returning company name, board slug and URL, live open-job count, and verification fields. Takes company names, board slugs, or board URLs; supports pre-billing job filters and publishedAfter feeds. Use for Ashby jobs data or API requests, salary and remote-role collection, job-board pipelines, companies using Ashby/Ashby customers, ATS market maps, prospect checks, and recruiting or sales target lists. Billed per delivered result with no start fee, and MCP-ready for Claude and other AI agents.\"",
       "keywords": [
-        "link-building",
-        "seo",
-        "outreach",
-        "prospecting",
-        "ahrefs",
-        "backlinks",
-        "cold-email",
-        "serp",
-        "unlinked-mentions",
-        "competitor-links",
-        "resource-pages"
+        "ashby",
+        "jobs",
+        "job-board",
+        "salary",
+        "remote-work",
+        "company-discovery",
+        "prospect-check"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
     },
     {
-      "name": "apify-influencer-brand-collabs",
-      "source": "./skills/apify-influencer-brand-collabs",
+      "name": "apify-blocked-scrape-triage",
+      "source": "./skills/apify-blocked-scrape-triage",
       "skills": "./",
-      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors against Meta's Ad Library. Audit influencer branded-content history, scope a brand's sponsorship roster, and surface paid collaborations in either direction",
+      "description": "Diagnose and recover a scrape that is blocked, throttled, or served empty or partial content, in cost order, before paying for a heavier Actor. Use when a run returns 0 items, when a site answers 403, 429 or a challenge page, when the HTML comes back empty or truncated, when a request fails with no response at all, when the page shows data in a browser that the Actor does not see, or when a scraper that worked yesterday suddenly returns nothing. Triggers - \"I'm getting blocked\", \"403 from the site\", \"429 rate limited\", \"Cloudflare challenge\", \"scraper returns empty results\", \"connection reset\", \"page loads in my browser but not in the Actor\", \"do I need residential proxies\", \"should I switch to a browser\", \"my scraper broke overnight\". Escalates in cost order - a cheaper published source first, then reachability, request rate and IP spread, request fidelity, session tokens, the site's own internal API, browser last.",
       "keywords": [
-        "influencer",
-        "brand",
-        "collaboration",
-        "sponsored",
-        "branded-content",
-        "partnership",
-        "instagram",
-        "meta-ad-library",
-        "creator-economy"
+        "blocked",
+        "403",
+        "429",
+        "rate-limit",
+        "anti-bot",
+        "bot-detection",
+        "cloudflare-challenge",
+        "proxy",
+        "residential-proxy",
+        "session",
+        "empty-results",
+        "troubleshooting",
+        "web-data"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "actor-development"
     },
     {
       "name": "apify-booking-host-leads",
       "source": "./skills/apify-booking-host-leads",
       "skills": "./",
-      "description": "Find and enrich B2B leads from Booking.com - hotels, apartments, and vacation rentals - and pull each host's or property manager's real contact details (email, phone, company name, registration number), primarily from the Booking scraper's traderInfo field, with a Google Maps, Google Search, and website-scraper fallback. Use when the user says get emails from Booking.com, Booking.com lead generation, find tour operator / property manager / host contacts, scrape accommodation owner emails, or build a list of Booking hosts.",
+      "description": "Find and enrich B2B leads from Booking.com - hotels, apartments, and vacation rentals - and pull each host's or property manager's real contact details (email, phone, company name, registration number). Use when the user says things like \"get emails from Booking.com\", \"Booking.com lead generation\", \"find tour operator / property manager / host contacts\", \"scrape accommodation owner emails\", or \"build a list of Booking hosts\". The host's email is usually already inside the Booking scraper's traderInfo field (EU/AU trader-transparency disclosure) - this skill leads with that and uses a Google Maps email scraper only as a fallback, instead of relying on Google Maps first (which mostly returns the wrong business).",
       "keywords": [
         "booking",
         "booking.com",
@@ -205,33 +141,465 @@
         "contact-enrichment",
         "b2b"
       ],
-      "category": "data-extraction",
-      "version": "1.0.0"
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-buying-signal-detection",
+      "source": "./skills/apify-buying-signal-detection",
+      "skills": "./",
+      "description": "Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings (hiring for the persona), fundraising events (recent raises), and LinkedIn content (pain-point posts, hiring announcements) — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture — Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says \"find companies with buying signals\", \"detect intent signals for outbound\", \"set up a weekly lead pipeline\", \"monitor hiring signals for lead gen\", \"track startup funding leads\", \"find LinkedIn buying signals\", \"schedule Apify Actors for prospecting\", \"build a signals-based lead list\", or \"set up buying-intent monitoring for my ICP\".",
+      "keywords": [
+        "buying-signals",
+        "intent-data",
+        "lead-generation",
+        "outbound",
+        "prospecting",
+        "hiring-signals",
+        "funding-signals",
+        "linkedin-signals",
+        "sales-triggers",
+        "icp",
+        "scheduled-pipeline",
+        "b2b"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-company-data-api",
+      "source": "./skills/apify-company-data-api",
+      "skills": "./",
+      "description": "\"Pull structured B2B company data from Clutch.co with the Clutch.co Agency API Actor (johnvc/clutch-agency-api). Give it company profile URLs or bare slugs and get one JSON record per company: name, website, rating, review_count, verification badges, min_project_size, hourly_rate, employees, founded_year, headquarters and every office location, languages, service_lines and focus_areas with percentages, industries, clients, cost_rating, most_common_project_size, pricing_by_service, and published packages. Each profile row can also carry LLM-ready markdown at no extra fetch, and verified client reviews as their own rows. Use when someone wants a company data api, to enrich a CRM with firmographics and service mix, pull B2B service provider records, or turn a list of agency profiles into structured company data as JSON. Billed per profile delivered with no start fee, and MCP-ready for Claude and other AI agents.\"",
+      "keywords": [
+        "company data api",
+        "clutch",
+        "b2b company data",
+        "crm enrichment",
+        "company data enrichment",
+        "b2b service providers"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-creator-emails",
+      "source": "./skills/apify-creator-emails",
+      "skills": "./",
+      "description": "Find creators and their published contact emails in one run. Routes \"find YouTube channels about <niche> with emails\", \"get the email for these TikTok / Instagram handles\", \"build a micro-influencer outreach list\", \"creator email finder\", \"influencer contact list for a sponsorship campaign\" and \"alert me when new creators appear in <niche>\" to a single Actor that discovers YouTube channels by keyword, optionally hops to the Instagram and TikTok profiles those channels link, enriches user-supplied TikTok and Instagram handles, crawls each creator's linked site for an email, MX-verifies it and scores every row 0-100 in one 51-column schema. No login, no API key. Use when the user asks to scrape creator or influencer emails, find YouTube creators by topic, enrich a list of TikTok or Instagram usernames with contact details, or set up a weekly new-creator watch. Does not search TikTok or Instagram by keyword or hashtag.",
+      "keywords": [
+        "creator-emails",
+        "influencer-emails",
+        "youtube-creators",
+        "tiktok-creators",
+        "instagram-influencers",
+        "creator-outreach",
+        "influencer-marketing",
+        "micro-influencers",
+        "email-finder",
+        "verified-emails",
+        "sponsorship",
+        "brand-collabs",
+        "creator-leads",
+        "apify"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-easy-competitive-intelligence",
+      "source": "./skills/apify-easy-competitive-intelligence",
+      "skills": "./",
+      "description": "This skill should be used when the user asks to \"analyze a competitor\", \"compare pricing\", \"competitive landscape\", \"market research\", \"what do customers think\", \"review intelligence\", \"hiring signals\", \"content strategy\", \"SEO battle\", \"build a battlecard\", \"competitive analysis\", \"who are the players\", \"who competes with\", \"market intelligence\", \"competitive positioning\", \"deep dive on a company\", \"board prep\", \"SWOT analysis\", \"how does [X] compare to [Y]\", or mentions competitor analysis, pricing comparison, customer sentiment, or market landscape research. Requires Apify CLI or Apify MCP server.",
+      "keywords": [
+        "competitive-intelligence",
+        "battlecard",
+        "pricing",
+        "reviews",
+        "hiring",
+        "seo",
+        "market-landscape",
+        "g2",
+        "capterra",
+        "glassdoor",
+        "linkedin",
+        "crunchbase",
+        "similarweb",
+        "swot",
+        "competitor",
+        "analysis"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-ecommerce",
+      "source": "./skills/apify-ecommerce",
+      "skills": "./",
+      "description": "Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence.",
+      "keywords": [
+        "ecommerce",
+        "pricing",
+        "reviews",
+        "sentiment",
+        "products",
+        "sellers",
+        "amazon",
+        "walmart",
+        "ebay",
+        "MAP",
+        "competitor",
+        "research",
+        "supply-chain"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-google-maps-leads",
+      "source": "./skills/apify-google-maps-leads",
+      "skills": "./",
+      "description": "Build a local-business lead database from Google Maps in one Apify pipeline: search by target audience + geography, enrich each place with company contacts from its website, leads enrichment (names, emails, phones, LinkedIn), Instagram + Facebook profiles, and optionally reviews for lead scoring. For places with no named contacts, escalate to apify/ai-web-scraper to pull owner / decision-maker names from the business website. Backfill missing phones via scalelist/phone-finder and missing emails via scalelist/email-finder. Use when the user asks to build a lead list from Google Maps, scrape local businesses, generate B2B leads by city/industry, find owner/decision-maker contacts for restaurants / dentists / gyms / hotels / any local vertical, score leads by review volume or rating, or says \"Google Maps lead-gen pipeline\", \"leads from Maps\", \"prospect local businesses\", \"scrape Google Maps for outreach\", \"find companies in <city>\", or mentions chaining Google Maps + AI web scraper + Scalelist Actors.",
+      "keywords": [
+        "google-maps",
+        "leads",
+        "lead-generation",
+        "local-business",
+        "b2b",
+        "prospecting",
+        "google-places",
+        "lead-scoring",
+        "reviews",
+        "instagram-enrichment",
+        "facebook-enrichment",
+        "ai-web-scraper",
+        "name-discovery",
+        "scalelist",
+        "phone-finder",
+        "email-finder",
+        "contact-enrichment"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-influencer-brand-collabs",
+      "source": "./skills/apify-influencer-brand-collabs",
+      "skills": "./",
+      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid posts for, wants to audit an influencer's branded-content history, or wants to scope a brand's sponsorship roster. **Triggers:** - \"who collabs with [brand] on Instagram?\" - \"what brands has [creator] done sponsored posts for?\" - \"find paid partnerships / branded content for [handle]\" - \"audit [influencer]'s brand deals\" - \"show me [brand]'s influencer roster\" Works in either direction — brand → creators or creator → brands — and detects direction from the data, so don't ask the user to declare it. Requires Apify MCP tools.",
+      "keywords": [
+        "influencer",
+        "brand",
+        "collaboration",
+        "sponsored",
+        "branded-content",
+        "partnership",
+        "instagram",
+        "meta-ad-library",
+        "creator-economy"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-job-boards",
+      "source": "./skills/apify-job-boards",
+      "skills": "./",
+      "description": "Pull job postings from many boards in one run and prepare one validated, deduplicated table. Routes \"find jobs / scrape job postings / build a job list / monitor new jobs / track a company's careers page\" requests to a multi-board job scraper (LinkedIn, Indeed, Glassdoor, The Muse plus keyless boards) or a remote-only aggregator (RemoteOK, We Work Remotely, Remotive, Jobicy, Himalayas, HN Who is hiring), with output-locality checks, per-board raw/qualified/deduplicated counts, only-new-jobs monitoring, per-board caps and honest cost estimates. Use when the user asks to scrape jobs across job boards, get Indeed or Glassdoor postings without an API key, collect remote developer jobs, watch a company's Greenhouse/Lever/Ashby careers page, or set up a daily new-jobs alert.",
+      "keywords": [
+        "jobs",
+        "job-postings",
+        "job-boards",
+        "indeed",
+        "glassdoor",
+        "linkedin-jobs",
+        "remote-jobs",
+        "job-aggregator",
+        "job-alerts",
+        "careers-page",
+        "greenhouse",
+        "lever",
+        "ashby",
+        "recruiting",
+        "salary-data",
+        "apify"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-jobs-data",
+      "source": "./skills/apify-jobs-data",
+      "skills": "./",
+      "description": "Extract clean, de-noised job-posting data from LinkedIn, Indeed, Glassdoor, and 20+ boards in one Apify run — deduplicated across boards, with likely ghost jobs and reposts flagged (heuristic, not verified) and fields normalized — then analyze it (deduped hiring demand, in-demand skills, coverage-labeled salary distribution), export it (CSV / JSON / Apify dataset) for dashboards and BI, or rank it against a résumé. Use when the user asks to scrape job postings, build a job dataset, analyze hiring demand or in-demand skills or salary ranges for a role or market, export job data for a dashboard or spreadsheet, dedupe job listings across boards, flag or filter out likely ghost jobs, or rank jobs by fit to a résumé. Triggers - \"scrape job postings for X\", \"what skills are in demand for Y\", \"salary range for Z in [location]\", \"export job data to CSV\", \"filter out the ghost jobs\", \"which of these jobs fit my résumé\".",
+      "keywords": [
+        "jobs",
+        "job-data",
+        "job-postings",
+        "job-scraping",
+        "hiring-demand",
+        "salary",
+        "skills-in-demand",
+        "market-analysis",
+        "dataset-export",
+        "ghost-jobs",
+        "resume-fit",
+        "linkedin-jobs",
+        "indeed",
+        "glassdoor",
+        "data-extraction",
+        "apify"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-lead-scoring-enrichment",
+      "source": "./skills/apify-lead-scoring-enrichment",
+      "skills": "./",
+      "description": "Score and enrich a CSV of B2B leads using Apify Actors. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech stack), Website Content Crawler (content classification), and Contact Info Scraper (company metadata) for scoring; enriches with either department-specific contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper → AI Web Scraper → Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column that personalizes cold email copy (e.g. \"uses Shopify → send Shopify install guide\"). Use when user asks to score leads, qualify leads, enrich a lead list, detect a company's tech stack for outreach, find marketing/sales/engineering contacts at a list of companies, hunt down blog copywriters for guest-post pitches, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.",
+      "keywords": [
+        "lead-scoring",
+        "lead-enrichment",
+        "outreach",
+        "cold-email",
+        "personalization",
+        "tech-stack",
+        "builtwith",
+        "email-finder",
+        "copywriter-discovery",
+        "guest-post",
+        "prospecting",
+        "b2b",
+        "csv-workflow"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-link-prospecting-outreach",
+      "source": "./skills/apify-link-prospecting-outreach",
+      "skills": "./",
+      "description": "Find sites ranking for target keywords, score every prospect with Ahrefs domain authority and page-level traffic, identify the strongest pitch angle per row (\"links to competitor\", \"mentions brand without linking\", \"top-3 SERP\", \"resource page\", \"outdated content\"), generate brand-voice-matched outreach emails using an outreach-type-aware template (unlinked-mention claim, competitor-link replacement, resource-page inclusion, outdated-content replacement, topical niche-edit), and propose a concrete in-article link placement as three artifacts — the verbatim source sentence, the same sentence rewritten with the link spliced in, or a fully-drafted new insertion if no natural fit exists. Use when user asks to find link building opportunities, prospect link partners, recover unlinked brand mentions, replace competitor links, build a tiered outreach list, or run cold email outreach for SEO link building.",
+      "keywords": [
+        "link-building",
+        "seo",
+        "outreach",
+        "prospecting",
+        "ahrefs",
+        "backlinks",
+        "cold-email",
+        "serp",
+        "unlinked-mentions",
+        "competitor-links",
+        "resource-pages"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-local-business-leads-osm",
+      "source": "./skills/apify-local-business-leads-osm",
+      "skills": "./",
+      "description": "Build a local-business lead list without scraping Google Maps. Routes \"find dentists / plumbers / salons / restaurants in <city> with emails\", \"business email finder for <category> in <city>\", \"web-design prospects with no website or a weak one\", \"enrich my list of business websites with verified emails\", \"leads within 5 km of an address\" and \"alert me when new businesses appear\" to an OpenStreetMap-based Actor that crawls each business's own website and returns one 73-column row per business with an MX-verified email, phone, social profiles, website platform and a 0-100 lead score. No Google Maps, no API key, no proxy, no login; every filter runs before billing. Use when the user wants local B2B leads for cold email or calls, a Google Maps alternative that avoids Google's terms, a bring-your-own-website-list enrichment pass, or a scheduled new-business watch for one category and city.",
+      "keywords": [
+        "local-business",
+        "leads",
+        "lead-generation",
+        "business-emails",
+        "email-finder",
+        "verified-emails",
+        "mx-verification",
+        "openstreetmap",
+        "osm",
+        "google-maps-alternative",
+        "cold-email",
+        "web-design-prospects",
+        "lead-scoring",
+        "b2b",
+        "small-business",
+        "apify"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-marketing-agency-database",
+      "source": "./skills/apify-marketing-agency-database",
+      "skills": "./",
+      "description": "\"Build a marketing agency database from Clutch.co with the Clutch.co Agency API Actor (johnvc/clutch-agency-api). Point it at any Clutch directory or category or location URL and get one JSON row per listed agency: name, profile_url, website, rating, review_count, verification, min_project_size, hourly_rate, employees, location, and service_lines. Pagination and cross-page de-duplication are handled for you, so one company is never billed twice. Use when someone wants a marketing agency database, a list of digital marketing agencies, a B2B agency directory as structured data, top agencies by service or city, or to export agencies from Clutch into a spreadsheet, CRM, or vector store. Billed per listing delivered with no start fee, and MCP-ready for Claude and other AI agents.\"",
+      "keywords": [
+        "marketing agency database",
+        "clutch",
+        "agency directory",
+        "list of digital marketing agencies",
+        "b2b directory",
+        "agency list"
+      ],
+      "category": "data-extraction"
     },
     {
       "name": "apify-orchestrator-actor-development",
       "source": "./skills/apify-orchestrator-actor-development",
       "skills": "./",
-      "description": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Interactive scaffolding flow: elicit the sub-Actor chain, fetch each Actor's input/output schema via Apify MCP (fetch-actor-details), design data flow between steps, elicit per-step cost budgets, optionally add an OpenRouter LLM step, then scaffold src/main.ts with the running-budget pattern (maxTotalChargeUsd caps per sub-Actor call, usageTotalUsd polling for cumulative cost tracking).",
+      "description": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when creating a new orchestrator Actor, chaining Apify Actors together, adding an OpenRouter LLM step between Actors, or scaffolding parent-Actor workflows that call other Actors.",
       "keywords": [
         "orchestrator",
-        "orchestration",
+        "sub-actor",
+        "actor-chaining",
         "apify-orchestrator",
         "typescript",
-        "actor-development",
-        "sub-actors",
-        "workflow",
-        "pipeline",
-        "chain",
-        "parent-actor",
+        "cost-cap",
+        "maxTotalChargeUsd",
         "openrouter",
-        "llm",
-        "mcp",
-        "cost-tracking",
-        "maxtotalchargeusd"
+        "llm-step",
+        "scaffolding",
+        "input-schema",
+        "output-schema",
+        "mcp"
       ],
-      "category": "development",
-      "version": "1.0.0"
+      "category": "actor-development"
+    },
+    {
+      "name": "apify-osint-threat-intel",
+      "source": "./skills/apify-osint-threat-intel",
+      "skills": "./",
+      "description": "Use this skill when the user asks to \"find CVEs for\", \"check if my domain is breached\", \"threat intel on\", \"OSINT on\", \"security news about\", \"attack surface of\", \"is this IP malicious\", \"what vulnerabilities affect\", \"security advisory for\", \"monitor threats for\", \"threat actor research\", \"recent exploits for\", \"data breach check\", \"security posture of\", \"what's the threat landscape for\", \"investigate [domain/IP/software]\", \"is [company] exposed\", or any request involving vulnerability research, breach detection, threat actor profiling, or security intelligence. Requires Apify CLI or Apify MCP server.",
+      "keywords": [
+        "osint",
+        "threat-intel",
+        "cve",
+        "vulnerability",
+        "security",
+        "cybersecurity",
+        "breach",
+        "threat-actor",
+        "cisa",
+        "mitre-attack"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-plan-travel",
+      "source": "./skills/apify-plan-travel",
+      "skills": "./",
+      "description": "This skill should be used when the user asks to \"find flights\", \"compare flights\", \"analyze flight search results\", \"plan a flight itinerary\", \"plan a complete trip\", \"plan an event trip\", or create an itinerary and budget that combines flights with lodging. It turns supplied or live Apify travel results into a defensible recommendation while preserving unresolved fare scope. Do not use it for hotel-only or lodging-only requests. It prices and advises but never books.",
+      "keywords": [
+        "flight search",
+        "compare flights",
+        "multi-city itinerary",
+        "open-jaw flights",
+        "trip planning",
+        "event trip",
+        "flights and hotels",
+        "travel budget",
+        "google flights",
+        "google hotels",
+        "apify"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-product-data-setup",
+      "source": "./skills/apify-product-data-setup",
+      "skills": "./",
+      "description": "Wire an AI agent to live e-commerce product data using Apify's E-commerce Scraping Tool over MCP, either as runtime tool calls or as a scheduled refresh into a vector store. Trigger on \"give my agent live product data\", \"my agent quotes stale prices\", \"connect Apify MCP to Claude or Cursor or n8n\", \"add product data to my RAG pipeline\", \"keep my product catalog fresh\", \"set up a shopping agent\", or any request to stop an agent answering product questions from training data. Use for the integration work; use apify-product-lookup to actually answer a product question.",
+      "keywords": [
+        "mcp setup",
+        "agent product data",
+        "claude mcp config",
+        "cursor mcp",
+        "n8n product data",
+        "rag product catalog",
+        "vector store refresh",
+        "scheduled scraping"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-reddit-scraper",
+      "source": "./skills/apify-reddit-scraper",
+      "skills": "./",
+      "description": "Scrape Reddit with the harshmaur/reddit-scraper Apify Actor: keyword search across all of Reddit or inside one subreddit, full subreddit listings, post permalinks with complete comment threads, user profiles and community info, with date-range filters and optional delivery of results into Slack, Notion, Google Sheets or Airtable through Apify MCP connectors. Use when the user says \"monitor my brand on Reddit\", \"find leads on Reddit\", \"what is Reddit saying about X\", \"scrape r/<subreddit>\", \"pull all comments from this Reddit thread\", \"Reddit posts about X since <date>\", \"track competitor mentions on Reddit\", \"Reddit sentiment for X\" (labels are a paid add-on; otherwise quote the body), \"build a Reddit dataset\", \"scrape a Reddit user's history\", or any request for Reddit posts, comments, subreddits or users as structured data. No Reddit API key or login is needed. Out of scope: posting or replying on Reddit, private or quarantined communities, and semantic/topic search (Reddit search is literal).",
+      "keywords": [
+        "reddit",
+        "reddit-scraper",
+        "subreddit",
+        "reddit-comments",
+        "brand-monitoring",
+        "social-listening",
+        "lead-generation",
+        "reddit-search",
+        "reddit-sentiment",
+        "reddit-dataset",
+        "community-research",
+        "mcp-connector",
+        "slack",
+        "notion"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-verified-email-finder",
+      "source": "./skills/apify-verified-email-finder",
+      "skills": "./",
+      "description": "Builds a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed. Use when user asks to find verified emails, build a leads list, scrape emails from Maps or SERP, verify emails for a URL list, or find an Apollo / Hunter alternative.",
+      "keywords": [
+        "email",
+        "verification",
+        "leads",
+        "contacts",
+        "verified-emails",
+        "google-maps",
+        "serp",
+        "apify",
+        "apollo-alternative",
+        "hunter-alternative"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-x402-agentic-wallet",
+      "source": "./skills/apify-x402-agentic-wallet",
+      "skills": "./",
+      "description": "Discover, pay for, and run any Apify Actor by paying USDC on Base over the x402 protocol with a Coinbase Agentic Wallet (awal) — no Apify account or API key. You buy one small, spend-capped prepaid Apify token, then run as many Actors as the request needs with it. Use when the user wants to use Apify tools without signing up, pay per use with crypto / USDC, set up an agentic wallet, mentions \"x402\", \"awal\", \"agentic wallet\", \"Coinbase wallet\", \"pay with USDC\", \"no API key\", or asks to pull live web data (social media, search, maps, marketplaces, news) while paying on-chain per use.",
+      "keywords": [
+        "x402",
+        "awal",
+        "agentic-wallet",
+        "coinbase",
+        "usdc",
+        "base",
+        "crypto",
+        "pay-per-use",
+        "prepaid-token",
+        "no-api-key",
+        "micropayments",
+        "web-data"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-yandex-image-search-api",
+      "source": "./skills/apify-yandex-image-search-api",
+      "skills": "./",
+      "description": "Search the Yandex Images vertical and get full-size image URLs as structured JSON with the Apify Yandex Search Scraper Actor (johnvc/Scrape-Yandex). A yandex image search api for agents and pipelines. One text query returns image results with the original full-size image URL, hosting page link, thumbnail, and source, filtered by image type, color, orientation, file type, exact size, site, and recency. Use when the user wants a yandex image search api or yandex images api, wants to search Yandex Images programmatically, collect image datasets with full-size URLs, source images from Russian-language sites, or filter image results by color, size, or license-friendly site. Pay-per-page billing, MCP-ready for Claude and other AI agents.",
+      "keywords": [
+        "apify",
+        "yandex",
+        "image-search",
+        "images-api",
+        "image-dataset",
+        "json",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction"
+    },
+    {
+      "name": "apify-yandex-search-api",
+      "source": "./skills/apify-yandex-search-api",
+      "skills": "./",
+      "description": "Get structured Yandex search results without an official API key using the Apify Yandex Search Scraper Actor (johnvc/Scrape-Yandex). One query returns the full SERP as JSON, with organic results (position, title, link, displayed_link, snippet), and optional ads, knowledge graph, inline images, and inline videos, targeted by Yandex domain, language, and any of 123,000 plus lr region IDs. Use when the user wants a yandex search api, a yandex serp api, Yandex search results as JSON or CSV, to scrape Yandex search, to check what ranks on yandex.ru for a query or region, or SEO research for Russian-speaking markets. Pay-per-page billing, MCP-ready for Claude and other AI agents.",
+      "keywords": [
+        "apify",
+        "yandex",
+        "yandex-search",
+        "serp",
+        "search-api",
+        "seo",
+        "json",
+        "mcp",
+        "claude"
+      ],
+      "category": "data-extraction"
     }
   ]
 }
