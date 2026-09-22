@@ -13,7 +13,7 @@ So a single run charges you for BOTH Actors. The query count is the cost driver 
 
 ## Cost guardrails
 
-Per-event prices at the time of writing. Confirm the live numbers on each Store card, or with `apify actors info "johnvc/ai-overview-rewrite-queue" --json --user-agent apify-awesome-skills/apify-search-console-ai-overview 2>/dev/null` (look at `pricingInfo`).
+Per-event prices at the time of writing. Confirm the live numbers on each Store card, or with `apify actors info "johnvc/ai-overview-rewrite-queue" --json --user-agent apify-awesome-skills/apify-search-console-ai-overview 2>/dev/null` (look at `pricingInfos` — it is an array, the last entry is the live one).
 
 This Actor (johnvc/ai-overview-rewrite-queue):
 
@@ -56,9 +56,9 @@ Suggested confirmation thresholds:
 
 ## Scoring and join notes
 
-- Join rate: Search Console anonymizes long-tail queries, so a long-tail export will not fully match. Expect roughly 30 to 60 percent of a long-tail list to join. Unmatched queries get `join_status` unmatched, land in tier X, and are kept, never dropped.
+- Join rate: Search Console anonymizes long-tail queries, so a long-tail export will not fully match. Expect roughly 30 to 60 percent of a long-tail list to join. Queries that do not join come back with `join_status: check_only`, land in tier X, and are kept, never dropped.
 - Tier A is the highest-leverage bucket: a competitor is cited and you rank position 5 to 20. Work these first.
-- Tier C uses your own historical CTR for the query as the baseline, not an industry benchmark.
+- Tier C compares your CTR against a baseline built from queries in the same export that have no AI Overview at a comparable position — not that query's history, not an industry benchmark. Too few such queries and tier C never fires.
 - `citation_state` values: cited, competitor_cited, no_overview, overview_no_references, or null. Read it together with `reference_domains` and `cited_urls` to brief a rewrite.
 - AI Overviews vary between identical runs; confirm a tier A over a couple of runs before committing a large rewrite.
 - History key: `query` plus `fetched_at`. Re-run after shipping rewrites to confirm the tier moved.

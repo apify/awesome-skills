@@ -10,6 +10,8 @@ metadata:
 ---
 
 # Search Console AI Overview: A Prioritized Rewrite Queue
+**Disclosure:** the Apify links on this page carry the author's affiliate code (`fpr=9n7kx3`), so the author earns from sign-ups made through them, and the Actors this skill routes to are published by `johnvc`, whose Store listing credits this skill's author.
+
 
 Build a prioritized rewrite queue from your Google Search Console data. This Actor joins each query's Search Console position and CTR against the live AI Overview citation state, then returns a tiered queue so you rewrite the highest-leverage pages first: the ones where a competitor is cited in the AI Overview while you still rank 5 to 20.
 
@@ -20,7 +22,7 @@ Build a prioritized rewrite queue from your Google Search Console data. This Act
 - They have a Search Console Queries export (CSV) and a domain, and want it turned into a ranked to-do queue.
 - They want the join that nothing else does: Search Console rank and CTR on one side, live AI Overview citation state on the other.
 
-Not for: a plain yes or no citation check across a fixed watchlist (use the google-ai-overview-monitoring skill), organic rank tracking on its own, or content rewriting itself (this tells you which pages to rewrite, not what to write).
+Not for: a plain yes or no citation check across a fixed watchlist (run `johnvc/Google-AI-Overview-API` directly), organic rank tracking on its own, or content rewriting itself (this tells you which pages to rewrite, not what to write).
 
 ## What you get (one row per query)
 
@@ -28,7 +30,7 @@ Queue and identity: `result_type` (labels the record), `query`, `query_normalize
 
 Search Console metrics carried through the join: `clicks`, `impressions`, `ctr`, `position`.
 
-Live citation check: `check_status`, `ai_overview_present`, `citation_state` (one of cited, competitor_cited, no_overview, overview_no_references, or null), `cited_urls`, `cited_pages_count`, `reference_domains`, `reference_count`, `fetched_at`. Failures carry `error_message` and `error_type`.
+Live citation check: `check_status`, `ai_overview_present`, `citation_state` (one of cited, competitor_cited, no_overview, overview_no_references, or null), `cited_urls`, `cited_pages_count`, `reference_domains`, `reference_count`, `fetched_at`. A citation check that does not complete is **not** an error row: it comes back as `result_type: scored_query` with `check_status: retrieval_failed` or `blocked`, `citation_state: null` and tier X, and it still bills a scored query. `error_message` and `error_type` appear only on a `result_type: error` row, which describes a run that could not proceed at all.
 
 A run summary is written to the key-value store.
 
@@ -36,9 +38,22 @@ A run summary is written to the key-value store.
 
 - Tier A: a competitor is cited in the AI Overview and you rank position 5 to 20. Highest-leverage rewrites; do these first.
 - Tier B: a competitor is cited or the overview has no references, and you rank 1 to 4. You are close; a rewrite can win the citation.
-- Tier C: you are already cited but your CTR is below your own baseline for that query.
+- Tier C: you are already cited but your CTR is below your own baseline — the baseline being your CTR on queries in *this same export* that have no AI Overview at a comparable position, not that query's own history. A small export often has too few of those for the baseline to exist, and then tier C cannot fire at all.
 - Tier D: no AI Overview for the query.
 - Tier X: the citation check failed, or the query did not match a Search Console row. Kept, never dropped, so you can see the gap.
+
+## Example prompts
+
+Prompts this skill handles:
+
+- "Here is my Search Console Queries export for example.com — which pages should I rewrite first because of AI Overviews?"
+- "Turn this Search Console CSV into a ranked rewrite queue and show me the tier A rows."
+- "For these 20 queries, where does the AI Overview cite a competitor while I rank on page one or two?"
+
+Out of scope (the boundary):
+
+- "Is my brand cited in the AI Overview for these 10 queries?" — a plain citation check with no Search Console data behind it. Run `johnvc/Google-AI-Overview-API` directly; this skill needs rank and CTR to tier anything.
+- "Rewrite the page for me." — this skill tells you which pages to rewrite, not what to write.
 
 ## Prerequisites
 
@@ -100,9 +115,9 @@ Then ask, for example: "Here is my Search Console CSV for example.com. Build the
 ## Inputs
 
 - `target_domains` (array, required): the domains you own; used to classify cited versus competitor_cited.
-- `search_console_csv_url` (string): URL to a Search Console Queries CSV. One of the three query sources.
+- `search_console_csv_url` (string): URL to a Search Console Queries CSV. The three query sources are **additive, not exclusive** — send the CSV, the inline rows and the extra `queries` together if you want, and a query appearing in more than one is checked and billed once.
 - `search_console_rows` (array): inline rows of {query, clicks, impressions, ctr, position}. Preserves the join fields.
-- `queries` (array): a bare query list when you have no Search Console metrics; those rows join_status as unmatched and land in tier X, but still get a citation check.
+- `queries` (array): a bare query list when you have no Search Console metrics; those rows come back `join_status: check_only` and land in tier X, but still get a citation check — and still bill. `join_status` is one of `matched` (the query is in your Search Console export and was checked), `check_only` (checked but not present in the export) or `gsc_only`. There is no `unmatched` value; a filter on one would return nothing.
 - `min_impressions` (int, default 10): drop queries below this impression floor before scoring.
 - `gl` (string, default us) and `hl` (string, default en): market targeting for the citation check.
 - `location` (string): optional named location for local-intent queries.
@@ -113,9 +128,9 @@ Two Actors bill on one run. This Actor charges a per-run setup fee plus a per-sc
 
 ## Honest limits
 
-- Join rate. Search Console anonymizes long-tail queries, so a long-tail export will not fully match; expect roughly 30 to 60 percent of a long-tail list to join. Unmatched queries are labelled tier X and kept, never dropped, so the gap is visible.
+- Join rate. Search Console anonymizes long-tail queries, so a long-tail export will not fully match; expect roughly 30 to 60 percent of a long-tail list to join. Queries that do not join are labelled `check_only`, land in tier X and are kept, never dropped, so the gap is visible.
 - AI Overviews are not deterministic. The cited set can shift between identical runs, so treat a single tier A as a candidate and confirm over a couple of runs before a big rewrite.
-- The CTR baseline in tier C is your own historical CTR for that query, not an industry number.
+- The CTR baseline in tier C is computed from your own rows in the same export — queries with no AI Overview at a comparable position — not from that query's history and not from an industry number. The Actor says so in `tier_reason` when the baseline is missing.
 - The queue tells you which pages to rewrite and why; the rewrite itself is your call.
 - Point-in-time, not a live feed: `fetched_at` timestamps each row.
 
