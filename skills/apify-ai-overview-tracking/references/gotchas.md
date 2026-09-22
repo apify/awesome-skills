@@ -13,7 +13,7 @@ So a single run charges you for BOTH Actors, and a monthly schedule repeats that
 
 ## Cost guardrails
 
-Per-event prices at the time of writing. Confirm the live numbers on each Store card, or with `apify actors info "johnvc/ai-overview-rewrite-queue" --json --user-agent apify-awesome-skills/apify-ai-overview-tracking 2>/dev/null` (look at `pricingInfo`).
+Per-event prices at the time of writing. Confirm the live numbers on each Store card, or with `apify actors info "johnvc/ai-overview-rewrite-queue" --json --user-agent apify-awesome-skills/apify-ai-overview-tracking 2>/dev/null` (look at `pricingInfos` — it is an array, the last entry is the live one).
 
 This Actor (johnvc/ai-overview-rewrite-queue):
 
@@ -57,8 +57,8 @@ Suggested confirmation thresholds:
 
 - The field to follow over time is `citation_state` per `query`, keyed by `fetched_at`. Cited to competitor_cited is a loss; competitor_cited to cited is a win after a rewrite.
 - Tier B is the rank versus citation gap: position 1 to 4 with a competitor cited or no references. This is what a plain citation monitor cannot show, because it has no `position`.
-- Rank-aware tiers require Search Console metrics. A bare `queries` list yields `citation_state` but no tier B; those rows read as unmatched (tier X).
-- Join rate: Search Console anonymizes long-tail queries, so a long-tail export will not fully match. Expect roughly 30 to 60 percent of a long-tail list to join; unmatched queries are kept in tier X.
+- Rank-aware tiers require Search Console metrics. A bare `queries` list yields `citation_state` but no tier B; those rows read as `check_only` (tier X).
+- Join rate: Search Console anonymizes long-tail queries, so a long-tail export will not fully match. Expect roughly 30 to 60 percent of a long-tail list to join; queries that do not join come back `check_only` and are kept in tier X.
 - Fix the query set. Adding or removing queries mid-history changes what you are comparing; version the list when it must change.
 - AI Overviews vary between identical runs; trend `citation_state` over two or three runs before acting on a flip.
 - There is no backfill: history starts at your first run. Schedule before the period you want to measure.

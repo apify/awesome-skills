@@ -23,7 +23,7 @@ The primary Actor for this skill, the sibling it composes, and the answer-engine
 ## How to extend
 
 1. Search candidates: `apify actors search "ai overview tracking" --json --limit 20 --user-agent apify-awesome-skills/apify-ai-overview-tracking 2>/dev/null`
-2. Fetch the input schema: `apify actors info "johnvc/ai-overview-rewrite-queue" --input --json --user-agent apify-awesome-skills/apify-ai-overview-tracking 2>/dev/null`
+2. Fetch the input schema: `apify actors info "johnvc/ai-overview-rewrite-queue" --input --user-agent apify-awesome-skills/apify-ai-overview-tracking 2>/dev/null`
 3. Add a row above with the user intent that should trigger it.
 
 Note: `Tier` here is `community` because these are third-party Actors published by John Cole on the Apify Store, not Apify-maintained Actors.

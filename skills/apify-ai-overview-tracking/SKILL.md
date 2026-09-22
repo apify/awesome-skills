@@ -10,6 +10,8 @@ metadata:
 ---
 
 # AI Overview Tracking: The Rank Versus Citation Gap
+**Disclosure:** the Apify links on this page carry the author's affiliate code (`fpr=9n7kx3`), so the author earns from sign-ups made through them, and the Actors this skill routes to are published by `johnvc`, whose Store listing credits this skill's author.
+
 
 Find the pages that rank but are never cited by Google's AI. This Actor grades each query by two signals at once, where you rank in Search Console and whether the AI Overview cites you, so the pages ranking 1 to 4 that the overview cites competitors on (or cites nobody on) surface as tier B. Track `citation_state` on a schedule and you can see, month over month, where you gain or lose an AI Overview citation while your ranking holds.
 
@@ -20,7 +22,7 @@ Find the pages that rank but are never cited by Google's AI. This Actor grades e
 - They want to monitor `citation_state` over time on a monthly schedule and see the rank versus citation gap move.
 - They want a graded queue of where to act, not a yes or no answer for a fixed set of queries.
 
-Not for: a plain citation yes or no check across a fixed watchlist with no ranking context (use the google-ai-overview-monitoring skill), organic rank tracking on its own, or building the rewrite content itself.
+Not for: a plain citation yes or no check across a fixed watchlist with no ranking context (run `johnvc/Google-AI-Overview-API` directly), organic rank tracking on its own, or building the rewrite content itself.
 
 ## Distinct from a plain citation monitor
 
@@ -32,7 +34,7 @@ Queue and identity: `result_type`, `query`, `query_normalized`, `tier` (A to D, 
 
 Ranking signals from the join: `clicks`, `impressions`, `ctr`, `position`.
 
-Citation signals to track over time: `check_status`, `ai_overview_present`, `citation_state` (cited, competitor_cited, no_overview, overview_no_references, or null), `cited_urls`, `cited_pages_count`, `reference_domains`, `reference_count`, `fetched_at`. Failures carry `error_message` and `error_type`.
+Citation signals to track over time: `check_status`, `ai_overview_present`, `citation_state` (cited, competitor_cited, no_overview, overview_no_references, or null), `cited_urls`, `cited_pages_count`, `reference_domains`, `reference_count`, `fetched_at`. A citation check that does not complete is **not** an error row: it comes back as `result_type: scored_query` with `check_status: retrieval_failed` or `blocked`, `citation_state: null` and tier X, and it still bills a scored query — so a failed check looks like a tracked point unless you filter on `check_status`. `error_message` and `error_type` appear only on a `result_type: error` row.
 
 A per-run summary is written to the key-value store.
 
@@ -40,11 +42,24 @@ A per-run summary is written to the key-value store.
 
 - Tier B is the rank versus citation gap: you rank position 1 to 4, yet a competitor is cited or the overview shows no references. You have the ranking; you are missing the citation.
 - Tier A: a competitor is cited and you rank 5 to 20 (the deeper rewrite opportunity).
-- Tier C: you are cited but your CTR sits below your own baseline for that query.
+- Tier C: you are cited but your CTR sits below your own baseline — the baseline being your CTR on queries in *this same export* that have no AI Overview at a comparable position, not that query's own history. A small export often has too few of those for the baseline to exist, and then tier C cannot fire at all.
 - Tier D: no AI Overview for the query.
 - Tier X: the check failed, or the query did not match a Search Console row. Kept so the gap stays visible.
 
 For tracking, the field to follow is `citation_state` per `query` over `fetched_at`.
+
+## Example prompts
+
+Prompts this skill handles:
+
+- "Which of my top-ranking pages does Google's AI Overview ignore?"
+- "Track example.com against my Search Console queries monthly and tell me where I lose a citation while my ranking holds."
+- "Show me the queries where I rank 1 to 4 but a competitor is cited in the AI Overview."
+
+Out of scope (the boundary):
+
+- "Is my brand cited for these 10 queries, yes or no?" — a watchlist check with no ranking context. Run `johnvc/Google-AI-Overview-API` directly.
+- "What was my citation state last quarter?" — there is no backfill; the history starts at your first run.
 
 ## Prerequisites
 
@@ -107,9 +122,9 @@ Then ask, for example: "Track example.com against my Search Console queries and 
 ## Inputs
 
 - `target_domains` (array, required): your domains; used to classify cited versus competitor_cited.
-- `search_console_csv_url` (string): URL to a Search Console Queries CSV. One of the three query sources.
+- `search_console_csv_url` (string): URL to a Search Console Queries CSV. The three query sources are **additive, not exclusive** — the CSV, the inline rows and the extra `queries` can be sent together, and a query appearing in more than one is checked and billed once.
 - `search_console_rows` (array): inline rows of {query, clicks, impressions, ctr, position}; needed for rank-aware tiers.
-- `queries` (array): a bare query list; without metrics these join as unmatched (tier X) but still get a citation check.
+- `queries` (array): a bare query list; without metrics these come back `join_status: check_only` (tier X) but still get a citation check, and still bill. `join_status` is one of `matched` (the query is in your Search Console export and was checked), `check_only` (checked but not present in the export) or `gsc_only`. There is no `unmatched` value; a filter on one would return nothing.
 - `min_impressions` (int, default 10): impression floor; raise it for tracking to focus on traffic-carrying queries.
 - `gl` (string, default us) and `hl` (string, default en): market targeting for the citation check. One market per run.
 - `location` (string): optional named location for local-intent queries.
@@ -120,7 +135,7 @@ Two Actors bill on one run. This Actor charges a per-run setup fee plus a per-sc
 
 ## Honest limits
 
-- Join rate. Search Console anonymizes long-tail queries, so a long-tail export will not fully match; expect roughly 30 to 60 percent of a long-tail list to join. Unmatched queries are labelled tier X and kept, never dropped.
+- Join rate. Search Console anonymizes long-tail queries, so a long-tail export will not fully match; expect roughly 30 to 60 percent of a long-tail list to join. Queries that do not join are labelled `check_only`, land in tier X and are kept, never dropped.
 - AI Overviews are not deterministic. `citation_state` can flip between identical runs, so alert on a trend across two or three runs, not a single flip.
 - There is no backfill: the history starts at your first run, so schedule before the period you want to measure.
 - Rank-aware tiers need Search Console metrics; a bare `queries` list gives you citation state but no tier B, because there is no `position` to compare against.
