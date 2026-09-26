@@ -19,7 +19,8 @@ User phrasing → `harshmaur/reddit-scraper` input. Field names are exact; unkno
 
 | User intent | Input |
 |---|---|
-| Posts only (default) | `"searchPosts": true, "searchComments": false, "searchCommunities": false` |
+| Posts, matching comments and each post's thread (Actor default) | `"searchPosts": true, "searchComments": true, "crawlCommentsPerPost": true` |
+| Posts only | `"searchPosts": true, "searchComments": false, "searchCommunities": false, "crawlCommentsPerPost": false` |
 | Comments that mention the term | `"searchComments": true, "searchPosts": false, "maxCommentsCount": 400` |
 | Communities about a topic | `"searchCommunities": true, "maxCommunitiesCount": 20` |
 | Posts **and** their comment threads | `"crawlCommentsPerPost": true, "maxCommentsPerPost": 50` |
@@ -46,6 +47,8 @@ User phrasing → `harshmaur/reddit-scraper` input. Field names are exact; unkno
 | Field | Default | Meaning |
 |---|---|---|
 | `maxPostsCount` | 50 | Posts **per search term** (and per subreddit or profile URL) — 4 terms × 8 returned 32 posts. The schema title says "total across all inputs"; measured runs and the README say per term. Max 50,000; Reddit itself stops near 1,000 per listing |
+| `searchComments` | `true` | Keyword search also returns matching comments |
+| `crawlCommentsPerPost` | `true` | Every post found also returns its comment thread |
 | `maxCommentsCount` | 400 | Comments per keyword when `searchComments` is on |
 | `maxCommentsPerPost` | 200 | Comments per post when `crawlCommentsPerPost` is on |
 | `maxCommunitiesCount` | 2 | Communities per keyword when `searchCommunities` is on |

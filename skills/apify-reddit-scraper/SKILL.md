@@ -75,18 +75,19 @@ Start from these defaults and change only what the request needs:
 {
   "searchTerms": ["notion alternative"],
   "searchPosts": true,
-  "searchComments": false,
+  "searchComments": true,
   "searchCommunities": false,
   "searchSort": "new",
   "searchTime": "month",
   "maxPostsCount": 50,
-  "crawlCommentsPerPost": false,
+  "crawlCommentsPerPost": true,
   "maxCommentsPerPost": 50,
   "includeNSFW": false,
   "fastMode": true
 }
 ```
 
+- `searchComments` and `crawlCommentsPerPost` are **on by default** in the Actor, so an input that omits them still returns matching comments and each post's thread. For posts only (cheaper and faster), set both to `false`.
 - `searchSort`: `new` for monitoring, `relevance` for precise matching, `top` / `hot` for what performed, `comments` for the most discussed.
 - `searchTime`: `hour` | `day` | `week` | `month` | `year` | `all`. When the user names a period — a date or a relative one like "last month", "past week" — you have two options, and you must pick one deliberately:
   - **Exact window:** `postedAfter` = today − N (and `postedBefore` if there is an end). Guarantees every post is inside the window, but forces newest-first (`sort=new`) and ignores `searchSort` and `searchTime`, so a second run of the same window with `relevance` returns the same posts again — change the terms or the window instead.
@@ -110,10 +111,11 @@ Pricing is pay per result: **$0.02 per run start + $0.002 per stored item** ($2.
 ```
 posts ≈ number of searchTerms × maxPostsCount   (plus maxPostsCount per subreddit or profile URL)
 items ≈ posts × (1 + maxCommentsPerPost if crawlCommentsPerPost is on)
+        + number of searchTerms × maxCommentsCount if searchComments is on
 cost  ≈ $0.02 + items × $0.002
 ```
 
-Worked example from a real run: 5 terms × `maxPostsCount: 24` × (1 + 5 comments) = 720 items ≈ $1.46 worst case. Read as a total it looked like 24 × 6 = 144 items ≈ $0.31, and a $0.50 charge limit stopped the run at 241 items with two threads' comments cut off. Under ~2,500 items (about $5) just run it; above that, state the estimate and get a yes. `crawlCommentsPerPost` is the usual surprise: 200 posts × 50 comments = 10,000 comments ≈ $20.
+Worked example from a real run: 5 terms × `maxPostsCount: 24` × (1 + 5 comments) = 720 items ≈ $1.46 worst case. Read as a total it looked like 24 × 6 = 144 items ≈ $0.31, and a $0.50 charge limit stopped the run at 241 items with two threads' comments cut off. Under ~2,500 items (about $5) just run it; above that, state the estimate and get a yes. `crawlCommentsPerPost` is on by default and is the usual surprise: 200 posts × 50 comments = 10,000 comments ≈ $20.
 
 Your answer must contain a **run section** for every run, written with the numbers filled in — not left in your reasoning — and it has to hold both halves:
 
@@ -191,5 +193,5 @@ See <https://github.com/apify/mcpc>.
 - **No target** (none of `searchTerms`, `startUrls`, `subredditUrls` was set — a common cause is using an invented field like `query` or `keywords`) → the run finishes SUCCEEDED with 0 items and `emptyReason` set in `RUN-SUMMARY`; nothing is charged. Fix the field names and re-run.
 - **`/s/` share links** (`reddit.com/r/x/s/abc`) → resolve them in a browser to the full permalink first; the short form cannot be scraped.
 - **Private, banned or quarantined subreddit** → terminal skip, noted in the run summary; nothing to retry.
-- **Cost higher than expected** → `crawlCommentsPerPost` was on. Re-run with it off, or lower `maxCommentsPerPost`.
+- **Cost higher than expected** → `crawlCommentsPerPost` was on (it is on by default). Re-run with it `false`, or lower `maxCommentsPerPost`.
 - For cost tables and recovery flows, see [references/gotchas.md](references/gotchas.md); for the full field mapping, [references/input-mapping.md](references/input-mapping.md).
