@@ -142,7 +142,7 @@ The Actor orchestrates four sub-Actors. The skill needs two of them for output e
 |---|---|
 | [Google Search Scraper](https://apify.com/apify/google-search-scraper) | `SERP Position` (rank within organic results), `Article Title`, `Publish Date`. Also drives the per-engine result fetch when `enableChatGpt`, `enableGemini`, `enableCopilot`, `enablePerplexity`, `enableAiMode` are true. Join on `url` + `query`. |
 | [Website Content Crawler](https://apify.com/apify/website-content-crawler) | `Placement Source Sentence`, `Placement With Link`, `Placement New Insertion` (needs page body text). Cross-check for `Article Author` via `metadata.author` / openGraph `article:author` / JSON-LD `Person.name`. |
-| [Contact Details Scraper](https://apify.com/apify/contact-details-scraper) | Already merged into the All leads dataset. Rarely needed directly. |
+| Contact Details Scraper (sub-Actor) | Already merged into the All leads dataset. Rarely needed directly. |
 | Email Verifier (sub-Actor) | Runs only when `enableEmailVerification: true`. Populates `email_verification` on each lead. |
 | [AI Web Scraper](https://apify.com/apify/ai-web-scraper) | Only runs when `searchAuthorName: true`. Already merged into the Author list dataset. |
 
