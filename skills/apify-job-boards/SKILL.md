@@ -11,6 +11,7 @@ metadata:
 # Job boards to one table
 
 Disclosure: the author of this skill owns both Actors it routes to (`flash_scraper/multi-jobboard-scraper` and `flash_scraper/remote-job-aggregator`). They are pay-per-result Actors on the Apify Store; no referral or tracking parameters are used anywhere in this skill.
+The `danthedataman/company-hiring-ledger` route was added by Eli J, who built and publishes that paid Store Actor; no referral or tracking parameters are used.
 
 Turn "I need job postings" into one validated, deduplicated dataset by routing the request to the right multi-board Actor, sizing the run so the user knows the cost before it starts, checking the returned locations and vacancy identities, and returning the rows with the board each job was found on. Treat the Actor output as raw input to these checks, not as proof that its location filtering or deduplication succeeded.
 
@@ -69,6 +70,7 @@ Optional follow-ups, only if the user raises them: posted-within window, salary 
 | Jobs by role + location across the big boards | `flash_scraper/multi-jobboard-scraper` | community | LinkedIn, Indeed, Glassdoor, The Muse by default; 8 more keyless boards optional; returns raw candidates that still require locality and vacancy-identity validation |
 | Remote-only jobs from the remote boards | `flash_scraper/remote-job-aggregator` | community | RemoteOK, We Work Remotely, Working Nomads, DevITjobs, The Muse, Remotive, Jobicy, Himalayas, HN "Who is hiring", Arbeitnow (opt-in); cheapest per row |
 | Watch named companies' careers pages | `flash_scraper/multi-jobboard-scraper` with `atsCompanies` | community | Greenhouse, Lever, Ashby and other ATS boards read directly; combine with `onlyNewJobs` for a daily alert |
+| Watch named companies' careers pages for new, changed and observed-closed jobs | `danthedataman/company-hiring-ledger` with `baselineDatasetId` | community | Greenhouse, Lever, Ashby and Workable boards; diffs the current board against a full prior snapshot; an incomplete board read reports no closed jobs |
 
 Rule of thumb: a city or country in the request → multi-board scraper. "Remote" and nothing else → remote aggregator. Both Actors run without an API key, login or cookies.
 
@@ -118,6 +120,22 @@ Check the live input schema before building input (fields change; the schema win
 - `matchDescriptions: true` matches the keyword in descriptions as well as titles (the README's measured example: 28 rows title-only vs 194 with descriptions for `python`).
 - `salaryMinAnnual`, `seniority`, `countries`, `excludeKeywords` are cheap filters that run before billing.
 - `onlyNewJobs` and `webhookUrl` work the same way as above.
+
+**Company hiring ledger (new, changed and observed-closed jobs).** Field names as in the live schema:
+
+```json
+{
+  "companies": ["https://job-boards.greenhouse.io/<board>", "https://jobs.lever.co/<board>"],
+  "maxJobsPerCompany": 100
+}
+```
+
+- The first run, without `baselineDatasetId`, makes a snapshot. Keep its dataset ID, and use it as the baseline only if every board was read completely.
+- Later runs pass that ID as `baselineDatasetId` with the same companies and filters. They export only new, changed and observed-closed jobs, marked by `changeStatus`; `changedFields` lists what changed on changed rows. Unchanged jobs emit no row, but an empty dataset alone does not prove nothing changed.
+- Do not use a baseline run's output as the next baseline; keep the original snapshot or make a new full one.
+- Keep `maxJobsPerCompany` (default 100) above each board's job count. It caps both jobs read and rows delivered per board, and closed jobs are reported only when the whole board was read.
+- Step 5's multi-board fields and counts do not apply here: use `locations` for locality checks and `(atsFamily, boardToken, jobId)` for job identity.
+- Billing is per 1,000 job rows plus the Actor start event; read the price from the Store Pricing tab.
 
 **Cost, stated before the run.** Both Actors bill per delivered row; filtered and deduplicated rows are not billed. Read the current price from the Store Pricing tab (the schema fetch in Step 2 also returns the pricing block). At the time of writing the free-plan rate is $0.005 per job on the multi-board scraper and $0.002 per job on the remote aggregator; paid plans pay less. So a first multi-board run of 4 boards × 20 rows costs at most about $0.40 and usually less after deduplication; a 100-row remote run about $0.20. If the user asks for more than 500 rows, say the number and confirm before running.
 
