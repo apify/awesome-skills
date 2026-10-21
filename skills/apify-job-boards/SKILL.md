@@ -12,6 +12,8 @@ metadata:
 
 Disclosure: the author of this skill owns both Actors it routes to (`flash_scraper/multi-jobboard-scraper` and `flash_scraper/remote-job-aggregator`). They are pay-per-result Actors on the Apify Store; no referral or tracking parameters are used anywhere in this skill.
 
+Disclosure: the `ethical_acumen/company-jobs-feed` route was added by ITEC CONSULTING, which builds and monetizes that Actor. No referral or tracking parameters.
+
 Turn "I need job postings" into one validated, deduplicated dataset by routing the request to the right multi-board Actor, sizing the run so the user knows the cost before it starts, checking the returned locations and vacancy identities, and returning the rows with the board each job was found on. Treat the Actor output as raw input to these checks, not as proof that its location filtering or deduplication succeeded.
 
 ## Example prompts
@@ -69,8 +71,11 @@ Optional follow-ups, only if the user raises them: posted-within window, salary 
 | Jobs by role + location across the big boards | `flash_scraper/multi-jobboard-scraper` | community | LinkedIn, Indeed, Glassdoor, The Muse by default; 8 more keyless boards optional; returns raw candidates that still require locality and vacancy-identity validation |
 | Remote-only jobs from the remote boards | `flash_scraper/remote-job-aggregator` | community | RemoteOK, We Work Remotely, Working Nomads, DevITjobs, The Muse, Remotive, Jobicy, Himalayas, HN "Who is hiring", Arbeitnow (opt-in); cheapest per row |
 | Watch named companies' careers pages | `flash_scraper/multi-jobboard-scraper` with `atsCompanies` | community | Greenhouse, Lever, Ashby and other ATS boards read directly; combine with `onlyNewJobs` for a daily alert |
+| A company list over 20, or whole boards over 500 roles, on Greenhouse, Lever or Ashby | `ethical_acumen/company-jobs-feed` | community | Board URLs or prefixed slugs (`greenhouse:figma`), no per-run company cap or per-company row cap, per-company status; `onlyNewJobs` feed; no webhook digest, no other ATSs, no slug guessing from brand names |
 
 Rule of thumb: a city or country in the request → multi-board scraper. "Remote" and nothing else → remote aggregator. Both Actors run without an API key, login or cookies.
+
+Named companies: up to 20 brand names, other ATSs, or a webhook digest → `atsCompanies` on the multi-board scraper. More than 20 companies, a board too large for `maxResults` (500 per company), or a user who already has board URLs → Company Jobs Feed.
 
 Check the live input schema before building input (fields change; the schema wins over this file):
 
@@ -103,6 +108,26 @@ Check the live input schema before building input (fields change; the schema win
 - Company watch: `"atsCompanies": ["stripe", "openai"]` reads their Greenhouse/Lever/Ashby boards directly; add `"onlyNewJobs": true` on a schedule so each run delivers only postings it has not sent before (the Actor remembers what it delivered for 90 days).
 - Alerts: `"webhookUrl": "https://hooks.slack.com/..."` posts a digest of new rows to Slack, Discord or any webhook.
 
+**Company list (Company Jobs Feed).** Field names as in the live schema:
+
+```json
+{
+  "companies": ["greenhouse:figma", "lever:palantir", "ashby:ramp"],
+  "keywords": ["engineer"],
+  "includeDescription": false,
+  "onlyNewJobs": true,
+  "stateStoreName": "weekly-portfolio-watch",
+  "maxJobs": 2000
+}
+```
+
+- `companies` takes board URLs (`https://jobs.lever.co/palantir`), prefixed slugs (`greenhouse:`, `lever:`, `lever-eu:`, `ashby:`) or careers-page URLs; a bare name is rejected unless `defaultPlatform` is set.
+- `onlyNewJobs` with a distinct `stateStoreName` per schedule delivers only jobs not delivered before; the first run is the full baseline.
+- A per-company status (`ok`, `not_found`, `blocked`, `invalid_input`, ...) is in the run's `RUN_SUMMARY` key-value record; report every company that is not `ok`.
+
+    apify actors info "ethical_acumen/company-jobs-feed" --input \
+      --user-agent apify-awesome-skills/apify-job-boards 2>/dev/null
+
 **Remote aggregator.** Field names as in the live schema:
 
 ```json
@@ -120,6 +145,8 @@ Check the live input schema before building input (fields change; the schema win
 - `onlyNewJobs` and `webhookUrl` work the same way as above.
 
 **Cost, stated before the run.** Both Actors bill per delivered row; filtered and deduplicated rows are not billed. Read the current price from the Store Pricing tab (the schema fetch in Step 2 also returns the pricing block). At the time of writing the free-plan rate is $0.005 per job on the multi-board scraper and $0.002 per job on the remote aggregator; paid plans pay less. So a first multi-board run of 4 boards × 20 rows costs at most about $0.40 and usually less after deduplication; a 100-row remote run about $0.20. If the user asks for more than 500 rows, say the number and confirm before running.
+
+Company Jobs Feed bills a flat $0.001 per delivered job plus $0.001 per company board read on every plan; companies not found or blocked and filtered rows are not billed. So 50 companies averaging ~100 roles cost about $5.05 for a full snapshot, and about $0.55 a week in `onlyNewJobs` mode at ~10% weekly churn.
 
 ### Step 4: Run and wait
 
