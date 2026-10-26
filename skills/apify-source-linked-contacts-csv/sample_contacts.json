@@ -1,0 +1,18 @@
+[
+  {
+    "websiteUrl": "https://example.com/",
+    "pageUrl": "https://example.com/",
+    "pageTitle": "Synthetic social-only page",
+    "emails": [],
+    "phones": [],
+    "socialLinks": ["https://github.com/example"]
+  },
+  {
+    "websiteUrl": "https://example.com/",
+    "pageUrl": "https://example.com/contact",
+    "pageTitle": "Synthetic contact page — München 東京",
+    "emails": ["info@example.com", "support@example.com"],
+    "phones": ["+12025550123"],
+    "socialLinks": []
+  }
+]
