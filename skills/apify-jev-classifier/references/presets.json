@@ -1,0 +1,493 @@
+{
+  "support-tickets": {
+    "title": "Support tickets & inbound messages",
+    "suggestedFields": [
+      "subject",
+      "body",
+      "text",
+      "message"
+    ],
+    "questions": {
+      "department": {
+        "type": "choice",
+        "instructions": "Which team should handle this message?",
+        "criteria": {
+          "billing": "Payments, invoicing, refunds, subscription charges",
+          "technical": "Bugs, outages, integrations, errors",
+          "sales": "Pricing, upgrades, new accounts, plan questions",
+          "account": "Login, password, profile, permissions, data deletion",
+          "other": "Anything that does not fit the other teams"
+        }
+      },
+      "frustration": {
+        "type": "score",
+        "instructions": "How frustrated does the sender appear?",
+        "criteria": [
+          "Calm, just stating facts",
+          "Frustrated but civil",
+          "Very angry, strong language"
+        ]
+      },
+      "is_urgent": {
+        "type": "noul",
+        "instructions": "Does the message convey urgency or time-sensitivity?",
+        "criteria": {
+          "true": "Explicitly time-sensitive, blocking, or losing money",
+          "false": "No urgency expressed"
+        }
+      }
+    }
+  },
+  "google-maps-reviews": {
+    "title": "Google Maps reviews",
+    "suggestedFields": [
+      "text",
+      "textTranslated",
+      "stars",
+      "title",
+      "reviewerNumberOfReviews",
+      "publishedAtDate"
+    ],
+    "questions": {
+      "sentiment": {
+        "type": "score",
+        "instructions": "Overall sentiment of the review toward the business.",
+        "criteria": [
+          "Very negative",
+          "Negative",
+          "Neutral or mixed",
+          "Positive",
+          "Very positive"
+        ]
+      },
+      "main_topic": {
+        "type": "choice",
+        "instructions": "What is the review mainly about?",
+        "criteria": {
+          "service_staff": "Staff behaviour, friendliness, competence, attention",
+          "product_quality": "Quality of food, products or the work delivered",
+          "price_value": "Prices, value for money, hidden fees",
+          "cleanliness_ambience": "Cleanliness, atmosphere, noise, comfort, decor",
+          "wait_time_speed": "Waiting time, speed of service, delays, queues",
+          "location_access": "Location, parking, accessibility, opening hours",
+          "other": "Anything else or no clear topic"
+        }
+      },
+      "is_complaint": {
+        "type": "noul",
+        "instructions": "The review describes a negative experience or complaint."
+      },
+      "actionable_feedback": {
+        "type": "noul",
+        "instructions": "The review describes a specific problem the business could fix or a concrete suggestion."
+      },
+      "would_return": {
+        "type": "noul",
+        "instructions": "The reviewer indicates they would return, recommend, or come back."
+      }
+    }
+  },
+  "google-maps-leads": {
+    "title": "Google Maps places (lead qualification)",
+    "suggestedFields": [
+      "title",
+      "categoryName",
+      "categories",
+      "description",
+      "website",
+      "reviewsCount",
+      "totalScore",
+      "address",
+      "city",
+      "phone"
+    ],
+    "questions": {
+      "business_size": {
+        "type": "score",
+        "instructions": "Estimated size of the business based on the listing.",
+        "criteria": [
+          "Solo operator or single very small location",
+          "Small independent local business",
+          "Established business with several locations or a franchise",
+          "Large chain or corporate brand"
+        ]
+      },
+      "customer_type": {
+        "type": "choice",
+        "instructions": "Who does this business mainly sell to?",
+        "criteria": {
+          "b2c": "Consumers and the general public",
+          "b2b": "Other businesses, professionals or organisations",
+          "both": "Clearly both consumers and businesses"
+        }
+      },
+      "is_independent": {
+        "type": "noul",
+        "instructions": "The business is an independent local business rather than a chain or franchise."
+      },
+      "has_website": {
+        "type": "noul",
+        "instructions": "The listing includes a website URL."
+      },
+      "online_presence": {
+        "type": "score",
+        "instructions": "Strength of the online presence based on website, review count and rating.",
+        "criteria": [
+          "No website and few or no reviews",
+          "Basic presence: website or a handful of reviews",
+          "Solid presence: website and dozens of reviews",
+          "Strong presence: website and hundreds of reviews with a high rating"
+        ]
+      }
+    }
+  },
+  "linkedin-profiles": {
+    "title": "LinkedIn profiles",
+    "suggestedFields": [
+      "fullName",
+      "headline",
+      "summary",
+      "about",
+      "jobTitle",
+      "position",
+      "companyName",
+      "currentCompany",
+      "experience",
+      "location"
+    ],
+    "questions": {
+      "seniority": {
+        "type": "choice",
+        "instructions": "Seniority of the current role.",
+        "criteria": {
+          "intern_or_student": "Intern, trainee, student, apprentice",
+          "junior": "Junior, associate, entry-level, analyst",
+          "mid_level": "Individual contributor without a level qualifier, specialist, consultant",
+          "senior": "Senior, staff or principal individual contributor",
+          "lead_or_manager": "Team lead, manager, head of a team",
+          "director": "Director, head of department, senior director",
+          "vp": "Vice president, SVP, EVP",
+          "c_level": "CEO, CTO, CFO, COO, CMO, chief anything, president",
+          "founder_or_owner": "Founder, co-founder, owner, partner"
+        }
+      },
+      "department": {
+        "type": "choice",
+        "instructions": "Functional area of the current role.",
+        "criteria": {
+          "engineering": "Software, IT, DevOps, security, QA",
+          "data": "Data science, analytics, machine learning, BI",
+          "product": "Product management, product owner",
+          "design": "UX, UI, graphic, brand design",
+          "sales": "Sales, business development, account executive, partnerships",
+          "marketing": "Marketing, growth, content, SEO, communications, PR",
+          "customer_success": "Customer success, support, account management",
+          "finance": "Finance, accounting, controlling, investment",
+          "hr_people": "HR, recruiting, talent, people operations",
+          "operations": "Operations, supply chain, logistics, procurement, admin",
+          "legal": "Legal, compliance, privacy",
+          "executive": "General management, C-suite, founder without a functional focus",
+          "other": "Anything else, e.g. healthcare, education, arts"
+        }
+      },
+      "is_decision_maker": {
+        "type": "noul",
+        "instructions": "Holds budget or purchasing authority: director level and above, founder, owner or head of a department."
+      },
+      "is_technical": {
+        "type": "noul",
+        "instructions": "Has a technical background (engineering, data, IT, science)."
+      },
+      "open_to_opportunities": {
+        "type": "noul",
+        "instructions": "The profile explicitly says they are open to work, hiring, or new opportunities."
+      }
+    }
+  },
+  "company-enrichment": {
+    "title": "Company enrichment",
+    "suggestedFields": [
+      "name",
+      "companyName",
+      "description",
+      "about",
+      "tagline",
+      "industry",
+      "industries",
+      "website",
+      "employeeCount",
+      "employees",
+      "companySize",
+      "size",
+      "founded",
+      "headquarters"
+    ],
+    "questions": {
+      "company_size": {
+        "type": "score",
+        "instructions": "Company size. Use the employee count if given, otherwise infer from the description.",
+        "criteria": [
+          "1-10 employees",
+          "11-50 employees",
+          "51-200 employees",
+          "201-1,000 employees",
+          "1,001-5,000 employees",
+          "More than 5,000 employees"
+        ]
+      },
+      "business_model": {
+        "type": "choice",
+        "instructions": "Primary business model.",
+        "criteria": {
+          "saas_software": "Software, SaaS, apps, developer tools",
+          "marketplace_platform": "Marketplace or platform connecting buyers and sellers",
+          "agency_services": "Agency, consulting, professional or outsourced services",
+          "ecommerce_retail": "Selling physical goods online or in stores",
+          "hardware_manufacturing": "Hardware, manufacturing, industrial",
+          "finance_insurance": "Banking, fintech, insurance, investment",
+          "healthcare_biotech": "Healthcare, medical, pharma, biotech",
+          "media_content": "Media, publishing, entertainment, creators",
+          "nonprofit_public": "Nonprofit, government, education",
+          "other": "Anything else"
+        }
+      },
+      "sells_to": {
+        "type": "choice",
+        "instructions": "Who are the main customers?",
+        "criteria": {
+          "b2b": "Businesses and organisations",
+          "b2c": "Consumers",
+          "both": "Clearly both"
+        }
+      },
+      "is_startup": {
+        "type": "noul",
+        "instructions": "Describes itself as a startup, early-stage, or venture-backed company."
+      },
+      "is_tech_company": {
+        "type": "noul",
+        "instructions": "Technology is the core product rather than a supporting function."
+      }
+    }
+  },
+  "social-media-posts": {
+    "title": "Social media posts",
+    "suggestedFields": [
+      "caption",
+      "text",
+      "description",
+      "title",
+      "hashtags",
+      "ownerUsername",
+      "authorMeta",
+      "likesCount",
+      "commentsCount"
+    ],
+    "questions": {
+      "sentiment": {
+        "type": "score",
+        "instructions": "Overall sentiment expressed in the post.",
+        "criteria": [
+          "Very negative",
+          "Negative",
+          "Neutral or mixed",
+          "Positive",
+          "Very positive"
+        ]
+      },
+      "content_type": {
+        "type": "choice",
+        "instructions": "What kind of post is this?",
+        "criteria": {
+          "promotional": "Promotes a product, service, sale or brand",
+          "personal_update": "Personal life, opinions, daily moments",
+          "educational": "How-to, tips, explanations, tutorials",
+          "news_announcement": "News, launches, events, official announcements",
+          "humor_meme": "Jokes, memes, satire",
+          "question_poll": "Asks the audience a question or runs a poll",
+          "giveaway_contest": "Giveaway, contest, sweepstake",
+          "other": "Anything else"
+        }
+      },
+      "is_sponsored": {
+        "type": "noul",
+        "instructions": "The post is sponsored, an ad, or a paid partnership (for example #ad, #sponsored, \"paid partnership\", \"gifted\")."
+      },
+      "has_call_to_action": {
+        "type": "noul",
+        "instructions": "Asks the reader to do something: click a link, buy, sign up, comment, share, follow."
+      },
+      "is_brand_safe": {
+        "type": "noul",
+        "instructions": "Free of profanity, hate, adult content, violence, drugs and political controversy.",
+        "criteria": {
+          "true": "Safe for any brand to appear next to",
+          "false": "Contains content a brand would avoid"
+        }
+      }
+    }
+  },
+  "social-media-comments": {
+    "title": "Social media comments",
+    "suggestedFields": [
+      "text",
+      "comment",
+      "message",
+      "ownerUsername",
+      "likesCount"
+    ],
+    "questions": {
+      "sentiment": {
+        "type": "score",
+        "instructions": "Sentiment of the comment.",
+        "criteria": [
+          "Very negative",
+          "Negative",
+          "Neutral or mixed",
+          "Positive",
+          "Very positive"
+        ]
+      },
+      "intent": {
+        "type": "choice",
+        "instructions": "What is the commenter trying to do?",
+        "criteria": {
+          "question": "Asks a question or requests information",
+          "complaint": "Complains or reports a problem",
+          "praise": "Compliments, thanks, expresses enthusiasm",
+          "purchase_intent": "Wants to buy, asks about price, availability or where to get it",
+          "suggestion": "Suggests an improvement or feature",
+          "spam_promo": "Spam, self-promotion, unrelated links",
+          "tagging_friends": "Just tags or mentions other users",
+          "other": "Anything else, including plain reactions or emojis"
+        }
+      },
+      "needs_reply": {
+        "type": "noul",
+        "instructions": "A brand or creator should reply to this comment."
+      },
+      "is_spam": {
+        "type": "noul",
+        "instructions": "The comment is spam, a scam, or unrelated promotion."
+      },
+      "is_toxic": {
+        "type": "noul",
+        "instructions": "Contains insults, harassment, hate speech or threats."
+      }
+    }
+  },
+  "product-reviews": {
+    "title": "Product reviews (Amazon, e-commerce)",
+    "suggestedFields": [
+      "reviewTitle",
+      "reviewDescription",
+      "ratingScore",
+      "title",
+      "text",
+      "body",
+      "rating",
+      "stars",
+      "variant",
+      "isVerified"
+    ],
+    "questions": {
+      "sentiment": {
+        "type": "score",
+        "instructions": "Overall sentiment toward the product.",
+        "criteria": [
+          "Very negative",
+          "Negative",
+          "Neutral or mixed",
+          "Positive",
+          "Very positive"
+        ]
+      },
+      "main_topic": {
+        "type": "choice",
+        "instructions": "What is the review mainly about?",
+        "criteria": {
+          "quality_durability": "Build quality, materials, how long it lasts",
+          "price_value": "Price, value for money",
+          "shipping_delivery": "Shipping speed, delivery, arrival condition",
+          "size_fit": "Size, fit, dimensions, compatibility",
+          "ease_of_use": "Setup, usability, instructions",
+          "customer_service": "Seller or brand support, returns, refunds",
+          "accuracy_of_description": "Matches or differs from the listing photos and description",
+          "other": "Anything else"
+        }
+      },
+      "mentions_defect": {
+        "type": "noul",
+        "instructions": "Describes a defect, malfunction, damage or the product not working."
+      },
+      "would_recommend": {
+        "type": "noul",
+        "instructions": "The reviewer recommends the product or would buy it again."
+      },
+      "is_suspicious": {
+        "type": "noul",
+        "instructions": "Generic, repetitive or unnatural text that suggests a fake, paid or incentivized review."
+      }
+    }
+  },
+  "job-postings": {
+    "title": "Job postings",
+    "suggestedFields": [
+      "title",
+      "description",
+      "descriptionText",
+      "companyName",
+      "location",
+      "employmentType",
+      "seniorityLevel",
+      "salary"
+    ],
+    "questions": {
+      "seniority": {
+        "type": "choice",
+        "instructions": "Seniority of the role.",
+        "criteria": {
+          "internship": "Internship, trainee, working student",
+          "entry_level": "Junior, graduate, 0-2 years of experience",
+          "mid_level": "2-5 years of experience, no seniority qualifier",
+          "senior": "Senior, staff, principal, 5+ years",
+          "lead_or_manager": "Lead, manager, head of team",
+          "director_plus": "Director, VP, C-level"
+        }
+      },
+      "work_arrangement": {
+        "type": "choice",
+        "instructions": "Where is the work done?",
+        "criteria": {
+          "remote": "Fully remote",
+          "hybrid": "Mix of office and remote",
+          "onsite": "In the office or on location",
+          "unspecified": "Not stated"
+        }
+      },
+      "employment_type": {
+        "type": "choice",
+        "instructions": "Type of employment.",
+        "criteria": {
+          "full_time": "Full-time permanent",
+          "part_time": "Part-time",
+          "contract_freelance": "Contract, freelance, temporary",
+          "internship": "Internship",
+          "unspecified": "Not stated"
+        }
+      },
+      "requires_degree": {
+        "type": "noul",
+        "instructions": "A university degree is listed as required."
+      },
+      "salary_disclosed": {
+        "type": "noul",
+        "instructions": "A salary or pay range is stated."
+      },
+      "is_technical_role": {
+        "type": "noul",
+        "instructions": "The role is in engineering, data, IT or another technical field."
+      }
+    }
+  }
+}
