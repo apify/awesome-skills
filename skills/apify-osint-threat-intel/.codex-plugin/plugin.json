@@ -1,0 +1,13 @@
+{
+  "name": "apify-osint-threat-intel",
+  "version": "1.0.0",
+  "description": "Use this skill when the user asks to \"find CVEs for\", \"check if my domain is breached\", \"threat intel on\", \"OSINT on\", \"security news about\", \"attack surface of\", \"is this IP malicious\", \"what vulnerabilities affect\", \"security advisory for\", \"monitor threats for\", \"threat actor research\", \"recent exploits for\", \"data breach check\", \"security posture of\", \"what's the threat landscape for\", \"investigate [domain/IP/software]\", \"is [company] exposed\", or any request involving vulnerability research, breach detection, threat actor profiling, or security intelligence. Requires Apify CLI or Apify MCP server.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-osint-threat-intel",
+    "shortDescription": "Use this skill when the user asks to \"find CVEs for\", \"check if my domain is breached\", \"threat intel on\", \"OSINT on\", \"security news about\", \"attack surface of",
+    "developerName": "karthik-zoro-96",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

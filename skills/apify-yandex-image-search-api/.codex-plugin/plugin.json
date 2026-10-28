@@ -1,0 +1,13 @@
+{
+  "name": "apify-yandex-image-search-api",
+  "version": "1.0.0",
+  "description": "Search the Yandex Images vertical and get full-size image URLs as structured JSON with the Apify Yandex Search Scraper Actor (johnvc/Scrape-Yandex). A yandex image search api for agents and pipelines. One text query returns image results with the original full-size image URL, hosting page link, thumbnail, and source, filtered by image type, color, orientation, file type, exact size, site, and recency. Use when the user wants a yandex image search api or yandex images api, wants to search Yandex Images programmatically, collect image datasets with full-size URLs, source images from Russian-language sites, or filter image results by color, size, or license-friendly site. Pay-per-page billing, MCP-ready for Claude and other AI agents.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-yandex-image-search-api",
+    "shortDescription": "Search the Yandex Images vertical and get full-size image URLs as structured JSON with the Apify Yandex Search Scraper Actor (johnvc/Scrape-Yandex). A yandex im",
+    "developerName": "John Cole (links use the author’s Apify affiliate code; routed Actors are built by the author)",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

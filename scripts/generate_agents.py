@@ -58,6 +58,7 @@ MARKETPLACE_METADATA = {
     "version": "1.0.0",
 }
 DEFAULT_CATEGORY = "data-extraction"
+CODEX_PLUGIN_VERSION = "1.0.0"
 
 def _strip_quotes(value: str) -> str:
     if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
@@ -166,6 +167,41 @@ def layout_errors() -> list[str]:
                 "SKILL.md, restructure into flat skills, or remove the directory."
             )
     return errors
+
+
+def build_codex_manifest(skill: dict) -> dict:
+    """Build a minimal Codex/OpenAI plugin manifest for one skill package.
+
+    Marketplace entries source each individual skills/<name>/ directory.
+    ChatGPT marketplace sync validates that source directory as a plugin package,
+    so expose the root SKILL.md explicitly via a .codex-plugin manifest.
+    """
+    return {
+        "name": skill["name"],
+        "version": CODEX_PLUGIN_VERSION,
+        "description": skill["description"],
+        "skills": "./",
+        "interface": {
+            "displayName": skill["name"],
+            "shortDescription": skill["description"][:160],
+            "developerName": skill.get("author") or MARKETPLACE_OWNER["name"],
+            "category": "Productivity",
+            "capabilities": [],
+        },
+    }
+
+
+def write_codex_manifests(skills: list[dict]) -> int:
+    """Write one .codex-plugin/plugin.json into every marketplace skill package."""
+    changed = 0
+    for skill in skills:
+        manifest_path = ROOT / skill["path"] / ".codex-plugin" / "plugin.json"
+        manifest_json = json.dumps(build_codex_manifest(skill), indent=2, ensure_ascii=False) + "\n"
+        if not manifest_path.exists() or manifest_path.read_text(encoding="utf-8") != manifest_json:
+            manifest_path.parent.mkdir(parents=True, exist_ok=True)
+            manifest_path.write_text(manifest_json, encoding="utf-8")
+            changed += 1
+    return changed
 
 
 def build_marketplace(skills: list[dict]) -> dict:
@@ -394,6 +430,10 @@ def main() -> int:
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
+
+    changed_manifests = write_codex_manifests(skills)
+    if changed_manifests:
+        print(f"Wrote {changed_manifests} Codex/OpenAI plugin manifests.")
 
     marketplace = build_marketplace(skills)
     marketplace_json = json.dumps(marketplace, indent=2, ensure_ascii=False) + "\n"

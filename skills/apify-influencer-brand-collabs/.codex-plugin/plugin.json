@@ -1,0 +1,13 @@
+{
+  "name": "apify-influencer-brand-collabs",
+  "version": "1.0.0",
+  "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid posts for, wants to audit an influencer's branded-content history, or wants to scope a brand's sponsorship roster. **Triggers:** - \"who collabs with [brand] on Instagram?\" - \"what brands has [creator] done sponsored posts for?\" - \"find paid partnerships / branded content for [handle]\" - \"audit [influencer]'s brand deals\" - \"show me [brand]'s influencer roster\" Works in either direction — brand → creators or creator → brands — and detects direction from the data, so don't ask the user to declare it. Requires Apify MCP tools.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-influencer-brand-collabs",
+    "shortDescription": "Discover Instagram brand–creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid po",
+    "developerName": "Natasha Lekh",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

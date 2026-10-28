@@ -1,0 +1,13 @@
+{
+  "name": "apify-local-business-leads-osm",
+  "version": "1.0.0",
+  "description": "Build a local-business lead list without scraping Google Maps. Routes \"find dentists / plumbers / salons / restaurants in <city> with emails\", \"business email finder for <category> in <city>\", \"web-design prospects with no website or a weak one\", \"enrich my list of business websites with verified emails\", \"leads within 5 km of an address\" and \"alert me when new businesses appear\" to an OpenStreetMap-based Actor that crawls each business's own website and returns one 73-column row per business with an MX-verified email, phone, social profiles, website platform and a 0-100 lead score. No Google Maps, no API key, no proxy, no login; every filter runs before billing. Use when the user wants local B2B leads for cold email or calls, a Google Maps alternative that avoids Google's terms, a bring-your-own-website-list enrichment pass, or a scheduled new-business watch for one category and city.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-local-business-leads-osm",
+    "shortDescription": "Build a local-business lead list without scraping Google Maps. Routes \"find dentists / plumbers / salons / restaurants in <city> with emails\", \"business email f",
+    "developerName": "Zakariae (Flash Scrape) — routes to Actors built by the author; no affiliate or referral parameters",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

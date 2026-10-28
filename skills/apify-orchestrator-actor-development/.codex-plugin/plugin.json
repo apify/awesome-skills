@@ -1,0 +1,13 @@
+{
+  "name": "apify-orchestrator-actor-development",
+  "version": "1.0.0",
+  "description": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when creating a new orchestrator Actor, chaining Apify Actors together, adding an OpenRouter LLM step between Actors, or scaffolding parent-Actor workflows that call other Actors.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-orchestrator-actor-development",
+    "shortDescription": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when cr",
+    "developerName": "Fabian Maume",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "apify-ashby-jobs-scraper",
+  "version": "1.0.0",
+  "description": "\"Scrape Ashby jobs or discover companies using Ashby with the Apify Ashby Job Board API Actor (johnvc/ashby-job-board-scraper). Job mode returns live job rows with title, company, location, remote and employment fields, publish date, apply URL, employer-published salary columns, equity flag, and Markdown descriptions. Company mode finds Ashby boards from a bundled directory or checks a prospect list, returning company name, board slug and URL, live open-job count, and verification fields. Takes company names, board slugs, or board URLs; supports pre-billing job filters and publishedAfter feeds. Use for Ashby jobs data or API requests, salary and remote-role collection, job-board pipelines, companies using Ashby/Ashby customers, ATS market maps, prospect checks, and recruiting or sales target lists. Billed per delivered result with no start fee, and MCP-ready for Claude and other AI agents.\"",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-ashby-jobs-scraper",
+    "shortDescription": "\"Scrape Ashby jobs or discover companies using Ashby with the Apify Ashby Job Board API Actor (johnvc/ashby-job-board-scraper). Job mode returns live job rows w",
+    "developerName": "John Cole",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

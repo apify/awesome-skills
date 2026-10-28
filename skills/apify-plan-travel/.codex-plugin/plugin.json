@@ -1,0 +1,13 @@
+{
+  "name": "apify-plan-travel",
+  "version": "1.0.0",
+  "description": "This skill should be used when the user asks to \"find flights\", \"compare flights\", \"analyze flight search results\", \"plan a flight itinerary\", \"plan a complete trip\", \"plan an event trip\", or create an itinerary and budget that combines flights with lodging. It turns supplied or live Apify travel results into a defensible recommendation while preserving unresolved fare scope. Do not use it for hotel-only or lodging-only requests. It prices and advises but never books.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-plan-travel",
+    "shortDescription": "This skill should be used when the user asks to \"find flights\", \"compare flights\", \"analyze flight search results\", \"plan a flight itinerary\", \"plan a complete ",
+    "developerName": "John Cole",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

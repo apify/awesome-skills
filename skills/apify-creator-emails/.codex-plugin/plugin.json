@@ -1,0 +1,13 @@
+{
+  "name": "apify-creator-emails",
+  "version": "1.0.0",
+  "description": "Find creators and their published contact emails in one run. Routes \"find YouTube channels about <niche> with emails\", \"get the email for these TikTok / Instagram handles\", \"build a micro-influencer outreach list\", \"creator email finder\", \"influencer contact list for a sponsorship campaign\" and \"alert me when new creators appear in <niche>\" to a single Actor that discovers YouTube channels by keyword, optionally hops to the Instagram and TikTok profiles those channels link, enriches user-supplied TikTok and Instagram handles, crawls each creator's linked site for an email, MX-verifies it and scores every row 0-100 in one 51-column schema. No login, no API key. Use when the user asks to scrape creator or influencer emails, find YouTube creators by topic, enrich a list of TikTok or Instagram usernames with contact details, or set up a weekly new-creator watch. Does not search TikTok or Instagram by keyword or hashtag.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-creator-emails",
+    "shortDescription": "Find creators and their published contact emails in one run. Routes \"find YouTube channels about <niche> with emails\", \"get the email for these TikTok / Instagr",
+    "developerName": "Zakariae (Flash Scrape) — routes to Actors built by the author; no affiliate or referral parameters",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

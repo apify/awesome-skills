@@ -49,7 +49,7 @@ from SKILL.md frontmatter after your PR merges — do **not** edit it in your PR
 
 - **One skill per PR.** CI rejects PRs that touch multiple skills (unless a maintainer adds the `maintainer` label).
 - **No unnecessary changes.** Edit only files inside `skills/apify-<name>/`.
-- **Do not edit** `.claude-plugin/marketplace.json`, `agents/AGENTS.md` or the skills table in `README.md` — all three are regenerated from frontmatter after merge.
+- **Do not edit** `.claude-plugin/marketplace.json`, per-skill `.codex-plugin/plugin.json` manifests, `agents/AGENTS.md` or the skills table in `README.md` — all generated outputs are regenerated from frontmatter after merge.
 - **Use Apify Actors only** — they must be publicly available on the [Apify Store](https://apify.com/store).
 
 ## Calling Actors — your choice
@@ -70,7 +70,7 @@ Run locally before opening the PR:
 uv run scripts/generate_agents.py
 ```
 
-This validates `name`/`description`/`author_url`/`metadata.keywords` and regenerates `.claude-plugin/marketplace.json`, `agents/AGENTS.md` and the README skills table from frontmatter. CI runs the same script on the PR (don't commit the regenerated files — the bot pushes them after merge).
+This validates `name`/`description`/`author_url`/`metadata.keywords` and regenerates `.claude-plugin/marketplace.json`, per-skill `.codex-plugin/plugin.json` manifests, `agents/AGENTS.md` and the README skills table from frontmatter. CI runs the same script on the PR (don't commit the regenerated files — the bot pushes them after merge).
 
 ## Submitting a skill (for AI agents)
 

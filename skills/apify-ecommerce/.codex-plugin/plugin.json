@@ -1,0 +1,13 @@
+{
+  "name": "apify-ecommerce",
+  "version": "1.0.0",
+  "description": "Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and more. Use when user asks about product prices, competitor analysis, store scraping, tech stack detection, food delivery, real estate, or marketplace intelligence.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-ecommerce",
+    "shortDescription": "Scrape e-commerce data for pricing, reviews, bestsellers, and seller discovery across 30+ platforms including Amazon, Walmart, eBay, Shopify, WooCommerce, and m",
+    "developerName": "Luis Pinto",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "apify-job-boards",
+  "version": "1.0.0",
+  "description": "Pull job postings from many boards in one run and prepare one validated, deduplicated table. Routes \"find jobs / scrape job postings / build a job list / monitor new jobs / track a company's careers page\" requests to a multi-board job scraper (LinkedIn, Indeed, Glassdoor, The Muse plus keyless boards) or a remote-only aggregator (RemoteOK, We Work Remotely, Remotive, Jobicy, Himalayas, HN Who is hiring), with output-locality checks, per-board raw/qualified/deduplicated counts, only-new-jobs monitoring, per-board caps and honest cost estimates. Use when the user asks to scrape jobs across job boards, get Indeed or Glassdoor postings without an API key, collect remote developer jobs, watch a company's Greenhouse/Lever/Ashby careers page, or set up a daily new-jobs alert.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-job-boards",
+    "shortDescription": "Pull job postings from many boards in one run and prepare one validated, deduplicated table. Routes \"find jobs / scrape job postings / build a job list / monito",
+    "developerName": "Zakariae (Flash Scrape)",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

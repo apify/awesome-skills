@@ -308,14 +308,18 @@ jobs:
           git config user.email "${{ steps.bot.outputs.email }}"
           for attempt in 1 2 3; do
             uv run scripts/generate_agents.py
-            if git diff --quiet; then
-              echo "Catalog already at fixed point — nothing to push."
+            # Manifests for newly-added skills are untracked files on their first
+            # generation, so stage all generated output before testing for drift.
+            git add .claude-plugin/marketplace.json agents/AGENTS.md README.md
+            git add 'skills/*/.codex-plugin/plugin.json'
+            if git diff --cached --quiet; then
+              echo "Catalog and plugin manifests already at fixed point — nothing to push."
               exit 0
             fi
             # Gate the push on a strict manifest validation — an invalid
             # catalog must never land on main. (~2 s warm, exit 1 on invalid.)
             npx --yes @anthropic-ai/claude-code plugin validate --strict .
-            git commit -am "chore: regenerate marketplace.json, AGENTS.md and README [bot]"
+            git commit -m "chore: regenerate marketplace and plugin manifests [bot]"
             if git push; then
               exit 0
             fi

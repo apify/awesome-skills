@@ -1,0 +1,13 @@
+{
+  "name": "apify-yandex-search-api",
+  "version": "1.0.0",
+  "description": "Get structured Yandex search results without an official API key using the Apify Yandex Search Scraper Actor (johnvc/Scrape-Yandex). One query returns the full SERP as JSON, with organic results (position, title, link, displayed_link, snippet), and optional ads, knowledge graph, inline images, and inline videos, targeted by Yandex domain, language, and any of 123,000 plus lr region IDs. Use when the user wants a yandex search api, a yandex serp api, Yandex search results as JSON or CSV, to scrape Yandex search, to check what ranks on yandex.ru for a query or region, or SEO research for Russian-speaking markets. Pay-per-page billing, MCP-ready for Claude and other AI agents.",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-yandex-search-api",
+    "shortDescription": "Get structured Yandex search results without an official API key using the Apify Yandex Search Scraper Actor (johnvc/Scrape-Yandex). One query returns the full ",
+    "developerName": "John Cole (links use the author’s Apify affiliate code; routed Actors are built by the author)",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}

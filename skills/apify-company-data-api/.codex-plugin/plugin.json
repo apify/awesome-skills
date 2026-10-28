@@ -1,0 +1,13 @@
+{
+  "name": "apify-company-data-api",
+  "version": "1.0.0",
+  "description": "\"Pull structured B2B company data from Clutch.co with the Clutch.co Agency API Actor (johnvc/clutch-agency-api). Give it company profile URLs or bare slugs and get one JSON record per company: name, website, rating, review_count, verification badges, min_project_size, hourly_rate, employees, founded_year, headquarters and every office location, languages, service_lines and focus_areas with percentages, industries, clients, cost_rating, most_common_project_size, pricing_by_service, and published packages. Each profile row can also carry LLM-ready markdown at no extra fetch, and verified client reviews as their own rows. Use when someone wants a company data api, to enrich a CRM with firmographics and service mix, pull B2B service provider records, or turn a list of agency profiles into structured company data as JSON. Billed per profile delivered with no start fee, and MCP-ready for Claude and other AI agents.\"",
+  "skills": "./",
+  "interface": {
+    "displayName": "apify-company-data-api",
+    "shortDescription": "\"Pull structured B2B company data from Clutch.co with the Clutch.co Agency API Actor (johnvc/clutch-agency-api). Give it company profile URLs or bare slugs and ",
+    "developerName": "John Cole",
+    "category": "Productivity",
+    "capabilities": []
+  }
+}
