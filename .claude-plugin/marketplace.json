@@ -13,7 +13,7 @@
       "name": "apify-ads-intelligence",
       "source": "./skills/apify-ads-intelligence",
       "skills": "./",
-      "description": "Research, spy on, and analyze ads across Meta (Facebook & Instagram), Google (Ads Transparency Center + paid search results), TikTok (Ads Library + Creative Center), LinkedIn Ad Library, and X (Twitter — promoted tweets, best-effort) using Apify Actors. Use when user asks about competitor ads, ad library research, winning creatives, ad copy analysis, landing page audits from ads, cross-platform ad audits, brand transparency checks, or any task involving paid ad creatives, advertiser data, or ad targeting from public ad libraries.",
+      "description": "Research, spy on, and analyze ads across Meta (Facebook & Instagram), Google (Ads Transparency Center + paid search results), TikTok (Ads Library + Creative Center), LinkedIn Ad Library, and X (Twitter \u2014 promoted tweets, best-effort) using Apify Actors. Use when user asks about competitor ads, ad library research, winning creatives, ad copy analysis, landing page audits from ads, cross-platform ad audits, brand transparency checks, or any task involving paid ad creatives, advertiser data, or ad targeting from public ad libraries.",
       "keywords": [
         "ads",
         "advertising",
@@ -60,7 +60,7 @@
       "name": "apify-app-store-intelligence",
       "source": "./skills/apify-app-store-intelligence",
       "skills": "./",
-      "description": "Pull structured Apple App Store and Google Play data — app metadata, price, rating, the 1–5★ ratings histogram, version, developer, and reviews — and watch it for changes over time. Use when the user asks to look up an iOS or Android app by App ID, bundle ID, package name or app name, compare a set of competitor apps across both stores, monitor a competitor's price or rating for changes, track when an app ships a new version, scrape App Store or Google Play reviews, resolve a bundle ID to a full app record, check an app's rating across multiple country storefronts, build an ASO or app-market dataset, or set up a recurring app-store watch on an app's price, rating and version. One routed Actor, praise-most-high/app-store-intelligence, is built by this skill's author; every other row is unaffiliated (see Disclosure).",
+      "description": "Pull structured Apple App Store and Google Play data \u2014 app metadata, price, rating, the 1\u20135\u2605 ratings histogram, version, developer, and reviews \u2014 and watch it for changes over time. Use when the user asks to look up an iOS or Android app by App ID, bundle ID, package name or app name, compare a set of competitor apps across both stores, monitor a competitor's price or rating for changes, track when an app ships a new version, scrape App Store or Google Play reviews, resolve a bundle ID to a full app record, check an app's rating across multiple country storefronts, build an ASO or app-market dataset, or set up a recurring app-store watch on an app's price, rating and version. One routed Actor, praise-most-high/app-store-intelligence, is built by this skill's author; every other row is unaffiliated (see Disclosure).",
       "keywords": [
         "app-store",
         "google-play",
@@ -147,7 +147,7 @@
       "name": "apify-buying-signal-detection",
       "source": "./skills/apify-buying-signal-detection",
       "skills": "./",
-      "description": "Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types — job postings (hiring for the persona), fundraising events (recent raises), and LinkedIn content (pain-point posts, hiring announcements) — then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture — Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says \"find companies with buying signals\", \"detect intent signals for outbound\", \"set up a weekly lead pipeline\", \"monitor hiring signals for lead gen\", \"track startup funding leads\", \"find LinkedIn buying signals\", \"schedule Apify Actors for prospecting\", \"build a signals-based lead list\", or \"set up buying-intent monitoring for my ICP\".",
+      "description": "Set up a recurring buying-signal detection pipeline that finds companies showing buying intent across three signal types \u2014 job postings (hiring for the persona), fundraising events (recent raises), and LinkedIn content (pain-point posts, hiring announcements) \u2014 then aggregates results into a deduplicated leads.csv with the signal source, evidence URL, and detection timestamp per row. Split-schedule architecture \u2014 Apify Actor Tasks pull raw data on their own cadence, a Claude-side aggregation task normalizes, deduplicates against a blacklist, and appends new leads with a weekly-idempotent guard. Use when the user says \"find companies with buying signals\", \"detect intent signals for outbound\", \"set up a weekly lead pipeline\", \"monitor hiring signals for lead gen\", \"track startup funding leads\", \"find LinkedIn buying signals\", \"schedule Apify Actors for prospecting\", \"build a signals-based lead list\", or \"set up buying-intent monitoring for my ICP\".",
       "keywords": [
         "buying-signals",
         "intent-data",
@@ -279,7 +279,7 @@
       "name": "apify-influencer-brand-collabs",
       "source": "./skills/apify-influencer-brand-collabs",
       "skills": "./",
-      "description": "Discover Instagram brand–creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid posts for, wants to audit an influencer's branded-content history, or wants to scope a brand's sponsorship roster. **Triggers:** - \"who collabs with [brand] on Instagram?\" - \"what brands has [creator] done sponsored posts for?\" - \"find paid partnerships / branded content for [handle]\" - \"audit [influencer]'s brand deals\" - \"show me [brand]'s influencer roster\" Works in either direction — brand → creators or creator → brands — and detects direction from the data, so don't ask the user to declare it. Requires Apify MCP tools.",
+      "description": "Discover Instagram brand\u2013creator partnerships by chaining Apify Actors. Use when the user asks who collabs with a brand, which brands a creator has done paid posts for, wants to audit an influencer's branded-content history, or wants to scope a brand's sponsorship roster. **Triggers:** - \"who collabs with [brand] on Instagram?\" - \"what brands has [creator] done sponsored posts for?\" - \"find paid partnerships / branded content for [handle]\" - \"audit [influencer]'s brand deals\" - \"show me [brand]'s influencer roster\" Works in either direction \u2014 brand \u2192 creators or creator \u2192 brands \u2014 and detects direction from the data, so don't ask the user to declare it. Requires Apify MCP tools.",
       "keywords": [
         "influencer",
         "brand",
@@ -322,7 +322,7 @@
       "name": "apify-jobs-data",
       "source": "./skills/apify-jobs-data",
       "skills": "./",
-      "description": "Extract clean, de-noised job-posting data from LinkedIn, Indeed, Glassdoor, and 20+ boards in one Apify run — deduplicated across boards, with likely ghost jobs and reposts flagged (heuristic, not verified) and fields normalized — then analyze it (deduped hiring demand, in-demand skills, coverage-labeled salary distribution), export it (CSV / JSON / Apify dataset) for dashboards and BI, or rank it against a résumé. Use when the user asks to scrape job postings, build a job dataset, analyze hiring demand or in-demand skills or salary ranges for a role or market, export job data for a dashboard or spreadsheet, dedupe job listings across boards, flag or filter out likely ghost jobs, or rank jobs by fit to a résumé. Triggers - \"scrape job postings for X\", \"what skills are in demand for Y\", \"salary range for Z in [location]\", \"export job data to CSV\", \"filter out the ghost jobs\", \"which of these jobs fit my résumé\".",
+      "description": "Extract clean, de-noised job-posting data from LinkedIn, Indeed, Glassdoor, and 20+ boards in one Apify run \u2014 deduplicated across boards, with likely ghost jobs and reposts flagged (heuristic, not verified) and fields normalized \u2014 then analyze it (deduped hiring demand, in-demand skills, coverage-labeled salary distribution), export it (CSV / JSON / Apify dataset) for dashboards and BI, or rank it against a r\u00e9sum\u00e9. Use when the user asks to scrape job postings, build a job dataset, analyze hiring demand or in-demand skills or salary ranges for a role or market, export job data for a dashboard or spreadsheet, dedupe job listings across boards, flag or filter out likely ghost jobs, or rank jobs by fit to a r\u00e9sum\u00e9. Triggers - \"scrape job postings for X\", \"what skills are in demand for Y\", \"salary range for Z in [location]\", \"export job data to CSV\", \"filter out the ghost jobs\", \"which of these jobs fit my r\u00e9sum\u00e9\".",
       "keywords": [
         "jobs",
         "job-data",
@@ -347,7 +347,7 @@
       "name": "apify-lead-scoring-enrichment",
       "source": "./skills/apify-lead-scoring-enrichment",
       "skills": "./",
-      "description": "Score and enrich a CSV of B2B leads using Apify Actors. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech stack), Website Content Crawler (content classification), and Contact Info Scraper (company metadata) for scoring; enriches with either department-specific contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper → AI Web Scraper → Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column that personalizes cold email copy (e.g. \"uses Shopify → send Shopify install guide\"). Use when user asks to score leads, qualify leads, enrich a lead list, detect a company's tech stack for outreach, find marketing/sales/engineering contacts at a list of companies, hunt down blog copywriters for guest-post pitches, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.",
+      "description": "Score and enrich a CSV of B2B leads using Apify Actors. Takes a CSV with company URLs, free-text scoring rules, and an enrichment preference; runs BuiltWith (tech stack), Website Content Crawler (content classification), and Contact Info Scraper (company metadata) for scoring; enriches with either department-specific contacts (Contact Info Scraper + Bulk Email Finder fallback) or copywriter discovery (Google Search Scraper \u2192 AI Web Scraper \u2192 Bulk Email Finder). Outputs an enriched CSV with a numeric score and a per-lead outreach_hook column that personalizes cold email copy (e.g. \"uses Shopify \u2192 send Shopify install guide\"). Use when user asks to score leads, qualify leads, enrich a lead list, detect a company's tech stack for outreach, find marketing/sales/engineering contacts at a list of companies, hunt down blog copywriters for guest-post pitches, personalize cold email at scale, or turn a raw domain list into a ready-to-pitch account list.",
       "keywords": [
         "lead-scoring",
         "lead-enrichment",
@@ -369,7 +369,7 @@
       "name": "apify-link-prospecting-outreach",
       "source": "./skills/apify-link-prospecting-outreach",
       "skills": "./",
-      "description": "Find sites ranking for target keywords, score every prospect with Ahrefs domain authority and page-level traffic, identify the strongest pitch angle per row (\"links to competitor\", \"mentions brand without linking\", \"top-3 SERP\", \"resource page\", \"outdated content\"), generate brand-voice-matched outreach emails using an outreach-type-aware template (unlinked-mention claim, competitor-link replacement, resource-page inclusion, outdated-content replacement, topical niche-edit), and propose a concrete in-article link placement as three artifacts — the verbatim source sentence, the same sentence rewritten with the link spliced in, or a fully-drafted new insertion if no natural fit exists. Use when user asks to find link building opportunities, prospect link partners, recover unlinked brand mentions, replace competitor links, build a tiered outreach list, or run cold email outreach for SEO link building.",
+      "description": "Find sites ranking for target keywords, score every prospect with Ahrefs domain authority and page-level traffic, identify the strongest pitch angle per row (\"links to competitor\", \"mentions brand without linking\", \"top-3 SERP\", \"resource page\", \"outdated content\"), generate brand-voice-matched outreach emails using an outreach-type-aware template (unlinked-mention claim, competitor-link replacement, resource-page inclusion, outdated-content replacement, topical niche-edit), and propose a concrete in-article link placement as three artifacts \u2014 the verbatim source sentence, the same sentence rewritten with the link spliced in, or a fully-drafted new insertion if no natural fit exists. Use when user asks to find link building opportunities, prospect link partners, recover unlinked brand mentions, replace competitor links, build a tiered outreach list, or run cold email outreach for SEO link building.",
       "keywords": [
         "link-building",
         "seo",
@@ -429,7 +429,7 @@
       "name": "apify-orchestrator-actor-development",
       "source": "./skills/apify-orchestrator-actor-development",
       "skills": "./",
-      "description": "Build TypeScript Apify orchestrator Actors — coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when creating a new orchestrator Actor, chaining Apify Actors together, adding an OpenRouter LLM step between Actors, or scaffolding parent-Actor workflows that call other Actors.",
+      "description": "Build TypeScript Apify orchestrator Actors \u2014 coordinate a sequence of sub-Actors (optionally with an LLM step) using the apify-orchestrator library. Use when creating a new orchestrator Actor, chaining Apify Actors together, adding an OpenRouter LLM step between Actors, or scaffolding parent-Actor workflows that call other Actors.",
       "keywords": [
         "orchestrator",
         "sub-actor",
@@ -530,7 +530,7 @@
       "name": "apify-verified-email-finder",
       "source": "./skills/apify-verified-email-finder",
       "skills": "./",
-      "description": "Builds a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run — no third-party verifier needed. Use when user asks to find verified emails, build a leads list, scrape emails from Maps or SERP, verify emails for a URL list, or find an Apollo / Hunter alternative.",
+      "description": "Builds a list of verified business emails from Google Maps, Google SERPs, or a user-supplied URL list. Verification happens inside the same Apify run \u2014 no third-party verifier needed. Use when user asks to find verified emails, build a leads list, scrape emails from Maps or SERP, verify emails for a URL list, or find an Apollo / Hunter alternative.",
       "keywords": [
         "email",
         "verification",
@@ -549,7 +549,7 @@
       "name": "apify-x402-agentic-wallet",
       "source": "./skills/apify-x402-agentic-wallet",
       "skills": "./",
-      "description": "Discover, pay for, and run any Apify Actor by paying USDC on Base over the x402 protocol with a Coinbase Agentic Wallet (awal) — no Apify account or API key. You buy one small, spend-capped prepaid Apify token, then run as many Actors as the request needs with it. Use when the user wants to use Apify tools without signing up, pay per use with crypto / USDC, set up an agentic wallet, mentions \"x402\", \"awal\", \"agentic wallet\", \"Coinbase wallet\", \"pay with USDC\", \"no API key\", or asks to pull live web data (social media, search, maps, marketplaces, news) while paying on-chain per use.",
+      "description": "Discover, pay for, and run any Apify Actor by paying USDC on Base over the x402 protocol with a Coinbase Agentic Wallet (awal) \u2014 no Apify account or API key. You buy one small, spend-capped prepaid Apify token, then run as many Actors as the request needs with it. Use when the user wants to use Apify tools without signing up, pay per use with crypto / USDC, set up an agentic wallet, mentions \"x402\", \"awal\", \"agentic wallet\", \"Coinbase wallet\", \"pay with USDC\", \"no API key\", or asks to pull live web data (social media, search, maps, marketplaces, news) while paying on-chain per use.",
       "keywords": [
         "x402",
         "awal",
@@ -600,6 +600,23 @@
         "claude"
       ],
       "category": "data-extraction"
+    },
+    {
+      "name": "apify-china-social-listening",
+      "source": "./skills/apify-china-social-listening",
+      "skills": "./",
+      "description": "China social listening across Weibo, Douban, WeChat Official Accounts, and Bilibili via Integration Yard Store actors.",
+      "keywords": [
+        "apify",
+        "china",
+        "weibo",
+        "douban",
+        "wechat",
+        "bilibili",
+        "social-listening"
+      ],
+      "category": "data-extraction",
+      "version": "1.0.0"
     }
   ]
 }
