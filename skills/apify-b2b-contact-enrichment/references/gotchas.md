@@ -12,7 +12,7 @@
 ## Data limits
 
 - This is a database, not a live scrape. Records carry `_freshness` (`fresh_90d`, `updated_1y`, `older`) and an update date; a person who changed jobs last month may still show the previous employer.
-- Phones are US-centric and are returned as recorded: not labelled mobile, direct or landline.
+- Phones are verified mobile numbers, mostly US; outside the US the hit rate is low.
 - Emails are recorded addresses, not pattern guesses, except in `b2bsearch/work-email-finder`, which returns ranked candidates and says so.
 - A work address can belong to a previous employer. `employerMatch: true` marks an address on the current employer's domain.
 - One key can match several people (a shared mailbox, namesakes at one company). Those rows come back `ambiguous` and free; nothing is guessed.
