@@ -117,13 +117,13 @@ Field names as in the live schema. Only `category` and `location` are required; 
 
 For businesses with **no** website at all use `onlyWithoutWebsite: true` instead (mutually exclusive with `onlyWithWebsite`; expect name, address, coordinates and sometimes a phone, nothing to crawl). `requireAnyContact` keeps only the ones the map lists a phone, email or social profile for; send `"requireAnyContact": false` to get every one.
 
-**Enrich the user's own list** (no map data fetched; a domain whose site shows no phone, email or social profile is dropped before billing unless the input sends `"requireAnyContact": false`, and `onePerBusiness` does not apply to a list):
+**Enrich the user's own list** (no map data fetched, so `phone` — the map's own tag — stays empty and the site's numbers come back in `phones`; a domain whose site shows no phone, email or social profile is dropped before billing unless the input sends `"requireAnyContact": false`, and `onePerBusiness` does not apply to a list):
 
 ```json
 {
   "websiteList": ["aloha-dental.com", "averyranchdental.com"],
   "verifyEmails": true,
-  "outputFields": ["domain", "email", "email_status", "email_type", "phone", "lead_grade"]
+  "outputFields": ["domain", "email", "email_status", "email_type", "phones", "lead_grade"]
 }
 ```
 
