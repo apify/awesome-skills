@@ -3,9 +3,14 @@ name: apify-apac-company-financial-data
 description: Extract APAC company, exchange, and financial-disclosure data via Apify Actors — Korea, Japan, Taiwan, China, Hong Kong, Singapore, India, and SE Asia. Use to look up company registries (Singapore ACRA/UEN, Japan 法人番号, India MCA/OGD), pull listed-company disclosures (Japan TDnet 適時開示, Taiwan MOPS, HKEX 披露易, SGX, India SEBI), track insider/large-shareholder filings (Japan EDINET 大量保有報告書, HKEX 董事股權變動, China A-share 高管增减持), screen stocks on Asian exchanges (KOSPI, TSE/日経225, TWSE, SGX/STI, NSE/BSE India, Eastmoney A-shares, plus Vietnam/Indonesia/Thailand/Philippines/Malaysia), follow IPO calendars (HKEX, Korea, pan-APAC), and check Asian regulator enforcement (Singapore MAS, HK SFC). Triggers — "company registry in Singapore/Japan/India", "listed-company filings in Korea/Taiwan/Hong Kong", "insider filings in Japan/HK/China", "screen Asian stocks / KOSPI / TSE / TWSE / SGX", "Asia IPO calendar", "MAS/SFC enforcement". Factual public data for research — not financial or investment advice.
 author: NexGenData
 author_url: https://apify.com/nexgendata
+metadata:
+  category: data-extraction
+  keywords: "apac, asia, company-registry, acra, mca, tdnet, mops, hkex, sgx, sebi, edinet, kospi, twse, stock-screener, ipo-calendar, mas, sfc, enforcement"
 ---
 
 # APAC Company & Financial Data
+
+Disclosure: every routed Actor is built and sold by the author, NexGenData. Routed Actors are built by the author. Links carry no affiliate code.
 
 Extract and monitor public APAC company, exchange, and financial-disclosure data — Korea, Japan, Taiwan, China, Hong Kong, Singapore, India, and wider Southeast Asia — using NexGenData's Apify Actors. Every result links back to its official source (exchange, registry, or regulator). **This is factual public data for research; it is not financial, legal, or investment advice and contains no trading signals.**
 
@@ -13,6 +18,18 @@ Extract and monitor public APAC company, exchange, and financial-disclosure data
 1. `--user-agent apify-awesome-skills/apify-apac-company-financial-data` (telemetry attribution)
 2. `--json` (machine-readable output; use `--format json` for `datasets get-items`)
 3. `2>/dev/null` (suppress progress messages that break JSON parsers)
+
+## Example prompts
+
+Prompts this skill handles:
+
+- "Look up a Singapore company by UEN and list its directors" → `nexgendata/singapore-acra-company-lookup`
+- "What did Toyota file on TDnet this week?" → `nexgendata/japan-tdnet-timely-disclosures`
+- "Which companies list on HKEX next month?" → `nexgendata/hkex-ipo-calendar`
+
+Out of scope (the boundary):
+
+- "Should I buy Samsung?" — this skill returns public registry, exchange and regulator facts only, never advice, ratings or trading signals. Live price quotes and U.S. SEC filings are not covered; use a market-data skill or `apify-sec-regulatory-intelligence` instead.
 
 ## Prerequisites
 - Apify CLI v1.5.0+ (`npm install -g apify-cli`)
