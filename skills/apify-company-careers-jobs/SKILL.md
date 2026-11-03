@@ -1,6 +1,6 @@
 ---
 name: apify-company-careers-jobs
-description: "Get the open jobs of specific companies straight from the employer's own applicant tracking system (Workday, Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, Personio), looked up by company name, domain or careers-page URL, in one uniform schema, with a monitor mode that returns only newly posted jobs. Routes to jordan-belfort/ats-jobs-api and jordan-belfort/workday-jobs-scraper (1,447 Workday companies by name). Use when someone asks what NVIDIA, Stripe or Notion is hiring for, open roles at a list of companies, new postings since yesterday, hiring signals for sales or recruiting, a Workday, Greenhouse, Lever or Personio jobs API, or to track a company's careers page. Not for market-wide job search on LinkedIn or Indeed: use apify-job-boards. $0.001 per job returned."
+description: "Get the open jobs of specific companies straight from the employer's own applicant tracking system (Workday, Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, Personio, Teamtailor), looked up by company name, domain or careers-page URL, in one uniform schema, with a monitor mode that returns only newly posted jobs, and keyword search (no company list) over a daily index of ~730,000 jobs from ~15,700 company boards. Routes to jordan-belfort/ats-jobs-api and jordan-belfort/workday-jobs-scraper (1,447 Workday companies by name). Use when someone asks what NVIDIA, Stripe or Notion is hiring for, open roles at a list of companies, new postings since yesterday, hiring signals for sales or recruiting, a Workday, Greenhouse, Lever or Personio jobs API, to track a company's careers page, or to search jobs by title straight from employers' boards. Not for LinkedIn or Indeed listings: use apify-job-boards. $0.001 per job returned."
 author: Jordan Belfort
 author_url: https://apify.com/jordan-belfort
 metadata:
@@ -21,10 +21,11 @@ Prompts this skill handles:
 - "What is NVIDIA hiring for in Germany? Engineering roles only."
 - "Here are 40 company names. Give me their open sales roles that were posted in the last 14 days."
 - "Set up a daily watch on Stripe, Notion and Spotify careers pages and send me only the jobs that are new."
+- "Find remote data engineer jobs posted this week, straight from company career pages."
 
 Out of scope (the boundary):
 
-- "Find Python jobs in Berlin across the whole market" or anything on LinkedIn or Indeed. This skill needs companies to look up; for market-wide search use `apify-job-boards`.
+- Anything on LinkedIn, Indeed or other job boards, and employers on ATSs outside the list above. Keyword search covers only the company boards in the index (Greenhouse, Lever, Ashby, SmartRecruiters, Recruitee, Personio, Teamtailor, 500 large Workday employers); for job boards use `apify-job-boards`.
 
 ## Prerequisites
 
@@ -36,9 +37,9 @@ Out of scope (the boundary):
 
 ## Workflow
 
-1. **Get the companies.** A list of names, domains or careers-page URLs. A careers URL is exact and skips guessing; a name or domain is matched by trying the company's slug on the supported ATSs. If the user has no list, say so and point to `apify-job-boards`.
+1. **Companies or keywords.** With a list of names, domains or careers-page URLs, use company mode (`companies`): a careers URL is exact, a name or domain is matched by trying the company's slug on the supported ATSs. Without a list, use search mode: put job titles in `searchKeywords` (e.g. `data engineer`; every word must be a word of the title, exact phrase ranked first) and leave `companies` empty. Search mode returns the newest matches up to `maxResults` (default 100), at most `maxPerCompany` (default 10) per company.
 2. **Pick the Actor** (table below). Default to `jordan-belfort/ats-jobs-api`. Use `jordan-belfort/workday-jobs-scraper` only when every company is a Workday employer.
-3. **Build the input** from the user's filters (`titleKeywords`, `locationKeywords`, `remoteOnly`, `postedWithinDays`). Filters run before billing, so jobs they drop are free. Set `maxJobsPerCompany` (for example 50) on a first run, see cost below.
+3. **Build the input** from the user's filters (`titleKeywords`, `locationKeywords`, `countries` (ISO codes), `workplaceType` remote/hybrid/onsite, `seniority`, `employmentTypes` (e.g. internship), `departments`, `excludeKeywords`, `maxExperienceYears`, `minSalary` with `salaryCurrencies`, `postedWithinDays`). Filters run before billing, so jobs they drop are free. Set `maxJobsPerCompany` (for example 50) on a first run, see cost below.
 4. **Estimate cost, then run.** Price is $0.001 per job returned; one large Workday employer can return up to 2,000 jobs, about $2. Confirm with the user above a few dollars (see `references/gotchas.md`).
 5. **Deliver.** Report how many jobs came back and from how many companies, name the companies that were not found (those rows have an `error` field and cost nothing), and link the dataset. Check the `company` field on name matches: a name can resolve to a different company's board.
 
@@ -65,7 +66,15 @@ Full table and input fields: [references/actor-index.md](references/actor-index.
       --user-agent apify-awesome-skills/apify-company-careers-jobs \
       2>/dev/null
 
-Daily watch (only new jobs):
+Keyword search, no company list (index refreshed daily):
+
+    apify actors call "jordan-belfort/ats-jobs-api" \
+      -i '{"searchKeywords": ["data engineer"], "remoteOnly": true, "postedWithinDays": 7, "maxResults": 50}' \
+      --json \
+      --user-agent apify-awesome-skills/apify-company-careers-jobs \
+      2>/dev/null
+
+Daily watch (only new jobs; works in search mode too):
 
     apify actors call "jordan-belfort/ats-jobs-api" \
       -i '{"companies": ["Stripe", "Notion", "Spotify"], "onlyNewJobs": true, "monitorName": "my-watch"}' \
