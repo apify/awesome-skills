@@ -1,6 +1,6 @@
 ---
 name: apify-job-boards
-description: Pull job postings from many boards in one run and prepare one validated, deduplicated table. Routes "find jobs / scrape job postings / build a job list / monitor new jobs / track a company's careers page / scrape LinkedIn jobs" requests to a multi-board job scraper (LinkedIn, Indeed, Glassdoor, The Muse plus keyless boards), a remote-only aggregator (RemoteOK, We Work Remotely, Remotive, Jobicy, Himalayas, HN Who is hiring) or a LinkedIn-only scraper (several titles and up to 25 places per run), with output-locality checks, per-board raw/qualified/deduplicated counts, only-new-jobs monitoring, per-board caps and honest cost estimates. Use when the user asks to scrape jobs across job boards, get Indeed or Glassdoor postings without an API key, scrape LinkedIn jobs only, collect remote developer jobs, watch a company's Greenhouse/Lever/Ashby careers page, or set up a daily new-jobs alert.
+description: Pull job postings from many boards in one run and prepare one validated, deduplicated table. Routes "find jobs / scrape job postings / build a job list / monitor new jobs / track a company's careers page / scrape LinkedIn jobs" requests to a multi-board job scraper (LinkedIn, Indeed, Glassdoor, The Muse plus keyless boards), a remote-only aggregator (RemoteOK, We Work Remotely, Remotive, Jobicy, Himalayas, HN Who is hiring) or a LinkedIn-only scraper (several titles and up to 25 places per run, or pasted LinkedIn job-search URLs), with output-locality checks, per-board raw/qualified/deduplicated counts, only-new-jobs monitoring, per-board caps and honest cost estimates. Use when the user asks to scrape jobs across job boards, get Indeed or Glassdoor postings without an API key, scrape LinkedIn jobs only or from a pasted LinkedIn search URL, collect remote developer jobs, watch a company's Greenhouse/Lever/Ashby careers page, or set up a daily new-jobs alert.
 author: Zakariae (Flash Scrape) — routes to Actors built by the author; no affiliate or referral parameters
 author_url: https://github.com/ZAKRIAZ
 metadata:
@@ -20,11 +20,14 @@ Prompts this skill handles:
 
 - "Scrape software engineer jobs in Austin from LinkedIn, Indeed and Glassdoor into one spreadsheet, no duplicates."
 - "Scrape LinkedIn only for 'product manager' and 'backend engineer' postings in London, mid-senior level, into a CSV."
+- "Here is my LinkedIn job search, put those jobs in a CSV: https://www.linkedin.com/jobs/search/?keywords=data%20analyst&geoId=103644278&f_TPR=r86400"
 - "Watch Stripe's and OpenAI's careers pages and only tell me about new roles."
 
 For the Austin request, try all three requested boards, then validate each returned location and vacancy identity before delivery. If Glassdoor returns only wrong-city or unverifiable rows, deliver the qualified LinkedIn and Indeed rows as a partial result and report Glassdoor's raw, qualified and deduplicated counts as a board failure. Do not claim three-board coverage merely because Glassdoor returned rows.
 
 For the London request, run the LinkedIn-only scraper with the LinkedIn input from Step 3: both titles in one run, and `"experienceLevel": ["4"]` (Mid-Senior level) checked on each job page.
+
+For the pasted search, run the LinkedIn-only scraper with the URL in `searchUrls` (Step 3): its keywords, place and past-24-hours filter are kept, and the run names any URL filter it could not use.
 
 For the Stripe and OpenAI watch, run the company-watch input from Step 4 and schedule the same input daily: `"sites": []` keeps the run to the two companies' own boards (Stripe answers on Greenhouse, OpenAI on Ashby; checked 2026-10-28), the first run is the baseline, and later runs deliver only postings not delivered before.
 
@@ -75,9 +78,10 @@ Optional follow-ups, only if the user raises them: posted-within window, salary 
 | Jobs by role + location across the big boards | `flash_scraper/multi-jobboard-scraper` | community | Store title "Job Board Scraper: LinkedIn, Indeed, Glassdoor Job Postings API"; LinkedIn, Indeed, Glassdoor, The Muse by default; 8 more keyless boards optional; returns raw candidates that still require locality and vacancy-identity validation |
 | Remote-only jobs from the remote boards | `flash_scraper/remote-job-aggregator` | community | RemoteOK, We Work Remotely, Working Nomads, DevITjobs, The Muse, Remotive, Jobicy, Himalayas, HN "Who is hiring", Arbeitnow (opt-in); no LinkedIn, Indeed or Glassdoor |
 | LinkedIn jobs only, several titles and up to 25 places per run | `flash_scraper/linkedin-jobs-scraper` | community | Seniority checked on each job page; `applicants`, `job_score` and the job page's base-pay range; cheapest per row |
+| A LinkedIn job-search URL the user pasted | `flash_scraper/linkedin-jobs-scraper` with `searchUrls` | community | The URL's keywords, place, distance, date, company, Easy Apply and under-10-applicants filters are sent as-is; `f_PP` cities are searched one by one; filters LinkedIn's public search ignores are checked by the Actor or named in the run status |
 | Watch named companies' careers pages | `flash_scraper/multi-jobboard-scraper` with `atsCompanies` and `"sites": []` | community | Greenhouse, Lever, Ashby, Recruitee, BambooHR and Workable boards read directly, up to 20 companies per run; combine with `onlyNewJobs` for a daily alert |
 
-Rule of thumb, first match wins: named companies' careers pages → multi-board scraper with `atsCompanies` and `"sites": []`. LinkedIn as the only board wanted → LinkedIn-only scraper. A city or country in the request → multi-board scraper. "Remote" and nothing else → remote aggregator, so "Give me remote Python developer jobs posted this week across the remote job boards, with salary where listed" takes the remote input in Step 3. All three Actors run without an API key, login or cookies.
+Rule of thumb, first match wins: named companies' careers pages → multi-board scraper with `atsCompanies` and `"sites": []`. A pasted LinkedIn job-search URL → LinkedIn-only scraper with `searchUrls`; a pasted Indeed or Glassdoor search URL → multi-board scraper with `searchUrls` (each URL searches only its own board). LinkedIn as the only board wanted → LinkedIn-only scraper. A city or country in the request → multi-board scraper. "Remote" and nothing else → remote aggregator, so "Give me remote Python developer jobs posted this week across the remote job boards, with salary where listed" takes the remote input in Step 3. All three Actors run without an API key, login or cookies.
 
 Check the live input schema before building input (fields change; the schema wins over this file):
 
@@ -131,7 +135,7 @@ Check the live input schema before building input (fields change; the schema win
 - `salaryMinAnnual`, `seniority`, `countries`, `excludeKeywords` are cheap filters that run before billing.
 - `onlyNewJobs` and `webhookUrl` work the same way as above.
 
-**LinkedIn only.** Field names as in the live schema; `searchQueries` is required:
+**LinkedIn only.** Field names as in the live schema; send titles in `searchQueries` or pasted LinkedIn job-search URLs in `searchUrls` (below):
 
 ```json
 {
@@ -148,7 +152,22 @@ Check the live input schema before building input (fields change; the schema win
 - `titleInclude` / `titleExclude`, `companyNames` and `excludeAgencies` are checked on the search cards before any job page is read; LinkedIn no longer filters on `remote` and `contractType` (the Actor turns them into search keywords), so check `isRemote` and `employmentType` on the rows.
 - `onlyNewJobs` and `webhookUrl` work the same way as above.
 
-**Cost, stated before the run.** All three Actors bill per delivered row plus a $0.00005 start fee per run; filtered and deduplicated rows are not billed. Read the current price from the Store Pricing tab (the schema fetch in Step 2 also returns the `pricingInfos` records; the last one whose `startedAt` has passed is in force). At the time of writing (live records read 2026-10-28) the free-plan rate is $0.005 per job on the multi-board scraper, $0.003 on the remote aggregator and $0.002 on the LinkedIn-only scraper; paid plans pay the same or less. So a first multi-board run of 4 boards × 20 rows costs at most about $0.40 and usually less after deduplication; a 100-row remote run at most $0.30; the LinkedIn example (2 queries × 10) at most $0.04; the Stripe and OpenAI watch's first run at most $0.50 (2 companies × 50), and each later run $0.005 per new posting. If the user asks for more than 500 rows, say the number and confirm before running.
+**LinkedIn from a pasted search URL.** Copy the address of a LinkedIn job search (opened logged out at `linkedin.com/jobs/search`) into `searchUrls`:
+
+```json
+{
+  "searchUrls": ["https://www.linkedin.com/jobs/search/?keywords=data%20analyst&geoId=103644278&f_TPR=r86400"],
+  "maxItems": 50
+}
+```
+
+- Up to 25 URLs per run, each its own search; they replace `searchQueries`, `location`, `locations` and `geoId`, and `maxItems` applies to each URL. A job found by two URLs is delivered and billed once.
+- Sent to LinkedIn as-is: `keywords`, `geoId` (wins over `location`), `distance`, `f_TPR` (any `r<seconds>` window, e.g. `r3600` for the past hour), `f_C`, `f_AL` (Easy Apply) and `f_EA` (under 10 applicants). Checked by the Actor instead, because LinkedIn's public search ignores them: `f_E` on each job page, `f_JT` / `f_WT` as search keywords. `f_PP` cities are searched one by one as their own `geoId` (up to 10 per URL, sharing the URL's `maxItems`).
+- Not used, and named in the status message and `RUN_SUMMARY.search_urls`: `sortBy` (results come in relevance order), salary `f_SB2` (use `minSalary`) and other `f_` filters. Page and tracking parameters such as `currentJobId` are dropped.
+- A URL that is not a job search (a `/jobs/view/` posting, a `/jobs/collections/` page, a company page, an Indeed or Glassdoor URL, a `lnkd.in` link) is not run, is named with its reason and bills nothing; if no URL can run, the run stops without falling back to `searchQueries`. Indeed and Glassdoor search URLs go to the multi-board scraper's `searchUrls`.
+- Card filters, `minSalary`, `onlyNewJobs` and `webhookUrl` still apply on top of every URL; with `onlyNewJobs` the memory follows each URL's search filters, not its tracking parameters, so a re-copied URL keeps its memory.
+
+**Cost, stated before the run.** All three Actors bill per delivered row plus a $0.00005 start fee per run; filtered and deduplicated rows are not billed. Read the current price from the Store Pricing tab (the schema fetch in Step 2 also returns the `pricingInfos` records; the last one whose `startedAt` has passed is in force). At the time of writing (live records read 2026-11-02) the free-plan rate is $0.005 per job on the multi-board scraper, $0.003 on the remote aggregator and $0.002 on the LinkedIn-only scraper; paid plans pay the same or less. So a first multi-board run of 4 boards × 20 rows costs at most about $0.40 and usually less after deduplication; a 100-row remote run at most $0.30; the LinkedIn example (2 queries × 10) at most $0.04 and the pasted-URL example (1 URL × 50) at most $0.10; the Stripe and OpenAI watch's first run at most $0.50 (2 companies × 50), and each later run $0.005 per new posting. If the user asks for more than 500 rows, say the number and confirm before running.
 
 ### Step 4: Run and wait
 
@@ -163,6 +182,11 @@ Check the live input schema before building input (fields change; the schema win
       2>/dev/null
 
     apify actors call "flash_scraper/linkedin-jobs-scraper" -i '{"searchQueries":["product manager","backend engineer"],"location":"London","experienceLevel":["4"],"maxItems":10}' \
+      --json \
+      --user-agent apify-awesome-skills/apify-job-boards \
+      2>/dev/null
+
+    apify actors call "flash_scraper/linkedin-jobs-scraper" -i '{"searchUrls":["https://www.linkedin.com/jobs/search/?keywords=data%20analyst&geoId=103644278&f_TPR=r86400"],"maxItems":50}' \
       --json \
       --user-agent apify-awesome-skills/apify-job-boards \
       2>/dev/null
@@ -204,5 +228,6 @@ Salary is present only where a board publishes it (49 of 80 rows on the multi-bo
 - **Indeed or Glassdoor rows from the wrong country** → `countryIndeed` (default `usa`) picks the country site both boards search; set it (`uk`, `canada`, `india`, ...) when the location string does not name the country. An unrecognised value falls back to `usa` with a note in `RUN_SUMMARY` and never fails the run.
 - **A watched company comes back "not found"** → it is not on Greenhouse, Lever, Ashby, Recruitee, BambooHR or Workable (Workday, SmartRecruiters, iCIMS and custom careers sites are not read), or its board slug differs from its name. Names are lowercased and stripped to letters and digits (`"Stripe Inc."` → `stripeinc`), so pass the slug from the careers URL (`jobs.lever.co/<slug>`, `jobs.ashbyhq.com/<slug>`). A not-found company is named in the log and `RUN_SUMMARY` and bills nothing; `ATS lookup incomplete` means a board refused or timed out, so rerun that company.
 - **LinkedIn-only rows lack seniority, employment type or description** → LinkedIn blocked some job pages; the rows still ship with the search-card fields, the run still succeeds, and the status message says how many full records arrived and why. With `experienceLevel` set, jobs whose page could not be read are left out and not billed. If every request gets HTTP 999 or 403, set `proxyConfiguration` (Apify RESIDENTIAL).
+- **A pasted LinkedIn URL was not run, or returned fewer rows than `maxItems`** → read the status message and `RUN_SUMMARY.search_urls`: a URL that is not a job search is named with its reason and bills nothing, a URL's `f_PP` cities share its `maxItems`, and a city LinkedIn rate-limited (HTTP 429) is named as not fetched; rerun it later.
 - **Monitoring run delivers nothing** → with `onlyNewJobs: true` an empty run means no new postings since the last delivery, which is the expected result, not a failure. The run's status message says so.
 - **Cost higher than expected** → `maxResults` is per board (and per `atsCompanies` company), `sites` may include boards the user did not mean, and `atsCompanies` without `"sites": []` also runs the default board search; on the LinkedIn-only scraper `maxItems` is per query and per place. List the boards, companies or queries and the cap back to the user before the next run.
