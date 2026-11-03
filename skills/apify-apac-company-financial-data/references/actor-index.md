@@ -1,6 +1,6 @@
 # Actor index — APAC Company & Financial Data
 
-All Actors below are **public** on the Apify Store under `nexgendata/`. Always confirm the live input schema with `apify actors info "nexgendata/SLUG" --input --json 2>/dev/null` before running — fields shown here are typical, not authoritative. Field names vary by country. Every Actor returns rows with a `source_url` to the official exchange, registry, or regulator.
+All Actors below are **public** on the Apify Store under `nexgendata/`. Always confirm the live input schema with `apify actors info "nexgendata/SLUG" --input --json --user-agent apify-awesome-skills/apify-apac-company-financial-data 2>/dev/null` before running — fields shown here are typical, not authoritative. Field names vary by country. Every Actor returns rows with a `source_url` to the official exchange, registry, or regulator.
 
 ## Company registries & corporate lookup
 | Actor | Use it for | Key inputs (typical) |
