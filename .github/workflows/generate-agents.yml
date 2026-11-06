@@ -9,6 +9,7 @@ on:
       - "scripts/**"
       - "skills/**"
       - ".claude-plugin/**"
+      - ".github/workflows/generate-agents.yml"
 
 jobs:
   validate-pr:
@@ -314,7 +315,7 @@ jobs:
             fi
             # Gate the push on a strict manifest validation — an invalid
             # catalog must never land on main. (~2 s warm, exit 1 on invalid.)
-            npx --yes @anthropic-ai/claude-code plugin validate --strict .
+            npx --yes @anthropic-ai/claude-code plugin validate --strict .claude-plugin/marketplace.json
             git commit -am "chore: regenerate marketplace.json, AGENTS.md and README [bot]"
             if git push; then
               exit 0
