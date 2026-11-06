@@ -294,6 +294,28 @@
       "category": "data-extraction"
     },
     {
+      "name": "apify-instagram-niche-mapper",
+      "source": "./skills/apify-instagram-niche-mapper",
+      "skills": "./",
+      "description": "Map any Instagram Reels niche end to end with Apify Actors, then turn what works into hooks for your own content. Finds the reels that already won (Popular search + hashtags), shortlists creators who reach people consistently (median plays, topic share, activity), separates real outliers from weak baselines (lift vs the creator's own median, share rate), transcribes only the winners, groups their hooks into patterns, and rewrites the user's own reel idea, script or caption with those patterns. Use when the user asks to research a niche on Instagram, find the best creators or influencers in a topic, see which reels perform, find outlier or viral reels, study hooks, get hook ideas, or improve a reel hook using what works in their niche — even if they don't say \"niche map\". Also for weekly re-runs of an earlier map.",
+      "keywords": [
+        "instagram",
+        "reels",
+        "niche research",
+        "creators",
+        "influencers",
+        "outliers",
+        "viral",
+        "hooks",
+        "content strategy",
+        "transcripts",
+        "shares",
+        "benchmarks",
+        "short-form video"
+      ],
+      "category": "data-extraction"
+    },
+    {
       "name": "apify-job-boards",
       "source": "./skills/apify-job-boards",
       "skills": "./",
