@@ -10,6 +10,28 @@
   },
   "plugins": [
     {
+      "name": "apify-actor-idea-validator",
+      "source": "./skills/apify-actor-idea-validator",
+      "skills": "./",
+      "description": "Check whether a planned Apify Actor is worth building before writing code. The user describes the Actor; the skill measures demand (Google Ads search volume and CPC for \"<site> scraper / api / mcp / data\" keywords, plus the target site's Similarweb traffic), checks for an official API, counts competing Actors on the Apify Store, then digs into competitors in proportion to how crowded the niche is: input-schema powerup coverage and pricing, issue-queue and run-failure quality audit, and n8n template demand. Ends with a Markdown report answering: is there demand, is there room against competition, and which value-added features would make the Actor stand out. Use when the user asks to \"check the potential of an Actor idea\", \"validate an Actor idea\", \"should I build an Actor for <site>\", \"is there demand for a <site> scraper\", \"is it worth building a <site> API or MCP on Apify\", or describes a planned Actor and asks whether it makes sense. Requires Apify CLI or Apify MCP server.",
+      "keywords": [
+        "actor-idea",
+        "validation",
+        "market-research",
+        "demand",
+        "search-volume",
+        "similarweb",
+        "competition",
+        "apify-store",
+        "powerups",
+        "quality-audit",
+        "n8n",
+        "go-no-go",
+        "actor-development"
+      ],
+      "category": "market-research"
+    },
+    {
       "name": "apify-ads-intelligence",
       "source": "./skills/apify-ads-intelligence",
       "skills": "./",
