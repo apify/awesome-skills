@@ -72,7 +72,7 @@ Each Actor also charges $0.00005 per run start. Photos that fail to load or find
 
 Fetch the live input schemas instead of trusting this file when a call is rejected:
 
-    apify actors info "piotrv1001/1688-image-search-scraper" --input --json \
+    apify actors info "piotrv1001/1688-image-search-scraper" --input \
       --user-agent apify-awesome-skills/apify-cross-border-sourcing 2>/dev/null
 
 ### Step 2: AliExpress product details
