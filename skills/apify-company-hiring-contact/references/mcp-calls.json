@@ -1,0 +1,62 @@
+{
+  "hiring": {
+    "name": "call-actor",
+    "arguments": {
+      "actor": "impressionable_lupine/company-recent-job-openings",
+      "input": {
+        "company_website": "https://linear.app",
+        "lookback_days": 30,
+        "max_jobs": 5
+      },
+      "waitSecs": 30,
+      "callOptions": {
+        "build": "2.0.18",
+        "memory": 512,
+        "timeout": 120,
+        "maxTotalChargeUsd": 0.03
+      }
+    }
+  },
+  "contact": {
+    "name": "call-actor",
+    "arguments": {
+      "actor": "impressionable_lupine/verified-contact-booking-signals",
+      "input": {
+        "company_website": "https://cliniquealpa.co.uk/"
+      },
+      "waitSecs": 30,
+      "callOptions": {
+        "build": "0.2.2",
+        "memory": 512,
+        "timeout": 60,
+        "maxTotalChargeUsd": 0.01
+      }
+    }
+  },
+  "inspect_hiring": {
+    "name": "fetch-actor-details",
+    "arguments": {
+      "actor": "impressionable_lupine/company-recent-job-openings",
+      "output": {
+        "pricing": true,
+        "inputSchema": true,
+        "outputSchema": true,
+        "metadata": true,
+        "readme": true
+      }
+    }
+  },
+  "inspect_contact": {
+    "name": "fetch-actor-details",
+    "arguments": {
+      "actor": "impressionable_lupine/verified-contact-booking-signals",
+      "output": {
+        "pricing": true,
+        "inputSchema": true,
+        "outputSchema": true,
+        "metadata": true,
+        "readme": true
+      }
+    }
+  }
+}

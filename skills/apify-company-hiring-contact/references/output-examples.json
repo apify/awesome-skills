@@ -1,0 +1,256 @@
+{
+  "provenance": "Archived owner-funded 2026-10-04 reports, not fresh results or independent customer purchases. Report objects are unchanged.",
+  "examples": [
+    {
+      "capability": "hiring",
+      "actor": "impressionable_lupine/company-recent-job-openings",
+      "build_number": "2.0.17",
+      "input": {
+        "company_website": "https://linear.app",
+        "lookback_days": 30,
+        "max_jobs": 5
+      },
+      "report": {
+        "schema_version": "2.0",
+        "report_id": "7fc6ca1324e23d8817b95179c1e3ee7d776152366236437b37f28511bfbf4324",
+        "request_fingerprint": "6f0c62467843fcefb6b3a252a57e195f581f381f31d7680a9a37499ff7f8ebbc",
+        "company_website": "https://linear.app/",
+        "lookback_days": 30,
+        "checked_at": "2026-10-04T08:57:52.344Z",
+        "completed_at": "2026-10-04T08:57:53.365Z",
+        "status": "success",
+        "signal_status": "verified_recent_openings",
+        "job_count": 4,
+        "jobs": [
+          {
+            "job_key": "2e878e9301545880d8f7f1899fdd67dbc0a84c491a033efb3dd584b66212aca0",
+            "title": "Design Engineer (Web & Brand)",
+            "location": "Europe",
+            "published_date": "2026-09-15T18:05:47.890Z",
+            "date_meaning": "last_published",
+            "source_url": "https://jobs.ashbyhq.com/Linear/ea0b5868-6d7a-46fa-99d8-207cd19357a6",
+            "checked_at": "2026-10-04T08:57:53.288Z",
+            "provider": "ashby",
+            "provider_id": "ea0b5868-6d7a-46fa-99d8-207cd19357a6",
+            "evidence_url": "https://api.ashbyhq.com/posting-api/job-board/Linear",
+            "evidence_field": "jobs[].publishedAt",
+            "raw_published_date": "2026-09-15T18:05:47.890+00:00",
+            "evidence_sha256": "0c41af77aab2deaa4b097aa8f362b427972d070071c8879ac03e78c9fdf395a1",
+            "current_status_basis": "Present in the linked public ATS live job feed"
+          },
+          {
+            "job_key": "7d3523754562a17370c893b29af1d170319d778a917a20595a169df7e37c0b6f",
+            "title": "Design Engineer (Web & Brand)",
+            "location": "North America",
+            "published_date": "2026-09-15T18:05:31.687Z",
+            "date_meaning": "last_published",
+            "source_url": "https://jobs.ashbyhq.com/Linear/f04f398b-6320-499d-8a60-290239d62da8",
+            "checked_at": "2026-10-04T08:57:53.288Z",
+            "provider": "ashby",
+            "provider_id": "f04f398b-6320-499d-8a60-290239d62da8",
+            "evidence_url": "https://api.ashbyhq.com/posting-api/job-board/Linear",
+            "evidence_field": "jobs[].publishedAt",
+            "raw_published_date": "2026-09-15T18:05:31.687+00:00",
+            "evidence_sha256": "0c41af77aab2deaa4b097aa8f362b427972d070071c8879ac03e78c9fdf395a1",
+            "current_status_basis": "Present in the linked public ATS live job feed"
+          },
+          {
+            "job_key": "1b4091e1f356b1f23fd18ea1cbcc69cfddf15e3803a77640fedf53a685f7828b",
+            "title": "Product Support Specialist, Europe",
+            "location": "Europe",
+            "published_date": "2026-09-10T15:44:21.164Z",
+            "date_meaning": "last_published",
+            "source_url": "https://jobs.ashbyhq.com/Linear/820d0d5a-0930-475c-b494-23e18ad2aa68",
+            "checked_at": "2026-10-04T08:57:53.288Z",
+            "provider": "ashby",
+            "provider_id": "820d0d5a-0930-475c-b494-23e18ad2aa68",
+            "evidence_url": "https://api.ashbyhq.com/posting-api/job-board/Linear",
+            "evidence_field": "jobs[].publishedAt",
+            "raw_published_date": "2026-09-10T15:44:21.164+00:00",
+            "evidence_sha256": "0c41af77aab2deaa4b097aa8f362b427972d070071c8879ac03e78c9fdf395a1",
+            "current_status_basis": "Present in the linked public ATS live job feed"
+          },
+          {
+            "job_key": "1d2b6795b4fa939eb06a8ee05a38c3473624bae590313626f50a98de3acdd232",
+            "title": "Customer Success Manager, Growth",
+            "location": "North America",
+            "published_date": "2026-09-04T17:12:28.532Z",
+            "date_meaning": "last_published",
+            "source_url": "https://jobs.ashbyhq.com/Linear/26c77e48-b4ef-455d-a02c-3ef68fc6f9f9",
+            "checked_at": "2026-10-04T08:57:53.288Z",
+            "provider": "ashby",
+            "provider_id": "26c77e48-b4ef-455d-a02c-3ef68fc6f9f9",
+            "evidence_url": "https://api.ashbyhq.com/posting-api/job-board/Linear",
+            "evidence_field": "jobs[].publishedAt",
+            "raw_published_date": "2026-09-04T17:12:28.532+00:00",
+            "evidence_sha256": "0c41af77aab2deaa4b097aa8f362b427972d070071c8879ac03e78c9fdf395a1",
+            "current_status_basis": "Present in the linked public ATS live job feed"
+          }
+        ],
+        "undated_jobs": [],
+        "coverage_complete": true,
+        "coverage_scope": "Linked public sources checked within the stated budget; not the whole web.",
+        "listings_seen": 30,
+        "dated_listings": 30,
+        "verified_recent_count": 4,
+        "excluded_counts": {
+          "outside_window": 26
+        },
+        "sources": [
+          {
+            "url": "https://linear.app/",
+            "discovered_from": null,
+            "linked_url": null,
+            "source_type": "company_page",
+            "checked_at": "2026-10-04T08:57:52.428Z",
+            "sha256": "c53179351dc8624120fde66df5641aa1526d2bd5eb34885a7aaf527b57f1c945"
+          },
+          {
+            "url": "https://linear.app/careers",
+            "discovered_from": "https://linear.app/",
+            "linked_url": null,
+            "source_type": "company_page",
+            "checked_at": "2026-10-04T08:57:53.087Z",
+            "sha256": "55d34271a0545fd733f1bc82a96ceb048f0060839a9e559ddd5f5971f76093b9"
+          },
+          {
+            "url": "https://api.ashbyhq.com/posting-api/job-board/Linear",
+            "discovered_from": "https://linear.app/careers",
+            "linked_url": "https://jobs.ashbyhq.com/Linear/c21af93e-210f-4969-8eaa-90fb16a5b720",
+            "source_type": "ashby",
+            "checked_at": "2026-10-04T08:57:53.288Z",
+            "sha256": "0c41af77aab2deaa4b097aa8f362b427972d070071c8879ac03e78c9fdf395a1"
+          }
+        ],
+        "errors": [],
+        "error_code": null,
+        "error_message": null,
+        "retryable": false,
+        "suggested_action": "use_results",
+        "retry_after_seconds": null,
+        "billing_eligible": true,
+        "billing_event": "verified-report",
+        "billing_quantity": 1,
+        "billing_unit_price_usd": 0.03,
+        "billing_max_charge_usd": 0.03,
+        "pricing_status": "runtime_verified",
+        "paid_usage_confirmed": false,
+        "duration_ms": 1016,
+        "http_request_count": 4,
+        "downloaded_bytes": 2162503,
+        "retry_count": 0,
+        "schema_valid": true,
+        "observation_type": "platform_run",
+        "request_log": [
+          {
+            "url": "https://linear.app/robots.txt",
+            "checked_at": "2026-10-04T08:57:52.346Z",
+            "http_status": 200,
+            "bytes": 107,
+            "sha256": "c5ff067087fda9581c88f7c9729b05eb8cc2502c41cdfe5ebbf498c667d38857",
+            "error_code": null
+          },
+          {
+            "url": "https://linear.app/",
+            "checked_at": "2026-10-04T08:57:52.428Z",
+            "http_status": 200,
+            "bytes": 1286964,
+            "sha256": "c53179351dc8624120fde66df5641aa1526d2bd5eb34885a7aaf527b57f1c945",
+            "error_code": null
+          },
+          {
+            "url": "https://linear.app/careers",
+            "checked_at": "2026-10-04T08:57:53.087Z",
+            "http_status": 200,
+            "bytes": 467602,
+            "sha256": "55d34271a0545fd733f1bc82a96ceb048f0060839a9e559ddd5f5971f76093b9",
+            "error_code": null
+          },
+          {
+            "url": "https://api.ashbyhq.com/posting-api/job-board/Linear",
+            "checked_at": "2026-10-04T08:57:53.288Z",
+            "http_status": 200,
+            "bytes": 407830,
+            "sha256": "0c41af77aab2deaa4b097aa8f362b427972d070071c8879ac03e78c9fdf395a1",
+            "error_code": null
+          }
+        ]
+      },
+      "independent_customer": false,
+      "fresh_result": false
+    },
+    {
+      "capability": "contact",
+      "actor": "impressionable_lupine/verified-contact-booking-signals",
+      "build_number": "0.2.1",
+      "input": {
+        "company_website": "https://cliniquealpa.co.uk/"
+      },
+      "report": {
+        "schema_version": "1.0",
+        "report_id": "b5beef5e1939a377942b5f09c442c7a8e9ff629ca7d9926216e1f7983fb87e33",
+        "company_website": "https://cliniquealpa.co.uk/",
+        "status": "verified",
+        "signals": [
+          {
+            "type": "email",
+            "value": "enquiries@cliniquealpa.co.uk",
+            "source_url": "https://cliniquealpa.co.uk/",
+            "checked_at": "2026-10-04T08:47:36.404Z",
+            "evidence_sha256": "cffffcabf79c7ff8167fb30d8a5d3c8a6983461544c1133f54578ab1ee410b38"
+          },
+          {
+            "type": "contact_page",
+            "value": "https://cliniquealpa.co.uk/contact/",
+            "source_url": "https://cliniquealpa.co.uk/",
+            "checked_at": "2026-10-04T08:47:36.404Z",
+            "evidence_sha256": "cffffcabf79c7ff8167fb30d8a5d3c8a6983461544c1133f54578ab1ee410b38"
+          },
+          {
+            "type": "phone",
+            "value": "+442088828088",
+            "source_url": "https://cliniquealpa.co.uk/",
+            "checked_at": "2026-10-04T08:47:36.404Z",
+            "evidence_sha256": "cffffcabf79c7ff8167fb30d8a5d3c8a6983461544c1133f54578ab1ee410b38"
+          },
+          {
+            "type": "booking_link",
+            "value": "https://book.cliniquealpa.co.uk/",
+            "source_url": "https://cliniquealpa.co.uk/",
+            "checked_at": "2026-10-04T08:47:36.404Z",
+            "evidence_sha256": "cffffcabf79c7ff8167fb30d8a5d3c8a6983461544c1133f54578ab1ee410b38"
+          },
+          {
+            "type": "booking_link",
+            "value": "https://cliniquealpa.co.uk/book-now/",
+            "source_url": "https://cliniquealpa.co.uk/",
+            "checked_at": "2026-10-04T08:47:36.404Z",
+            "evidence_sha256": "cffffcabf79c7ff8167fb30d8a5d3c8a6983461544c1133f54578ab1ee410b38"
+          }
+        ],
+        "email_count": 1,
+        "phone_count": 1,
+        "booking_link_count": 2,
+        "contact_page_count": 1,
+        "observed_signal_count": 5,
+        "signals_truncated": false,
+        "pages_checked": [
+          "https://cliniquealpa.co.uk/",
+          "https://cliniquealpa.co.uk/contact/"
+        ],
+        "coverage_complete": false,
+        "checked_at": "2026-10-04T08:47:36.256Z",
+        "completed_at": "2026-10-04T08:47:36.563Z",
+        "error_code": null,
+        "error_message": null,
+        "http_request_count": 3,
+        "downloaded_bytes": 136603,
+        "duration_ms": 307,
+        "billing_event": null,
+        "billing_quantity": 0
+      },
+      "independent_customer": false,
+      "fresh_result": false
+    }
+  ]
+}
