@@ -44,7 +44,7 @@ Out of scope (the boundary):
    - Signal strength (up to 40): raise size, contract value, import growth (last 12 months against the 12 before), hiring `signalScore`.
    - Freshness (up to 20): 20 if the newest signal is under 7 days old, 10 if under 30.
    - Plus 10 for each extra independent signal, capped at 100. Drop accounts with no fit.
-5. **Add contacts** for the top 10-20 only: run Website Contact Details on their websites with `requireEmail: true`. Founders and executives in Form D filings (`people`) are named contacts too. Never invent an email or a person.
+5. **Add contacts** for the top 10-20 only. Form D filings and most registers carry no website, so find it first: one Google search per company name plus city, keep the official domain. Then run Website Contact Details on those websites with `requireEmail: true`. Founders and executives in Form D filings (`people`) are named contacts too. Never invent an email or a person.
 6. **Deliver** a table (account, score, signals with dates, why now, contact, source links), a two-sentence opener for the top five that cites the signal, and the run cost. Offer a weekly schedule with *Only new* so later runs return only new accounts.
 
 ## Actor routing
@@ -57,6 +57,7 @@ Out of scope (the boundary):
 | Importers, their factories, lookalike importers | `tacps126/us-import-records` | community | US customs bills of lading; `companies`, `suppliers`, `findLookalikes` |
 | Companies at a trade show | `tacps126/exhibition-scraper` | community | Any show's exhibitor-list link in `startUrls`; booth, email, phone, website |
 | Companies hiring for given roles | `tacps126/hiring-signals` | community | `roleKeywords`, `companies`, `searches`, `postedWithinDays`; returns `signalScore` |
+| A company's website (Form D and registers have none) | `apify/google-search-scraper` | apify | `queries`: company name plus city, one per line; take the first official domain |
 | Contacts for the shortlisted accounts | `tacps126/contact-details` | community | `startUrls` (websites), `requireEmail`; charged only for sites with contacts |
 
 `Tier` = `apify` (Apify-maintained, prefer) or `community` (third-party).
