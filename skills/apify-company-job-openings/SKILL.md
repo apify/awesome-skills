@@ -40,7 +40,7 @@ Out of scope (the boundary):
 
 1. Collect the companies. Prefer website domains (`stripe.com`) or job board URLs. A plain name works when exactly one board carries it; see [references/gotchas.md](references/gotchas.md).
 2. Fetch the input schema once and build the input from it. Do not guess field names.
-3. Estimate the cost before a large run: at most `companies x maxJobsPerCompany x $0.005`. Ask the user before a run that can exceed about $1.
+3. Estimate the cost before a large run: at most `companies x maxJobsPerCompany x $0.0015`. Ask the user before a run that can exceed about $1.
 4. Run the Actor, then read the dataset.
 5. Separate the rows by `recordType`: `job` rows are the result; `status` rows explain what could not be returned and are free. Tell the user about every `status` row that is not `no_results`.
 
@@ -113,8 +113,8 @@ Rows with `recordType: "status"` carry `status`, `message` and `subject` (the co
 
 ## Cost
 
-- $0.005 for each job returned. `status` rows are free. No start fee.
-- $0.003 more for each job that has a description, only with `includeDescription`.
+- $0.0015 for each job returned. `status` rows are free. No start fee.
+- $0.001 more for each job that has a description, only with `includeDescription`.
 - Filters (`keywords`, `locations`, `remoteOnly`, `postedWithinDays`) apply before `maxJobsPerCompany`, so a filtered run pays only for matching jobs.
 - The default `maxJobsPerCompany` is 50. Set it lower for a first look.
 
