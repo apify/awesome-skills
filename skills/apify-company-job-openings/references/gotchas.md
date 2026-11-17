@@ -31,7 +31,7 @@ Consequences for filters:
 
 ## Cost guardrails
 
-- Worst case for a run: `companies x maxJobsPerCompany x $0.005` (x $0.008 with `includeDescription`).
+- Worst case for a run: `companies x maxJobsPerCompany x $0.0015` (x $0.0025 with `includeDescription`).
 - `includeDescription` needs one extra request per job on SmartRecruiters and Workday, so it is slower there. Use it for a short list of jobs, not for a whole board.
 - With `onlyNew`, the first run returns every open job up to the limit; later runs return only jobs not returned before. The Actor remembers returned job IDs in a key-value store named `company-jobs-scraper-seen` in the user's own Apify account.
 - When the user's spending limit is reached, the run stops and adds a `limit_reached` row.
