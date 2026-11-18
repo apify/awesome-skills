@@ -48,7 +48,7 @@ Out of scope (the boundary):
 
 | User need | Actor ID | Tier | Best for |
 |-----------|----------|------|----------|
-| Search 1688 by keyword (English or Chinese) | `blueskyscraper/1688-products-scraper` | community | Price in CNY and USD, units sold, repeat-buyer rate, supplier type, years, province |
+| Search 1688 by keyword (English or Chinese) | `blueskyscraper/1688-products-scraper` | community | Price in CNY and USD, MOQ and quantity price tiers where the search card shows them, units sold, repeat-buyer rate, supplier type, years, province |
 | One 1688 product page by URL | `blueskyscraper/1688-product-details-scraper` | community | Price tiers, MOQ, every variant with price and stock, specifications, weight, supplier |
 | Search Alibaba.com by keyword | `blueskyscraper/alibaba-products-scraper` | community | Price range, price tiers and MOQ already in search rows; supplier country, years, badges |
 
@@ -69,8 +69,8 @@ Always fetch the live schema before the first call in a session — fields can c
 
 Useful fields: `minPriceCny`, `maxPriceCny` (1 USD ≈ 7.1 CNY), `manufacturersOnly` (factories only), `provinces` (in Chinese, e.g. `["广东"]`), `sortBy` (`bestMatch` or `sales`), `excludeAds`.
 There is no price sort: for "cheapest first" fetch the rows and sort them by `priceUsd` yourself. `maxItems` caps the whole run on all three Actors.
-Row fields: `titleEn`, `priceCny`, `priceUsd`, `soldCount`, `repurchaseRate`, `supplierName`, `supplierType`, `supplierYears`, `supplierProvince`, `url`.
-**Search rows do not carry MOQ or price tiers** — open the product page for those.
+Row fields: `titleEn`, `priceCny`, `priceUsd`, `minOrder`, `unitEn`, `priceTiers`, `soldCount`, `repurchaseRate`, `supplierName`, `supplierType`, `supplierYears`, `supplierProvince`, `url`.
+**Search rows carry MOQ and price tiers when the 1688 search card shows the seller's quantity ladder**: `minOrder`, `unit` / `unitEn`, `priceTiers` (`minQuantity`, `maxQuantity`, `priceCny`, `priceUsd`; `[]` = one flat price from the MOQ) and `priceMinCny` / `priceMaxCny`. Coverage depends on the category (about 75% of rows for phone cases, about 20% for yoga mats, measured 18 Nov 2026). A row without `minOrder` means the card did not show it, not that there is none — open the product page for those rows only.
 
 **1688 product page.**
 
@@ -102,7 +102,7 @@ The commands above use the Apify CLI. The same Actors and inputs work through th
 
 ## Troubleshooting
 
-- **The user wants MOQ for a 1688 search.** Search rows have no MOQ. Shortlist first, then run the product-page Actor on those URLs. Do not set `includeDetails: true` on a large search unless the user accepts the cost.
+- **The user wants MOQ for a 1688 search.** Use `minOrder` and `priceTiers` from the search rows where present. For rows without them, shortlist first, then run the product-page Actor on those URLs. Do not set `includeDetails: true` on a large search unless the user accepts the cost.
 - **Zero rows on 1688.** Use a shorter product name (two or three words), drop `provinces` and price filters, or try the Chinese term.
 - **A keyword returns unrelated goods.** Add the material or use case ("silicone yoga mat"), or sort by `sales`.
 - **The product page returns an empty `priceTiers`.** The product has one price for any quantity: report `priceMinCny` / `priceMinUsd` and `minOrder`.
