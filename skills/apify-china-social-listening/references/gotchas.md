@@ -16,6 +16,11 @@
 - Never promote a scraper on the platform it scrapes (e.g. don’t pitch Weibo scraping on Weibo/X inappropriately).
 - Public data only — respect each site’s terms and the user’s compliance needs.
 
+## Known limits
+
+- WeChat: search results are reliable, but article pages often answer with a verification page, so `fetchFullArticle` can return a free `verify` error row instead of full text. Treat full text as best-effort.
+- Weibo: no login, so keyword search returns roughly the first page per tab (综合 / 实时 / 热门).
+
 ## Failures
 
 - `incomplete` / error rows → shrink batch, retry once, then report the Actor run URL.

@@ -2,10 +2,10 @@
 
 | Actor | ID / name | Modes (high level) | Example tasks (Store) |
 |-------|-----------|--------------------|------------------------|
-| Weibo Scraper | `dheerajitbhu/weibo-scraper` | hot_search, search, comments, user_profile | hot-search-tracker, brand-mentions, post-comments-export, user-profile-data |
+| Weibo Scraper | `dheerajitbhu/weibo-scraper` | search, hot_search, post_detail, post_comments, user_profile, user_posts | hot-search-tracker, brand-mentions, post-comments-export, user-profile-data |
 | Douban Scraper | `dheerajitbhu/douban-scraper` | search, comments, reviews, chart, subject | movie-ratings, book-ratings, short-comments, now-showing, top250-movies, book-reviews, movie-reviews |
-| WeChat Articles | `dheerajitbhu/wechat-articles-scraper` | search (+ optional full article) | article-search, full-article-text, brand-monitoring |
-| Bilibili Scraper | `dheerajitbhu/bilibili-scraper` | search, comments, popular, user_profile | video-search, comments-export, trending-videos, creator-stats |
+| WeChat Articles | `dheerajitbhu/wechat-articles-scraper` | search (+ optional `fetchFullArticle`, best-effort), article | article-search, full-article-text, brand-monitoring |
+| Bilibili Scraper | `dheerajitbhu/bilibili-scraper` | search, video_detail, video_comments, popular, user_profile | video-search, comments-export, trending-videos, creator-stats |
 
 Fetch live input schema before building inputs:
 

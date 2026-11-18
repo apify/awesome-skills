@@ -1,16 +1,18 @@
 ---
 name: apify-china-social-listening
 description: China social listening and research across Weibo, Douban, WeChat Official Accounts, and Bilibili using Integration Yard Apify Store actors. Use when the user asks for Chinese social mentions, Douban ratings/reviews, WeChat articles, Bilibili creators/videos, brand monitoring in China, or 微博/豆瓣/微信/B站 data without building scrapers.
+author: Integration Yard (dheerajitbhu)
+author_url: https://apify.com/dheerajitbhu
 metadata:
   category: data-extraction
-  keywords: china, weibo, douban, wechat, bilibili, social listening, brand monitoring, 微博, 豆瓣, 微信, B站
-author: Integration Yard
-author_url: https://apify.com/dheerajitbhu
+  keywords: "china, weibo, douban, wechat, bilibili, social listening, brand monitoring, 微博, 豆瓣, 微信, B站"
 ---
 
 # China social listening (Weibo · Douban · WeChat · Bilibili)
 
 Pull public Chinese social and cultural signals for brand monitoring, audience research, and content decisions — without writing scrapers.
+
+> **Disclosure:** all four routed Actors are paid (pay-per-result) community Actors built and maintained by the skill author (Integration Yard / `dheerajitbhu`). No affiliate or referral parameters are used.
 
 ## Example prompts
 
@@ -20,11 +22,11 @@ Pull public Chinese social and cultural signals for brand monitoring, audience r
 - "Get Bilibili creator stats and trending videos for 原神"
 - "China social listening pack for competitor X"
 
-Out of scope:
+Out of scope (the boundary):
 
-- Scraping X/Twitter, Instagram, TikTok global, or LinkedIn — use other Store actors / skills
-- Anything that needs a logged-in WeChat/Weibo consumer session beyond what the public Actors already support
-- Building new Actors — this skill only routes to published Store Actors
+- "Scrape Xiaohongshu / Douyin comments" or anything on X/Twitter, Instagram, TikTok global, or LinkedIn — use other Store Actors / skills
+- "Pull every Weibo post about X for the last year" — the Weibo Actor never logs in, so keyword search is shallow (about the first page per tab)
+- Anything that needs a logged-in WeChat/Weibo consumer session, or building new Actors — this skill only routes to published Store Actors
 
 ## Prerequisites
 
@@ -42,10 +44,10 @@ Out of scope:
 
 | User need | Actor | Store | Best for |
 |-----------|-------|-------|----------|
-| Microblog posts, hot search, comments, profiles | `dheerajitbhu/weibo-scraper` | [weibo-scraper](https://apify.com/dheerajitbhu/weibo-scraper) | Brand mentions, 热搜, KOL profiles |
-| Movie/book ratings, 短评, 影评/书评, charts | `dheerajitbhu/douban-scraper` | [douban-scraper](https://apify.com/dheerajitbhu/douban-scraper) | Audience scores, China film/book research |
-| Official Account article search + full text | `dheerajitbhu/wechat-articles-scraper` | [wechat-articles-scraper](https://apify.com/dheerajitbhu/wechat-articles-scraper) | Brand PR, industry coverage |
-| Video search, comments, trending, UP主 stats | `dheerajitbhu/bilibili-scraper` | [bilibili-scraper](https://apify.com/dheerajitbhu/bilibili-scraper) | Creator discovery, fandom trends |
+| Microblog posts, hot search, comments, profiles | `dheerajitbhu/weibo-scraper` | [weibo-scraper](https://apify.com/dheerajitbhu/weibo-scraper?utm_source=apify-awesome-skills&utm_medium=github&utm_campaign=weibo-scraper) | Brand mentions, 热搜, KOL profiles |
+| Movie/book ratings, 短评, 影评/书评, charts | `dheerajitbhu/douban-scraper` | [douban-scraper](https://apify.com/dheerajitbhu/douban-scraper?utm_source=apify-awesome-skills&utm_medium=github&utm_campaign=douban-scraper) | Audience scores, China film/book research |
+| Official Account article search (full text best-effort) | `dheerajitbhu/wechat-articles-scraper` | [wechat-articles-scraper](https://apify.com/dheerajitbhu/wechat-articles-scraper?utm_source=apify-awesome-skills&utm_medium=github&utm_campaign=wechat-articles-scraper) | Brand PR, industry coverage |
+| Video search, comments, trending, UP主 stats | `dheerajitbhu/bilibili-scraper` | [bilibili-scraper](https://apify.com/dheerajitbhu/bilibili-scraper?utm_source=apify-awesome-skills&utm_medium=github&utm_campaign=bilibili-scraper) | Creator discovery, fandom trends |
 
 All listed Actors are **community** tier (Integration Yard / dheerajitbhu).
 
