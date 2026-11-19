@@ -5,7 +5,7 @@
 - A job board URL is read as given. This is the most exact input.
 - A domain or careers page URL is matched through the company's own website: the job board its pages link to is used. If the site carries job postings in its own page markup instead, those are returned with `source: "jsonld"`.
 - A plain name is matched by the board's own company name. If more than one board with open jobs carries that name, the run returns one free `not_found` row that lists them with their URLs; send one of those URLs.
-- Workday boards are found from their URL (such as `https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite`) or from a link on the company's careers page, never from a name.
+- Workday career sites currently answer automated requests with a bot check (since November 2026), so a Workday board gets an `unsupported` row instead of jobs. It works again by itself if Workday lifts the check. Workday boards are found from their URL or from a link on the careers page, never from a name.
 - Greenhouse EU boards (`boards.eu.greenhouse.io`, `job-boards.eu.greenhouse.io`) are not supported and return an `unsupported` row.
 - A page on another company's site, such as a directory profile, is not the company's own site. Send the company's own domain.
 - At most 100 companies per run. The same board named twice is delivered once.
