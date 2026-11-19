@@ -1,6 +1,6 @@
 ---
 name: apify-company-job-openings
-description: "Get the current open jobs for a list of companies, read live from each company's own hiring system (Greenhouse, Lever, Ashby, Workday, SmartRecruiters, Workable, Recruitee, Personio), with the Apify Actor extractlyspace/company-jobs-scraper. Takes website domains, careers page URLs, job board URLs or company names, so you do not need to know which system a company uses. Returns one row per job: company, title, department, location, country, remote flag, employment type, posting date, apply URL, salary when published, and the description on request. Use for: what is this company hiring for, open roles at a list of target accounts, hiring signals for sales prospecting, which of these companies are hiring engineers, new jobs since the last check, careers page jobs as JSON, monitoring competitors' job openings. Not for searching job boards such as LinkedIn or Indeed by keyword. Pay per job returned, no start fee."
+description: "Get the current open jobs for a list of companies, read live from each company's own hiring system (Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Recruitee, Personio), with the Apify Actor extractlyspace/company-jobs-scraper. Takes website domains, careers page URLs, job board URLs or company names, so you do not need to know which system a company uses. Returns one row per job: company, title, department, location, country, remote flag, employment type, posting date, apply URL, salary when published, and the description on request. Use for: what is this company hiring for, open roles at a list of target accounts, hiring signals for sales prospecting, which of these companies are hiring engineers, new jobs since the last check, careers page jobs as JSON, monitoring competitors' job openings. Not for searching job boards such as LinkedIn or Indeed by keyword. Pay per job returned, no start fee."
 author: extractlyspace
 author_url: https://apify.com/extractlyspace
 license: MIT
@@ -122,7 +122,7 @@ Rows with `recordType: "status"` carry `status`, `message` and `subject` (the co
 
 - A `not_found` row for a domain: the company's site does not link a supported job board. Send the job board URL itself, for example `https://boards.greenhouse.io/acme`.
 - A `not_found` row that lists several boards: a plain name matched more than one company. Send one of the listed URLs.
-- Workday is not found from a name. Send the Workday job board URL or the company's domain.
+- Workday career sites currently block automated requests with a bot check (since November 2026). A Workday board gets an `unsupported` row; the other companies are read as usual.
 - A `partial` row: a board stopped answering or ran out of time. The jobs read so far are in the dataset; run the same company again later.
 - The run fails only when nothing could be read at all. Retry once; if it fails again, report the run ID to the Actor's issue page on Apify.
 - More in [references/gotchas.md](references/gotchas.md).
