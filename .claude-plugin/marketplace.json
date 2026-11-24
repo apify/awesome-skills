@@ -298,6 +298,31 @@
       "category": "data-extraction"
     },
     {
+      "name": "apify-index-actor-development",
+      "source": "./skills/apify-index-actor-development",
+      "skills": "./",
+      "description": "Build a two-Actor \"scraper + index\" pair on Apify in TypeScript. Actor A is a scheduled scraper that accumulates records in a named dataset (idempotent via a seen-set, keeps partial records on failure, optional HTML-to-Markdown enrichment). Actor B is an index/search Actor that reads A's named dataset and exposes filters in two modes from one codebase - a one-shot run (input filters to default dataset) and a Standby HTTP API (query params to JSON) - with pay-per-event charging in both. Covers the platform traps that break this setup - empty Output tab, OpenAPI 3.1 nullable syntax rejected at build, and the 403 on cross-Actor named-dataset access under limited permissions. Use when the user asks to \"build an index Actor\", \"build a search API over my scraped dataset\", \"make a dual-mode / Standby + batch Actor\", \"expose a named dataset as an API\", \"scraper + search Actor pair\", or \"query another Actor's dataset\". Extends apify-actor-development.",
+      "keywords": [
+        "index-actor",
+        "search-api",
+        "standby",
+        "dual-mode",
+        "named-dataset",
+        "scheduled-scraper",
+        "seen-set",
+        "idempotent",
+        "pay-per-event",
+        "openapi",
+        "limited-permissions",
+        "cross-actor",
+        "typescript",
+        "express",
+        "turndown",
+        "actor-development"
+      ],
+      "category": "actor-development"
+    },
+    {
       "name": "apify-influencer-brand-collabs",
       "source": "./skills/apify-influencer-brand-collabs",
       "skills": "./",
