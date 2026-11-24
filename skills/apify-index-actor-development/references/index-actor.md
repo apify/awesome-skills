@@ -152,11 +152,13 @@ const PAGE_SIZE = 1000;
 export async function searchDataset(reader: DatasetReader, f: Filters): Promise<IndexRecord[]> {
     const out: IndexRecord[] = [];
     const seenIds = new Set<string>();
-    for (let offset = 0; out.length < f.limit; offset += PAGE_SIZE) {
-        // desc: newest first, so recent duplicates win
-        const { items } = await reader.getData({ offset, limit: PAGE_SIZE, desc: true });
-        if (items.length === 0) break;
-        for (const r of items) {
+    const { total } = await reader.getData({ offset: 0, limit: 1 });
+    // Walk pages from the end with ascending offsets: newest records first,
+    // and the loop always terminates at offset 0.
+    for (let end = total; end > 0 && out.length < f.limit; end -= PAGE_SIZE) {
+        const offset = Math.max(end - PAGE_SIZE, 0);
+        const { items } = await reader.getData({ offset, limit: end - offset });
+        for (const r of items.reverse()) {
             if (seenIds.has(r.id)) continue; // named dataset is append-only: dedupe by key
             seenIds.add(r.id);
             if (matches(r, f)) out.push(r);
@@ -169,6 +171,7 @@ export async function searchDataset(reader: DatasetReader, f: Filters): Promise<
 
 Notes:
 
+- **Don't page with `desc: true` + `offset`.** Local storage ignores `offset` when `desc` is set and returns the whole dataset on every call, so a "loop until an empty page" scan never ends and the request hangs whenever fewer records match than `limit`. Reading ascending pages from `total` backwards behaves the same locally and on the platform.
 - A dataset is append-only, so the same item can appear twice (e.g. after a `forceReprocess` backfill). Dedupe by a stable key, reading newest first.
 - For datasets up to a few hundred thousand items a paged scan per request is fine. Beyond that, in Standby, cache an in-memory index built at startup and refresh it on an interval (e.g. every 10 minutes) instead of scanning per request; in standard mode keep the scan.
 - Keep every filter in one `Filters` type, and mirror it in both `input_schema.json` and `openapi.json` (see [schemas.md](schemas.md)).
@@ -189,7 +192,8 @@ const DATASET_ID_ENV = 'SOURCE_DATASET_ID';      // plain env var, set in Consol
 const OWNER_TOKEN_ENV = 'SOURCE_OWNER_TOKEN';    // optional secret env var
 
 export interface DatasetReader {
-    getData(opts: { offset: number; limit: number; desc: boolean }): Promise<{ items: IndexRecord[] }>;
+    // Ascending pages only; `total` is the dataset's item count
+    getData(opts: { offset: number; limit: number }): Promise<{ items: IndexRecord[]; total: number }>;
 }
 
 export async function openSourceDatasetReader(): Promise<DatasetReader> {
@@ -202,8 +206,8 @@ export async function openSourceDatasetReader(): Promise<DatasetReader> {
         const dsc = client.dataset(datasetId);
         return {
             getData: async (opts) => {
-                const { items } = await dsc.listItems(opts);
-                return { items: items as unknown as IndexRecord[] };
+                const { items, total } = await dsc.listItems(opts);
+                return { items: items as unknown as IndexRecord[], total };
             },
         };
     }
@@ -215,15 +219,20 @@ export async function openSourceDatasetReader(): Promise<DatasetReader> {
         const dsc = client.dataset(info.id);
         return {
             getData: async (opts) => {
-                const { items } = await dsc.listItems(opts);
-                return { items: items as unknown as IndexRecord[] };
+                const { items, total } = await dsc.listItems(opts);
+                return { items: items as unknown as IndexRecord[], total };
             },
         };
     }
 
     // Local dev (storage/datasets/<name>/) or FULL_PERMISSIONS runs
     const ds = await Actor.openDataset<IndexRecord>(SOURCE_DATASET_NAME);
-    return { getData: (opts) => ds.getData(opts) };
+    return {
+        getData: async (opts) => {
+            const { items, total } = await ds.getData(opts);
+            return { items, total };
+        },
+    };
 }
 ```
 
@@ -252,7 +261,7 @@ export async function chargeResults(count: number): Promise<{ allowed: number }>
         }
         return { allowed: count };
     } catch (err) {
-        // Throws locally and when PPE pricing is not configured - don't crash
+        // Older SDKs and misconfigured events can throw - never crash the run over billing
         log.warning(`Actor.charge failed (safe to ignore locally): ${(err as Error).message}`);
         return { allowed: count };
     }
@@ -260,6 +269,7 @@ export async function chargeResults(count: number): Promise<{ allowed: number }>
 ```
 
 - Charge from **both** the standard and the Standby branch so pricing works in either mode.
+- Locally (and on the platform before PPE pricing is set up) `apify ^3.8` does not throw: it logs `Ignored attempt to charge for an event - the Actor does not use the pay-per-event pricing` and the charge is a no-op. Keep the try/catch anyway.
 - Charge only for records actually returned; never for an empty search.
 - The `result` event and its per-unit price are configured in **Apify Console → Actor → Publication → Monetization → Pay-per-event** after the first push - not in `actor.json`. The event name in code must match Console exactly.
 - Check the exact shape of the object `Actor.charge()` returns in your SDK version (`apify ^3.7`) and adjust the `chargedCount` read if needed; the stop-on-`eventChargeLimitReached` behaviour is what matters.

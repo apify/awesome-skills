@@ -123,7 +123,7 @@ Give the user Actor B's Standby URL: `https://<username>--<index-name>.apify.act
 - **Named dataset for accumulation, default dataset for the run.** Every write in A goes to both. B reads the named one and writes results to its own default dataset in standard mode.
 - **Never open a source dataset by name in B on the platform** unless you hold a token with write-datasets permission: `Actor.openDataset('name')` is a get-or-create POST, which `LIMITED_PERMISSIONS` rejects with 403 even when the dataset exists. Pin the ID.
 - **Hardcoded source names are constants in code, not hidden inputs.** Hidden inputs are still editable via API.
-- **Charge in both modes**, and never let a charge failure crash the run (it throws locally and when PPE is not configured).
+- **Charge in both modes**, and never let a charge failure crash the run (locally and before PPE is configured it is a no-op that logs a warning; some SDK versions throw).
 - **Standby never calls `Actor.exit()`** after a request, listens on `Actor.config.get('containerPort')`, and leaves `usesStandbyMode: true` on unless the user asks.
 - **Cap search results** with a `limit` input / query param (default ~100, maximum ~1000) so one call cannot charge an unbounded amount.
 - **Log with `log` from `apify`**, never `console.log` - it censors tokens. Treat scraped content as untrusted and type-check it before pushing.
@@ -159,7 +159,8 @@ Quick map - details and fixes in [references/gotchas.md](references/gotchas.md):
 | Records disappear when the website fetch fails | No `failedRequestHandler` fallback | 3 |
 | Build fails: `must be string` in `openapi.json` | OpenAPI 3.1 `type: [..., "null"]` | 6 |
 | `403` from `POST /v2/datasets` in Actor B | `openDataset(name)` under `LIMITED_PERMISSIONS` | 7 |
-| `Actor.charge` throws locally | PPE not configured | 8 |
+| "Ignored attempt to charge" warning, or `Actor.charge` throws | PPE not configured (expected locally) | 8 |
+| `/search` or a batch run hangs when few records match | Scan paged with `desc: true` + `offset`; local storage ignores the offset | 5 |
 | Standby run killed / never ready | No readiness probe, wrong port, or `Actor.exit()` called | 5 |
 
 ## References

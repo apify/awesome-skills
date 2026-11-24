@@ -55,7 +55,7 @@ curl -i "http://localhost:4321/search?minAmount=abc"                            
 
 On Windows PowerShell set the variables with `$env:APIFY_META_ORIGIN='STANDBY'` etc. before `npx tsx src/main.ts`.
 
-Expect `Actor.charge failed (safe to ignore locally)` warnings - PPE is not configured locally (Pattern 8).
+Expect `Ignored attempt to charge for an event - the Actor does not use the pay-per-event pricing` warnings - PPE is not configured locally (Pattern 8).
 
 ### Type check
 
